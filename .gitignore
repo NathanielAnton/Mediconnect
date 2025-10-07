@@ -1,0 +1,14 @@
+# === Laravel ===
+/backend/vendor/
+/backend/storage/*.key
+/backend/.env
+
+# === React ===
+/frontend/node_modules/
+/frontend/dist/
+
+# === OS / IDE ===
+.DS_Store
+Thumbs.db
+*.log
+.env

@@ -6,80 +6,86 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    /**
-     * Enregistrement utilisateur
-     */
     public function register(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-            'role' => 'required|string|in:client,medecin,admin,super-admin',
+            'password' => 'required|string|min:8',
+            'role' => 'required|string',
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role,
         ]);
 
-        $user->assignRole($request->role);
+        Auth::login($user);
 
         return response()->json([
-            'message' => 'Utilisateur créé avec succès',
-            'user' => $user
-        ], 201);
+            'user' => $user,
+            'token' => 'session-based', 
+            'roles' => [$user->role]
+        ]);
     }
 
-    /**
-     * Connexion utilisateur
-     */
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => 'required|email',
-            'password' => 'required'
+            'password' => 'required',
         ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Identifiants incorrects'], 401);
+        if (Auth::attempt($request->only('email', 'password'))) {
+            $request->session()->regenerate();
+            
+            return response()->json([
+                'user' => Auth::user(),
+                'token' => 'session-based', 
+                'roles' => [Auth::user()->role]
+            ]);
         }
 
-        $user = Auth::user();
-
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'message' => 'Connexion réussie',
-            'user' => $user,
-            'roles' => $user->getRoleNames(),
-            'token' => $token
+        throw ValidationException::withMessages([
+            'email' => ['The provided credentials are incorrect.'],
         ]);
     }
 
-    /**
-     * Déconnexion utilisateur
-     */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json(['message' => 'Déconnexion réussie']);
+        try {
+            Auth::logout();
+            
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            
+            return response()->json(['message' => 'Déconnexion réussie']);
+            
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Erreur lors de la déconnexion'], 500);
+        }
     }
 
-    /**
-     * Récupération du profil utilisateur
-     */
     public function user(Request $request)
     {
-        return response()->json([
-            'user' => $request->user(),
-            'roles' => $request->user()->getRoleNames()
-        ]);
+        try {
+            if (Auth::check()) {
+                return response()->json([
+                    'user' => Auth::user(),
+                    'roles' => [Auth::user()->role]
+                ]);
+            }
+            
+            return response()->json(['message' => 'Non authentifié'], 401);
+            
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Erreur serveur'], 500);
+        }
     }
 }

@@ -1,0 +1,326 @@
+/* Container principal */
+.container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #16a34a;
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.navbarInner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbarContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoIcon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.logoTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Navigation links */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.navLink:hover {
+  color: #86efac;
+}
+
+/* User section */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userGreeting {
+  color: #dcfce7;
+}
+
+.logoutButton {
+  background-color: #15803d;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.logoutButton:hover {
+  background-color: #166534;
+}
+
+.logoutIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Main content */
+.main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.dashboard {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.dashboardTitle {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+/* Stats grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+}
+
+.cardGreen {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.cardBlue {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.cardPurple {
+  background-color: #faf5ff;
+  border-color: #e9d5ff;
+}
+
+.cardOrange {
+  background-color: #fff7ed;
+  border-color: #fed7aa;
+}
+
+.statCardTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.titleGreen {
+  color: #166534;
+}
+
+.titleBlue {
+  color: #1e40af;
+}
+
+.titlePurple {
+  color: #6b21a8;
+}
+
+.titleOrange {
+  color: #92400e;
+}
+
+.statValue {
+  font-size: 1.875rem;
+  font-weight: bold;
+}
+
+.valueGreen {
+  color: #16a34a;
+}
+
+.valueBlue {
+  color: #1d4ed8;
+}
+
+.valuePurple {
+  color: #a855f7;
+}
+
+.valueOrange {
+  color: #ea580c;
+}
+
+/* Content grid */
+.contentGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.section {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.sectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* Appointments list */
+.appointmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.appointmentItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+}
+
+.appointmentTime {
+  font-size: 0.875rem;
+}
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+}
+
+.badgeConfirmed {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.badgePending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+/* Quick actions */
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.actionButton {
+  border: none;
+  color: white;
+  padding: 0.75rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.actionButtonGreen {
+  background-color: #22c55e;
+}
+
+.actionButtonGreen:hover {
+  background-color: #16a34a;
+}
+
+.actionButtonBlue {
+  background-color: #3b82f6;
+}
+
+.actionButtonBlue:hover {
+  background-color: #2563eb;
+}
+
+.actionButtonPurple {
+  background-color: #a855f7;
+}
+
+.actionButtonPurple:hover {
+  background-color: #9333ea;
+}
+
+.actionButtonOrange {
+  background-color: #f97316;
+}
+
+.actionButtonOrange:hover {
+  background-color: #ea580c;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .contentGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .navLinks {
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .dashboardTitle {
+    font-size: 1.5rem;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .actionsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .appointmentItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

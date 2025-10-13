@@ -1,53 +1,45 @@
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import DashboardUser from './user/dashboard/DashboardUser';
+import DashboardMedecin from './medecin/dashboard/DashboardMedecin';
+import DashboardAdmin from './admin/dashboard/DashboardAdmin';
 
 const Dashboard = () => {
-  const { user, loading, logout } = useContext(AuthContext);
+  const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  // Rediriger si pas connecté ET chargement terminé
+  // Rediriger si pas connecté
   useEffect(() => {
     if (!loading && !user) {
       navigate('/login');
     }
   }, [user, loading, navigate]);
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/login');
-    } catch (error) {
-      console.error('Logout error:', error);
+  // Loader
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Chargement...</div>;
+  }
+
+  // Si pas d'utilisateur
+  if (!user) {
+    return null;
+  }
+
+  // Afficher le dashboard selon le rôle
+  const renderDashboardByRole = () => {
+    switch (user.role) {
+      case 'admin':
+        return <DashboardAdmin />;
+      case 'medecin':
+        return <DashboardMedecin />;
+      case 'client':
+      default:
+        return <DashboardUser />;
     }
   };
 
-  // Afficher un loader pendant le chargement
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg">Chargement...</div>
-      </div>
-    );
-  }
-
-  // Afficher le dashboard si connecté
-  if (!user) {
-    return null; // Ou redirection via useEffect
-  }
-
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      <p>Bienvenue, {user.name}!</p>
-      <button 
-        onClick={handleLogout}
-        className="bg-red-500 text-white px-4 py-2 rounded"
-      >
-        Déconnexion
-      </button>
-    </div>
-  );
+  return renderDashboardByRole();
 };
 
 export default Dashboard;

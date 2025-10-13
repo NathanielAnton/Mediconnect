@@ -1,0 +1,246 @@
+/* Container principal */
+.container {
+  min-height: 100vh;
+  background-color: #f9fafb;
+}
+
+/* Navbar */
+.navbar {
+  background-color: #2563eb;
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.navbarInner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbarContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Navigation links */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.navLink:hover {
+  color: #bfdbfe;
+}
+
+/* User section */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userGreeting {
+  color: #dbeafe;
+}
+
+.logoutButton {
+  background-color: #1e40af;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.logoutButton:hover {
+  background-color: #1e3a8a;
+}
+
+.logoutIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Main content */
+.main {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.dashboard {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+.dashboardTitle {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+/* Cards grid */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.card {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+}
+
+.cardBlue {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.cardGreen {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.cardPurple {
+  background-color: #faf5ff;
+  border-color: #e9d5ff;
+}
+
+.cardTitle {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.cardTitleBlue {
+  color: #1e40af;
+}
+
+.cardTitleGreen {
+  color: #166534;
+}
+
+.cardTitlePurple {
+  color: #6b21a8;
+}
+
+.cardText {
+  font-size: 0.875rem;
+}
+
+.cardTextBlue {
+  color: #1d4ed8;
+}
+
+.cardTextGreen {
+  color: #16a34a;
+}
+
+.cardTextPurple {
+  color: #a855f7;
+}
+
+/* Quick actions section */
+.actionsSection {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+}
+
+.actionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+.actionsContainer {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  font-size: 1rem;
+}
+
+.actionButtonBlue {
+  background-color: #3b82f6;
+}
+
+.actionButtonBlue:hover {
+  background-color: #2563eb;
+}
+
+.actionButtonGreen {
+  background-color: #22c55e;
+}
+
+.actionButtonGreen:hover {
+  background-color: #16a34a;
+}
+
+.actionButtonPurple {
+  background-color: #a855f7;
+}
+
+.actionButtonPurple:hover {
+  background-color: #9333ea;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navLinks {
+    gap: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .dashboardTitle {
+    font-size: 1.5rem;
+  }
+
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .actionsContainer {
+    flex-direction: column;
+  }
+
+  .actionButton {
+    width: 100%;
+  }
+}

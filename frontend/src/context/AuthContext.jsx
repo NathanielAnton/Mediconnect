@@ -5,97 +5,44 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [roles, setRoles] = useState([]);
-  const [token, setToken] = useState(localStorage.getItem("token") || null);
-  const [loading, setLoading] = useState(true); 
+  const [loading, setLoading] = useState(true);
 
-  // Initialiser CSRF et récupérer l'utilisateur au chargement
   useEffect(() => {
-    const initAuth = async () => {
-      try {
-        // 1. Initialiser CSRF
-        await fetch('http://localhost:8000/sanctum/csrf-cookie', {
-          method: 'GET',
-          credentials: 'include'
-        });
-
-        // 2. Si un token existe, récupérer les infos utilisateur
-        const savedToken = localStorage.getItem("token");
-        if (savedToken) {
-          console.log('🔄 Token found, fetching user data...');
-          try {
-            const userResponse = await api.get("/user");
-            setUser(userResponse.data.user);
-            setRoles(userResponse.data.roles);
-            setToken(savedToken);
-            console.log('✅ User data loaded:', userResponse.data.user);
-          } catch (error) {
-            console.error('❌ Failed to fetch user data:', error);
-            logout();
-          }
-        }
-      } catch (error) {
-        console.error('❌ Auth init failed:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initAuth();
+    checkAuth();
   }, []);
 
-  const login = async (email, password) => {
-    try {      
-      const res = await api.post("/login", { email, password });
-      
-      setToken(res.data.token);
-      localStorage.setItem("token", res.data.token);
-      setUser(res.data.user);
-      setRoles(res.data.roles);
-      
-      return res;
+  const checkAuth = async () => {
+  try {
+      const response = await api.get("/user");
+      console.log("Réponse API /user:", response.data); // AJOUTEZ CETTE LIGNE
+      setUser(response.data.user);
     } catch (error) {
-      throw error;
+      console.log("Erreur checkAuth:", error); // AJOUTEZ CETTE LIGNE
+      setUser(null);
+    } finally {
+      setLoading(false);
     }
+};
+
+  const login = async (email, password) => {
+    const response = await api.post("/login", { email, password });
+    setUser(response.data.user);
+    return response.data;
   };
 
   const register = async (name, email, password, role) => {
-    try {
-      const res = await api.post("/register", { name, email, password, role });
-      return res;
-    } catch (error) {
-      throw error;
-    }
+    const response = await api.post("/register", { name, email, password, role });
+    setUser(response.data.user);
+    return response.data;
   };
 
   const logout = async () => {
-    try {
-      if (token) {
-        console.log('🚪 Logging out...');
-        const res = await api.post("/logout");
-        return res;
-      }
-    } catch (error) {
-      console.error('❌ Logout API error:', error);
-    } finally {
-      localStorage.removeItem("token");
-      setUser(null);
-      setRoles([]);
-      setToken(null);
-      console.log('✅ Local state cleared');
-    }
+    await api.post("/logout");
+    setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      roles, 
-      token, 
-      login, 
-      register, 
-      logout,
-      loading 
-    }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

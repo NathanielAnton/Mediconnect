@@ -47,4 +47,9 @@ class User extends Authenticatable
     {
         return $this->roles->first()->name ?? 'client';
     }
+
+    public function medecinProfile()
+    {
+        return $this->hasOne(MedecinProfile::class);
+    }
 }

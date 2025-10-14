@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MedecinProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,4 +22,6 @@ Route::post('/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/medecin/profile', [MedecinProfileController::class, 'show']);
+    Route::put('/medecin/profile', [MedecinProfileController::class, 'update']);
 });

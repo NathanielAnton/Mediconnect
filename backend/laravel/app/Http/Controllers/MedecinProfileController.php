@@ -1,0 +1,65 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\MedecinProfile;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class MedecinProfileController extends Controller
+{
+    // Récupérer le profil du médecin connecté
+    public function show()
+    {
+        $user = Auth::user();
+
+        if (!$user->isMedecin()) {
+            return response()->json(['message' => 'Accès non autorisé'], 403);
+        }
+
+        $profile = $user->medecinProfile;
+
+        if (!$profile) {
+            // Si le profil n'existe pas encore, on peut en créer un vide
+            $profile = MedecinProfile::create([
+                'user_id' => $user->id,
+                'specialite' => '',
+                'description' => '',
+                'adresse' => '',
+                'ville' => '',
+                'telephone' => '',
+                'horaires' => [],
+            ]);
+        }
+
+        return response()->json($profile);
+    }
+
+    // Mettre à jour le profil
+    public function update(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user->isMedecin()) {
+            return response()->json(['message' => 'Accès non autorisé'], 403);
+        }
+
+        $validated = $request->validate([
+            'specialite' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'adresse' => 'nullable|string|max:255',
+            'ville' => 'nullable|string|max:255',
+            'telephone' => 'nullable|string|max:20',
+            'horaires' => 'nullable|array',
+        ]);
+
+        $profile = $user->medecinProfile ?? new MedecinProfile(['user_id' => $user->id]);
+        $profile->fill($validated);
+        $profile->save();
+
+        return response()->json([
+            'message' => 'Profil mis à jour avec succès',
+            'profile' => $profile,
+        ]);
+    }
+}

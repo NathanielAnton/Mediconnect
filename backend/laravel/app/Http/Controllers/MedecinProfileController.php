@@ -20,10 +20,10 @@ class MedecinProfileController extends Controller
         $profile = $user->medecinProfile;
 
         if (!$profile) {
-            // Si le profil n'existe pas encore, on peut en créer un vide
+            // Si le profil n'existe pas encore, on en créé un vide
             $profile = MedecinProfile::create([
                 'user_id' => $user->id,
-                'specialite' => '',
+                'specialite_id' => null,
                 'description' => '',
                 'adresse' => '',
                 'ville' => '',
@@ -31,6 +31,9 @@ class MedecinProfileController extends Controller
                 'horaires' => [],
             ]);
         }
+
+        // Charger la relation spécialité pour inclure les données dans la réponse
+        $profile->load('specialite');
 
         return response()->json($profile);
     }
@@ -45,7 +48,7 @@ class MedecinProfileController extends Controller
         }
 
         $validated = $request->validate([
-            'specialite' => 'nullable|string|max:255',
+            'specialite_id' => 'nullable|int',
             'description' => 'nullable|string',
             'adresse' => 'nullable|string|max:255',
             'ville' => 'nullable|string|max:255',

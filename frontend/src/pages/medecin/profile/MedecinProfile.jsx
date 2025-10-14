@@ -6,29 +6,85 @@ import styles from './MedecinProfile.module.css';
 
 export default function MedecinProfile() {
   const { user } = useContext(AuthContext);
-  const [profile, setProfile] = useState(null);
+  const [profile, setProfile] = useState({
+    specialite_id: '',
+    telephone: '',
+    description: '',
+    adresse: '',
+    ville: '',
+  });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [specialites, setSpecialites] = useState([]);
+  const [filteredSpecialites, setFilteredSpecialites] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  // Charger le profil au montage
+  // Charger le profil et les spécialités au montage
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
+        // Charger le profil médecin
         const res = await api.get("/medecin/profile");
-        setProfile(res.data);
+        if (res.data) {
+          setProfile(res.data);
+          
+          // Mettre à jour le searchTerm avec le nom de la spécialité
+            if (res.data.specialite_nom) {
+            setSearchTerm(res.data.specialite_nom);
+            }
+        }
+        
+        // Charger les spécialités
+        const specialitesRes = await api.get("/specialites");
+        setSpecialites(specialitesRes.data);
+        
       } catch (err) {
-        console.error("Erreur lors du chargement du profil:", err);
+        console.error("Erreur lors du chargement:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchProfile();
+    
+    fetchData();
   }, []);
+
+  // Filtrer les spécialités selon la recherche
+  useEffect(() => {
+    if (searchTerm.trim() === '') {
+      setFilteredSpecialites([]);
+    } else {
+      const filtered = specialites.filter(specialite =>
+        specialite.nom.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredSpecialites(filtered);
+    }
+  }, [searchTerm, specialites]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
+    setProfile(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSpecialiteSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    setShowSuggestions(true);
+    
+    // Si l'utilisateur efface la recherche, effacer aussi l'ID
+    if (value.trim() === '') {
+      setProfile(prev => ({ ...prev, specialite_id: '' }));
+    }
+  };
+
+  const selectSpecialite = (specialite) => {
+    setProfile(prev => ({
+      ...prev,
+      specialite_id: specialite.id
+    }));
+    setSearchTerm(specialite.nom);
+    setShowSuggestions(false);
   };
 
   const handleSubmit = async (e) => {
@@ -37,8 +93,7 @@ export default function MedecinProfile() {
       const res = await api.put("/medecin/profile", profile);
       setMessage("✅ Profil mis à jour avec succès !");
       setMessageType("success");
-      // Masquer le message après 5 secondes
-      setTimeout(() => setMessage(""), 5000);
+      setTimeout(() => setMessage(""), 2000);
     } catch (err) {
       console.error("Erreur lors de la mise à jour:", err);
       setMessage("❌ Erreur de mise à jour");
@@ -46,6 +101,18 @@ export default function MedecinProfile() {
       setTimeout(() => setMessage(""), 5000);
     }
   };
+
+  // Fermer les suggestions quand on clique ailleurs
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowSuggestions(false);
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -61,23 +128,8 @@ export default function MedecinProfile() {
     );
   }
 
-  if (!profile) {
-    return (
-      <div className={styles.container}>
-        <NavbarMedecin />
-        <div className={styles.mainContent}>
-          <div className={styles.errorContainer}>
-            <h3 className={styles.errorTitle}>Profil introuvable</h3>
-            <p className={styles.errorMessage}>Nous n'avons pas pu charger votre profil. Veuillez réessayer.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.container}>
-      {/* Utilisation du composant Navbar */}
       <NavbarMedecin />
       
       <div className={styles.mainContent}>
@@ -107,20 +159,43 @@ export default function MedecinProfile() {
 
           <form onSubmit={handleSubmit}>
             <div className={styles.formGrid}>
-              {/* Specialité */}
+              {/* Autocomplete Spécialité */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Spécialité</label>
+                <label className={styles.formLabel}>Spécialité *</label>
+                <div className={styles.autocompleteContainer}>
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleSpecialiteSearch}
+                    onFocus={() => setShowSuggestions(true)}
+                    placeholder="Renseigner une spécialité..."
+                    className={styles.formInput}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                  
+                  {showSuggestions && filteredSpecialites.length > 0 && (
+                    <div className={styles.suggestionsList}>
+                      {filteredSpecialites.map(specialite => (
+                        <div
+                          key={specialite.id}
+                          className={styles.suggestionItem}
+                          onClick={() => selectSpecialite(specialite)}
+                        >
+                          {specialite.nom}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <input
-                  type="text"
-                  name="specialite"
-                  value={profile.specialite || ""}
+                  type="hidden"
+                  name="specialite_id"
+                  value={profile.specialite_id}
                   onChange={handleChange}
-                  placeholder="Ex: Cardiologue, Dermatologue..."
-                  className={styles.formInput}
                 />
               </div>
 
-              {/* Telephone */}
+              {/* Téléphone */}
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Téléphone</label>
                 <input
@@ -130,18 +205,6 @@ export default function MedecinProfile() {
                   onChange={handleChange}
                   placeholder="Ex: +33 6 12 34 56 78"
                   className={styles.formInput}
-                />
-              </div>
-
-              {/* Description */}
-              <div className={`${styles.formGroup} ${styles.formGridFull}`}>
-                <label className={styles.formLabel}>Description Professionnelle</label>
-                <textarea
-                  name="description"
-                  value={profile.description || ""}
-                  onChange={handleChange}
-                  placeholder="Présentez votre expérience et vos compétences..."
-                  className={styles.formTextarea}
                 />
               </div>
 
@@ -168,6 +231,19 @@ export default function MedecinProfile() {
                   onChange={handleChange}
                   placeholder="Ex: Paris"
                   className={styles.formInput}
+                />
+              </div>
+
+              {/* Description */}
+              <div className={`${styles.formGroup} ${styles.formGridFull}`}>
+                <label className={styles.formLabel}>Description Professionnelle</label>
+                <textarea
+                  name="description"
+                  value={profile.description || ""}
+                  onChange={handleChange}
+                  placeholder="Présentez votre expérience et vos compétences..."
+                  className={styles.formTextarea}
+                  rows="4"
                 />
               </div>
             </div>

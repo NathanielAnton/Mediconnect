@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedecinProfileController;
+use App\Http\Controllers\SpecialiteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,4 +25,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);
     Route::get('/medecin/profile', [MedecinProfileController::class, 'show']);
     Route::put('/medecin/profile', [MedecinProfileController::class, 'update']);
+    Route::get('/specialites', [SpecialiteController::class, 'index']);
 });

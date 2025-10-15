@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedecinProfileController;
 use App\Http\Controllers\SpecialiteController;
+use App\Http\Controllers\MedecinPlanningController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,4 +27,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/medecin/profile', [MedecinProfileController::class, 'show']);
     Route::put('/medecin/profile', [MedecinProfileController::class, 'update']);
     Route::get('/specialites', [SpecialiteController::class, 'index']);
+    Route::get('/medecin/planning', [MedecinPlanningController::class, 'getPlanning']);
+    Route::post('/medecin/horaires', [MedecinPlanningController::class, 'updateHoraire']);
+    Route::post('/medecin/indisponibilites', [MedecinPlanningController::class, 'addIndisponibilite']);
+    Route::delete('/medecin/indisponibilites/{id}', [MedecinPlanningController::class, 'deleteIndisponibilite']);
 });

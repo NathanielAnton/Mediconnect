@@ -21,16 +21,17 @@ const NavbarMedecin = () => {
       <div className={styles.navbarInner}>
         <div className={styles.navbarContent}>
           {/* Logo et titre */}
+          <a href="/dashboard">
           <div className={styles.logo}>
             <svg className={styles.logoIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
             <h1 className={styles.logoTitle}>Espace Médecin</h1>
           </div>
-
+          </a>
           {/* Navigation links */}
           <div className={styles.navLinks}>
-            <a href="#planning" className={styles.navLink}>
+            <a href="/medecin/planning" className={styles.navLink}>
               Planning
             </a>
             <a href="#patients" className={styles.navLink}>
@@ -39,7 +40,7 @@ const NavbarMedecin = () => {
             <a href="#consultations" className={styles.navLink}>
               Consultations
             </a>
-            <a href="/profile" className={styles.navLink}>
+            <a href="/medecin/profile" className={styles.navLink}>
               Mon Profil
             </a>
           </div>

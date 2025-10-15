@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class HoraireMedecin extends Model
+{
+    use HasFactory;
+
+    protected $table = 'horaires_medecins';
+
+    protected $fillable = [
+        'medecin_id',
+        'jour',
+        'heure_debut',
+        'heure_fin',
+        'actif'
+    ];
+
+    protected $casts = [
+        'actif' => 'boolean',
+        'heure_debut' => 'datetime:H:i',
+        'heure_fin' => 'datetime:H:i',
+    ];
+
+    public function medecin()
+    {
+        return $this->belongsTo(MedecinProfile::class, 'medecin_id');
+    }
+}

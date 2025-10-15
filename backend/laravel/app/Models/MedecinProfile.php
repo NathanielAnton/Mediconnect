@@ -16,11 +16,6 @@ class MedecinProfile extends Model
         'adresse',
         'ville',
         'telephone',
-        'horaires',
-    ];
-
-    protected $casts = [
-        'horaires' => 'array',
     ];
 
     // Relation avec l'utilisateur
@@ -33,6 +28,22 @@ class MedecinProfile extends Model
     public function specialite()
     {
         return $this->belongsTo(Specialite::class);
+    }
+
+    // Relations pour le planning et les rendez-vous
+    public function horaires()
+    {
+        return $this->hasMany(HoraireMedecin::class, 'medecin_id');
+    }
+
+    public function indisponibilites()
+    {
+        return $this->hasMany(IndisponibiliteMedecin::class, 'medecin_id');
+    }
+
+    public function rendezVous()
+    {
+        return $this->hasMany(RendezVous::class, 'medecin_id');
     }
 
     // Helper pour obtenir le nom de la spécialité

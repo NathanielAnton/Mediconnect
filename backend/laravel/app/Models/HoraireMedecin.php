@@ -14,6 +14,7 @@ class HoraireMedecin extends Model
     protected $fillable = [
         'medecin_id',
         'jour',
+        'creneau',
         'heure_debut',
         'heure_fin',
         'actif'
@@ -28,5 +29,15 @@ class HoraireMedecin extends Model
     public function medecin()
     {
         return $this->belongsTo(MedecinProfile::class, 'medecin_id');
+    }
+
+    public function getCreneauLibelleAttribute()
+    {
+        return $this->creneau === 'matin' ? 'Matin' : 'Après-midi';
+    }
+
+    public function getHeuresFormateesAttribute()
+    {
+        return $this->heure_debut->format('H:i') . ' - ' . $this->heure_fin->format('H:i');
     }
 }

@@ -31,6 +31,49 @@ class MedecinPlanningController extends Controller
     }
 
     /**
+     * Set les horaires réguliers
+     */
+    public static function setHorairesDefaut($medecinId)
+    {
+        // Vérifier si des horaires existent déjà
+        $existingHoraires = HoraireMedecin::where('medecin_id', $medecinId)->count();
+        if ($existingHoraires > 0) {
+            return null;
+        }
+
+        // Liste des jours ouvrés
+        $jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+
+        $horairesCrees = [];
+
+        foreach ($jours as $jour) {
+            // Créneau du matin
+            $horaireMatin = HoraireMedecin::create([
+                'medecin_id' => $medecinId,
+                'jour' => $jour,
+                'creneau' => 'matin',
+                'heure_debut' => '08:30',
+                'heure_fin' => '12:30',
+                'actif' => true,
+            ]);
+            $horairesCrees[] = $horaireMatin;
+
+            // Créneau de l'après-midi
+            $horaireApresMidi = HoraireMedecin::create([
+                'medecin_id' => $medecinId,
+                'jour' => $jour,
+                'creneau' => 'apres_midi',
+                'heure_debut' => '13:30',
+                'heure_fin' => '17:00',
+                'actif' => true,
+            ]);
+            $horairesCrees[] = $horaireApresMidi;
+        }
+
+        return $horairesCrees;
+    }
+
+    /**
      * 🕓 Mettre à jour ou créer les horaires réguliers
      */
     public function updateHoraire(Request $request)

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MedecinProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\MedecinPlanningController;
 
 class MedecinProfileController extends Controller
 {
@@ -59,6 +60,8 @@ class MedecinProfileController extends Controller
         $profile = $user->medecinProfile ?? new MedecinProfile(['user_id' => $user->id]);
         $profile->fill($validated);
         $profile->save();
+
+        MedecinPlanningController::setHorairesDefaut($profile->id);
 
         return response()->json([
             'message' => 'Profil mis à jour avec succès',

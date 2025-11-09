@@ -28,7 +28,7 @@ class SpecialiteSeeder extends Seeder
         ];
 
         foreach ($specialites as $specialite) {
-            Specialite::create($specialite);
+            Specialite::firstOrCreate($specialite);
         }
     }
 }

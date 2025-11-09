@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MedecinProfileController;
 use App\Http\Controllers\SpecialiteController;
 use App\Http\Controllers\MedecinPlanningController;
+use App\Http\Controllers\SearchMedecinController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,6 +22,14 @@ use App\Http\Controllers\MedecinPlanningController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
+// Route de test
+Route::get('/test', function() {
+    return response()->json(['message' => 'API fonctionne !']);
+});
+
+// Route publique pour la recherche de médecins
+Route::get('/search/medecins', [SearchMedecinController::class, 'search']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);

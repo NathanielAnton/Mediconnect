@@ -8,12 +8,15 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import MedecinProfile from "./pages/medecin/profile/MedecinProfile";
 import PlanningMedecin from "./pages/medecin/planning/PlanningMedecin";
+import SearchMedecin from "./pages/SearchMedecin";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<SearchMedecin />} />
+          <Route path="/home" element={<SearchMedecin />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboard" element={<Dashboard />} />

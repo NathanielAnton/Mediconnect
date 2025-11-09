@@ -10,65 +10,49 @@ class SearchMedecinController extends Controller
 {
     public function search(Request $request)
     {
-
-
-        $medecins = MedecinProfile::with('user', 'specialite')->get();
-        $medecins = $medecins->map(function ($profile) {
-            return [
-                'id' => $profile->user->id,
-                'name' => $profile->user->name,
-                'email' => $profile->user->email,
-                'specialite' => $profile->specialite ? $profile->specialite->nom : 'Non renseignée',
-                'ville' => $profile->ville ?? 'Non renseignée',
-                'adresse' => $profile->adresse ?? '',
-                'telephone' => $profile->telephone ?? '',
-                'description' => $profile->description ?? '',
-            ];
-        });
-
-
-        return response()->json($medecins); 
-
-
-
-
-
         try {
             $query = $request->input('query', '');
             
+            // Si pas de recherche, retourner tous les médecins
             if (empty($query)) {
-                return response()->json([]);
+                $medecins = MedecinProfile::with('user', 'specialite')
+                    ->limit(20)
+                    ->get();
+            } else {
+                // Recherche avec filtres
+                $medecins = MedecinProfile::with('user', 'specialite')
+                    ->where(function($q) use ($query) {
+                        // Recherche par ville
+                        $q->where('ville', 'LIKE', "%{$query}%")
+                          // Ou par nom d'utilisateur
+                          ->orWhereHas('user', function($userQuery) use ($query) {
+                              $userQuery->where('name', 'LIKE', "%{$query}%");
+                          })
+                          // Ou par spécialité
+                          ->orWhereHas('specialite', function($specQuery) use ($query) {
+                              $specQuery->where('nom', 'LIKE', "%{$query}%");
+                          });
+                    })
+                    ->limit(20)
+                    ->get();
             }
 
-            $medecins = User::whereHas('roles', function($q) {
-                    $q->where('name', 'medecin');
-                })
-                ->with(['medecinProfile.specialite'])
-                ->where(function($q) use ($query) {
-                    // Recherche par nom d'utilisateur
-                    $q->where('name', 'LIKE', "%{$query}%")
-                      // Ou par ville du profil
-                      ->orWhereHas('medecinProfile', function($profileQuery) use ($query) {
-                          $profileQuery->where('ville', 'LIKE', "%{$query}%");
-                      });
-                })
-                ->limit(20)
-                ->get()
-                ->map(function($user) {
-                    $profile = $user->medecinProfile;
-                    return [
-                        'id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'specialite' => $profile?->specialite?->nom ?? 'Non renseignée',
-                        'ville' => $profile?->ville ?? 'Non renseignée',
-                        'adresse' => $profile?->adresse ?? '',
-                        'telephone' => $profile?->telephone ?? '',
-                        'description' => $profile?->description ?? '',
-                    ];
-                });
+            // Formatter les résultats
+            $medecins = $medecins->map(function ($profile) {
+                return [
+                    'id' => $profile->user->id,
+                    'name' => $profile->user->name,
+                    'email' => $profile->user->email,
+                    'specialite' => $profile->specialite->nom ?? 'Non renseignée',
+                    'ville' => $profile->ville ?? 'Non renseignée',
+                    'adresse' => $profile->adresse ?? '',
+                    'telephone' => $profile->telephone ?? '',
+                    'description' => $profile->description ?? '',
+                ];
+            });
 
             return response()->json($medecins);
+
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erreur lors de la recherche',

@@ -6,7 +6,7 @@ import api from '../api/axios';
 import styles from '../SearchMedecin.module.css';
 
 export default function SearchMedecin() {
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout, loading: authLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [medecins, setMedecins] = useState([]);
@@ -68,7 +68,11 @@ export default function SearchMedecin() {
           </div>
           
           <div className={styles.headerActions}>
-            {user ? (
+            {authLoading ? (
+              <div className={styles.headerLoading}>
+                <div className={styles.headerSpinner}></div>
+              </div>
+            ) : user ? (
               <>
                 <span className={styles.userGreeting}>Bonjour, {user.name}</span>
                 <Link to="/dashboard" className={styles.dashboardButton}>

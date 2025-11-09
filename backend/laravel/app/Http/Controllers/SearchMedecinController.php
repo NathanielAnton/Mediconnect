@@ -3,23 +3,35 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\MedecinProfile;
 use Illuminate\Http\Request;
 
 class SearchMedecinController extends Controller
 {
     public function search(Request $request)
     {
-        return [
-            'id' => 1,
-            'name' => 'Dr. John Doe',
-            'email' => 'john.doe@example.com',
-            'specialite' => 'Cardiologie',
-            'ville' => 'Paris',
-            'adresse' => '123 Rue de la Santé',
-            'telephone' => '0123456789',
-            'description' => 'Médecin spécialisé en cardiologie avec 10 ans d\'expérience.'
 
-        ];
+
+        $medecins = MedecinProfile::with('user', 'specialite')->get();
+        $medecins = $medecins->map(function ($profile) {
+            return [
+                'id' => $profile->user->id,
+                'name' => $profile->user->name,
+                'email' => $profile->user->email,
+                'specialite' => $profile->specialite ? $profile->specialite->nom : 'Non renseignée',
+                'ville' => $profile->ville ?? 'Non renseignée',
+                'adresse' => $profile->adresse ?? '',
+                'telephone' => $profile->telephone ?? '',
+                'description' => $profile->description ?? '',
+            ];
+        });
+
+
+        return response()->json($medecins); 
+
+
+
+
 
         try {
             $query = $request->input('query', '');

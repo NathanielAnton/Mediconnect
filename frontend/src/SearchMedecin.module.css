@@ -58,6 +58,59 @@
   align-items: center;
 }
 
+.userGreeting {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.dashboardButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dashboardButton:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+}
+
+.dashboardIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.logoutButton:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+.logoutIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
 .loginButton {
   padding: 0.5rem 1.5rem;
   color: #3b82f6;
@@ -412,8 +465,17 @@
     gap: 0.5rem;
   }
 
+  .userGreeting {
+    display: none;
+  }
+
+  .dashboardButton span {
+    display: none;
+  }
+
   .loginButton,
-  .registerButton {
+  .registerButton,
+  .logoutButton {
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
   }

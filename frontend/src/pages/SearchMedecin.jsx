@@ -1,9 +1,13 @@
-import { useState } from 'react';
-import { Search, MapPin, Phone, Mail, Stethoscope, User } from 'lucide-react';
+import { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Search, MapPin, Phone, Mail, Stethoscope, User, LogOut, LayoutDashboard } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
 import api from '../api/axios';
 import styles from '../SearchMedecin.module.css';
 
 export default function SearchMedecin() {
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [medecins, setMedecins] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -31,6 +35,15 @@ export default function SearchMedecin() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
+  };
+
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchQuery(value);
@@ -55,12 +68,31 @@ export default function SearchMedecin() {
           </div>
           
           <div className={styles.headerActions}>
-            <a href="/login" className={styles.loginButton}>
-              Se connecter
-            </a>
-            <a href="/register" className={styles.registerButton}>
-              S'inscrire
-            </a>
+            {user ? (
+              <>
+                <span className={styles.userGreeting}>Bonjour, {user.name}</span>
+                <Link to="/dashboard" className={styles.dashboardButton}>
+                  <LayoutDashboard className={styles.dashboardIcon} />
+                  <span>Espace personnel</span>
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className={styles.logoutButton}
+                >
+                  <LogOut className={styles.logoutIcon} />
+                  <span>Déconnexion</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className={styles.loginButton}>
+                  Se connecter
+                </Link>
+                <Link to="/register" className={styles.registerButton}>
+                  S'inscrire
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -173,9 +205,9 @@ export default function SearchMedecin() {
                     </div>
 
                     <div className={styles.medecinFooter}>
-                      <a href="/register" className={styles.appointmentButton}>
+                      <Link to="/register" className={styles.appointmentButton}>
                         Prendre rendez-vous
-                      </a>
+                      </Link>
                     </div>
                   </div>
                 ))}

@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import frLocale from "@fullcalendar/core/locales/fr";
 import ModalHorairesHebdo from "./modals/ModalHorairesHebdo";
 import ModalIndisponibilite from "./modals/ModalIndisponibilite";
 import NavbarMedecin from "../components/NavbarMedecin";
@@ -20,8 +17,10 @@ export default function PlanningMedecin() {
       const res = await api.get("/medecin/planning");
       console.log("Réponse brute du planning :", res.data);
 
-      const horaires = res.data.horaires.map((h) => ({
-        title: ``,
+      const horaires = res.data.horaires
+      .filter(h => h.actif === true) 
+      .map((h) => ({
+        title: `Disponible`,
         startTime: h.heure_debut,
         endTime: h.heure_fin,
         daysOfWeek: [convertJourToNumber(h.jour)], 
@@ -38,7 +37,7 @@ export default function PlanningMedecin() {
         borderColor: "lightgray",
       }));
 
-      // Fusion des deux listes
+      // Fusion des deux listesL
       setEvents([...horaires, ...indisponibilites]);
     } catch (err) {
       console.error("Erreur lors du chargement du planning :", err);
@@ -71,7 +70,7 @@ export default function PlanningMedecin() {
         <h2 className="text-xl font-semibold">Mon planning</h2>
         <div className="flex gap-2">
           <button onClick={() => setShowHoraireModal(true)} className="bg-blue-500 text-white px-3 py-1 rounded">
-            Ajouter horaires hebdo
+            Gestion des Horaires Hebdos
           </button>
           <button onClick={() => setShowIndispoModal(true)} className="bg-red-500 text-white px-3 py-1 rounded">
             Ajouter indisponibilité
@@ -99,7 +98,7 @@ export default function PlanningMedecin() {
         />
     </div>
 
-      {showHoraireModal && <ModalHorairesHebdo onClose={() => setShowHoraireModal(false)} />}
+      {showHoraireModal && <ModalHorairesHebdo onClose={() => setShowHoraireModal(false)} onUpdate={fetchEvents}/>}
       {showIndispoModal && <ModalIndisponibilite onClose={() => setShowIndispoModal(false)} />}
     </div>
     </div>

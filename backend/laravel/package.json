@@ -2,7 +2,10 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build",
+        "format:blade": "prettier --write \"resources/views/**/*.blade.php\"",
+        "fix:php": "php-cs-fixer fix",
+        "format": "npm run format:blade && composer fix:php"
     },
     "devDependencies": {
         "axios": "^1.1.2",

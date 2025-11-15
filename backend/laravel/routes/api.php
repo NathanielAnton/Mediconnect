@@ -37,7 +37,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/medecin/profile', [MedecinProfileController::class, 'update']);
     Route::get('/specialites', [SpecialiteController::class, 'index']);
     Route::get('/medecin/planning', [MedecinPlanningController::class, 'getPlanning']);
-    Route::post('/medecin/horaires', [MedecinPlanningController::class, 'updateHoraire']);
+    Route::get('/medecin/horaires', [MedecinPlanningController::class, 'getHoraires']);
+    Route::put('/medecin/horaires', [MedecinPlanningController::class, 'updateHoraires']);
+    Route::patch('/medecin/horaires/toggle', [MedecinPlanningController::class, 'toggleHoraire']);
+    Route::delete('/medecin/horaires', [MedecinPlanningController::class, 'deleteHoraire']);
     Route::post('/medecin/indisponibilites', [MedecinPlanningController::class, 'addIndisponibilite']);
     Route::delete('/medecin/indisponibilites/{id}', [MedecinPlanningController::class, 'deleteIndisponibilite']);
 });

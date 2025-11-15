@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\HoraireMedecin;
 use App\Models\IndisponibiliteMedecin;
+use App\Models\MedecinProfile;
 use App\Models\RendezVous;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,7 +16,7 @@ class MedecinPlanningController extends Controller
      */
     public function getPlanning()
     {
-        $medecinId = Auth::id();
+        $medecinId = MedecinProfile::where('user_id', Auth::id())->first()->id;
 
         $horaires = HoraireMedecin::where('medecin_id', $medecinId)->get();
         $indispos = IndisponibiliteMedecin::where('medecin_id', $medecinId)->get();
@@ -42,7 +43,7 @@ class MedecinPlanningController extends Controller
         }
 
         // Liste des jours ouvrés
-        $jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
+        $jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'd'];
 
         $horairesCrees = [];
 
@@ -74,29 +75,126 @@ class MedecinPlanningController extends Controller
     }
 
     /**
-     * 🕓 Mettre à jour ou créer les horaires réguliers
+     * 🕓 Mettre à jour ou créer les horaires réguliers avec créneaux
      */
-    public function updateHoraire(Request $request)
+    public function updateHoraires(Request $request)
     {
+        $user = Auth::user();
+
         $validated = $request->validate([
-            'jour' => 'required|string',
-            'heure_debut' => 'required|date_format:H:i',
-            'heure_fin' => 'required|date_format:H:i|after:heure_debut',
+            'horaires' => 'required|array',
+            'horaires.*.jour' => 'required|string|in:lundi,mardi,mercredi,jeudi,vendredi,samedi,dimanche',
+            'horaires.*.creneau' => 'required|string|in:matin,apres_midi',
+            'horaires.*.heure_debut' => 'required|date_format:H:i',
+            'horaires.*.heure_fin' => 'required|date_format:H:i|after:horaires.*.heure_debut',
+            'horaires.*.actif' => 'sometimes|boolean',
         ]);
 
-        $horaire = HoraireMedecin::updateOrCreate(
-            [
-                'medecin_id' => Auth::id(),
-                'jour' => $validated['jour'],
-            ],
-            [
-                'heure_debut' => $validated['heure_debut'],
-                'heure_fin' => $validated['heure_fin'],
-                'actif' => true,
-            ]
-        );
+        $medecinId = $user->medecinProfile->id;
+        $horairesMisAJour = [];
 
-        return response()->json(['message' => 'Horaire mis à jour', 'data' => $horaire]);
+        foreach ($validated['horaires'] as $horaireData) {
+            $horaire = HoraireMedecin::updateOrCreate(
+                [
+                    'medecin_id' => $medecinId,
+                    'jour' => $horaireData['jour'],
+                    'creneau' => $horaireData['creneau'],
+                ],
+                [
+                    'heure_debut' => $horaireData['heure_debut'],
+                    'heure_fin' => $horaireData['heure_fin'],
+                    'actif' => $horaireData['actif'] ?? true,
+                ]
+            );
+
+            $horairesMisAJour[] = $horaire;
+        }
+
+        // Charger les relations pour la réponse
+        $horairesAvecRelations = HoraireMedecin::where('medecin_id', $medecinId)
+            ->with('medecin')
+            ->get();
+
+        return response()->json([
+            'message' => 'Horaires mis à jour avec succès',
+            'count' => count($horairesMisAJour),
+            'horaires' => $horairesAvecRelations
+        ]);
+    }
+
+    /**
+     * 📅 Récupérer tous les horaires du médecin
+     */
+    public function getHoraires()
+    {
+        $user = Auth::user();
+
+        $medecinId = $user->medecinProfile->id;
+
+        $horaires = HoraireMedecin::where('medecin_id', $medecinId)
+            ->orderByRaw("FIELD(jour, 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi', 'dimanche')")
+            ->orderBy('creneau')
+            ->get();
+
+        return response()->json($horaires);
+    }
+
+    /**
+     * 🔄 Activer/désactiver un créneau horaire
+     */
+    public function toggleHoraire(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'jour' => 'required|string|in:lundi,mardi,mercredi,jeudi,vendredi,samedi,dimanche',
+            'creneau' => 'required|string|in:matin,apres_midi',
+            'actif' => 'required|boolean',
+        ]);
+
+        $medecinId = $user->medecinProfile->id;
+
+        $horaire = HoraireMedecin::where('medecin_id', $medecinId)
+            ->where('jour', $validated['jour'])
+            ->where('creneau', $validated['creneau'])
+            ->first();
+
+        if (!$horaire) {
+            return response()->json(['message' => 'Horaire non trouvé'], 404);
+        }
+
+        $horaire->update(['actif' => $validated['actif']]);
+
+        return response()->json([
+            'message' => $validated['actif'] ? 'Créneau activé' : 'Créneau désactivé',
+            'horaire' => $horaire
+        ]);
+    }
+
+    /**
+     * 🗑️ Supprimer un créneau horaire
+     */
+    public function deleteHoraire(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'jour' => 'required|string|in:lundi,mardi,mercredi,jeudi,vendredi,samedi,dimanche',
+            'creneau' => 'required|string|in:matin,apres_midi',
+        ]);
+
+        $medecinId = $user->medecinProfile->id;
+
+        $deleted = HoraireMedecin::where('medecin_id', $medecinId)
+            ->where('jour', $validated['jour'])
+            ->where('creneau', $validated['creneau'])
+            ->delete();
+
+        if ($deleted) {
+            return response()->json(['message' => 'Horaire supprimé avec succès']);
+        }
+
+        return response()->json(['message' => 'Horaire non trouvé'], 404);
     }
 
     /**

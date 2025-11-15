@@ -1,243 +1,261 @@
-/* Modal Overlay */
 .modalOverlay {
   position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
-  animation: fadeIn 200ms ease-out;
-  padding: 1rem;
+  padding: 20px;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Modal Content */
-.modalContent {
-  background-color: white;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  animation: slideUp 300ms ease-out;
+.modalContentLarge {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 1000px;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Modal Header */
 .modalHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
+  padding: 24px;
   border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
 }
 
 .modalTitle {
+  margin: 0;
   font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.modalIcon {
-  color: #16a34a;
+  font-weight: 700;
 }
 
 .closeButton {
   background: none;
   border: none;
+  font-size: 1.5rem;
+  color: white;
   cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  color: #6b7280;
-  transition: all 200ms ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
 }
 
 .closeButton:hover {
-  background-color: #f3f4f6;
-  color: #1f2937;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-/* Form Styles */
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.formLabel {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #374151;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.required {
-  color: #ef4444;
-}
-
-.formSelect,
-.formInput {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  font-family: inherit;
-  transition: all 200ms ease;
-  background-color: white;
-}
-
-.formSelect:focus,
-.formInput:focus {
-  outline: none;
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
-}
-
-.formSelect:hover,
-.formInput:hover {
-  border-color: #9ca3af;
-}
-
-.formInput::placeholder {
-  color: #9ca3af;
-}
-
-/* Time Input Styles */
-.formInput[type="time"] {
-  cursor: pointer;
-}
-
-.formInput[type="time"]::-webkit-calendar-picker-indicator {
-  cursor: pointer;
-  color: #16a34a;
-}
-
-/* Button Container */
-.buttonContainer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Buttons */
-.cancelButton,
-.submitButton {
-  padding: 0.625rem 1.5rem;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 200ms ease;
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.cancelButton {
-  background-color: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
-}
-
-.cancelButton:hover {
-  background-color: #e5e7eb;
-  border-color: #9ca3af;
-}
-
-.submitButton {
-  background-color: #16a34a;
-  color: white;
-}
-
-.submitButton:hover:not(:disabled) {
-  background-color: #15803d;
-  box-shadow: 0 4px 6px rgba(22, 163, 74, 0.2);
-}
-
-.submitButton:disabled {
-  background-color: #d1d5db;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* Info Box */
 .infoBox {
-  background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  border-radius: 0.5rem;
-  padding: 0.875rem;
-  font-size: 0.875rem;
-  color: #166534;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 24px;
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .infoIcon {
-  flex-shrink: 0;
-  margin-top: 0.125rem;
+  font-size: 1.2rem;
+}
+
+.form {
+  padding: 0 24px 24px;
+}
+
+.horairesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.jourSection {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.2s;
+}
+
+.jourSection:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.jourTitle {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.creneauSection {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.creneauHeader {
+  margin-bottom: 12px;
+}
+
+.creneauLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #374151;
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #d1d5db;
+  cursor: pointer;
+}
+
+.creneauTitle {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.heuresInputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.timeInputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.timeInputGroup label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.timeInput {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: border-color 0.2s;
+}
+
+.timeInput:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.buttonContainer {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.cancelButton {
+  padding: 12px 24px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.submitButton {
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.submitButton:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669, #047857);
+  transform: translateY(-1px);
+}
+
+.submitButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  gap: 16px;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f4f6;
+  border-top: 3px solid #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 /* Responsive */
-@media (max-width: 640px) {
-  .modalContent {
-    padding: 1.5rem;
-    max-width: 100%;
-    margin: 0 1rem;
+@media (max-width: 768px) {
+  .modalContentLarge {
+    width: 95%;
+    margin: 10px;
   }
-
-  .modalTitle {
-    font-size: 1.25rem;
+  
+  .horairesGrid {
+    grid-template-columns: 1fr;
   }
-
+  
+  .heuresInputs {
+    grid-template-columns: 1fr;
+  }
+  
   .buttonContainer {
-    flex-direction: column-reverse;
-  }
-
-  .cancelButton,
-  .submitButton {
-    width: 100%;
-    justify-content: center;
+    flex-direction: column;
   }
 }

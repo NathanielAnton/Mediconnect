@@ -14,10 +14,6 @@ class MedecinProfileController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user->isMedecin()) {
-            return response()->json(['message' => 'Accès non autorisé'], 403);
-        }
-
         $profile = $user->medecinProfile;
 
         if (!$profile) {
@@ -43,10 +39,6 @@ class MedecinProfileController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-
-        if (!$user->isMedecin()) {
-            return response()->json(['message' => 'Accès non autorisé'], 403);
-        }
 
         $validated = $request->validate([
             'specialite_id' => 'nullable|int',

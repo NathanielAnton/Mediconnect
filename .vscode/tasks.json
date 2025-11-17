@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Serve Backend",
+      "command": "php",
+      "args": ["artisan", "serve"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend/laravel"
+      },
+      "problemMatcher": [],
+      "isBackground": true
+    },
+    {
+      "label": "Serve Frontend",
+      "command": "npm",
+      "args": ["run", "dev"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Start All",
+      "dependsOn": ["Serve Backend", "Serve Frontend"],
+      "dependsOrder": "parallel"
+    }
+  ]
+}

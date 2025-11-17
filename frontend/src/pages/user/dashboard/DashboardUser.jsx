@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './DashboardUser.module.css';
+import SearchMedecin from '../../SearchMedecin';
 
 const DashboardUser = () => {
   const { user, logout } = useContext(AuthContext);
@@ -101,6 +102,9 @@ const DashboardUser = () => {
               <button className={`${styles.actionButton} ${styles.actionButtonPurple}`}>
                 Contacter le Support
               </button>
+            </div>
+            <div>
+               <SearchMedecin />
             </div>
           </div>
         </div>

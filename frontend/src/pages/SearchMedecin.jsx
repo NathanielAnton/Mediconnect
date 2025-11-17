@@ -1,13 +1,10 @@
 import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, Phone, Mail, Stethoscope, User, LogOut, LayoutDashboard } from 'lucide-react';
-import { AuthContext } from '../context/AuthContext';
-import api from '../api/axios';
+import { Search, MapPin, Phone, User } from 'lucide-react';
 import styles from '../SearchMedecin.module.css';
+import api from "/src/api/axios";
 
 export default function SearchMedecin() {
-  const { user, logout, loading: authLoading } = useContext(AuthContext);
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [medecins, setMedecins] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,9 +21,9 @@ export default function SearchMedecin() {
     setSearched(true);
 
     try {
-      const response = await fetch(`http://localhost:8000/search/medecins?query=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
-      setMedecins(data);
+      const response = await api.get(`/search/medecins?query=${encodeURIComponent(searchQuery)}`);
+      // Avec axios, les données sont directement dans response.data
+      setMedecins(response.data);
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
       setMedecins([]);
@@ -35,14 +32,6 @@ export default function SearchMedecin() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Erreur lors de la déconnexion:', error);
-    }
-  };
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -57,50 +46,6 @@ export default function SearchMedecin() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <div className={styles.logo}>
-            <div className={styles.logoIcon}>
-              <Stethoscope className={styles.logoIconSvg} />
-            </div>
-            <h1 className={styles.logoTitle}>MediConnect</h1>
-          </div>
-          
-          <div className={styles.headerActions}>
-            {authLoading ? (
-              <div className={styles.headerLoading}>
-                <div className={styles.headerSpinner}></div>
-              </div>
-            ) : user ? (
-              <>
-                <span className={styles.userGreeting}>Bonjour, {user.name}</span>
-                <Link to="/dashboard" className={styles.dashboardButton}>
-                  <LayoutDashboard className={styles.dashboardIcon} />
-                  <span>Espace personnel</span>
-                </Link>
-                <button 
-                  onClick={handleLogout}
-                  className={styles.logoutButton}
-                >
-                  <LogOut className={styles.logoutIcon} />
-                  <span>Déconnexion</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <Link to="/login" className={styles.loginButton}>
-                  Se connecter
-                </Link>
-                <Link to="/register" className={styles.registerButton}>
-                  S'inscrire
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-      </header>
-
       {/* Hero Section */}
       <section className={styles.hero}>
         <div className={styles.heroContent}>

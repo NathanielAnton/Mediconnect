@@ -32,6 +32,25 @@ class MedecinPlanningController extends Controller
     }
 
     /**
+     * 🗓️ Récupérer le planning complet d'un medecin en fonction de son id
+     */
+    public function getPlanningById($id)
+    {
+        $medecinId = MedecinProfile::where('user_id', $id)->first()->id;
+        $horaires = HoraireMedecin::where('medecin_id', $medecinId)->get();
+        $indispos = IndisponibiliteMedecin::where('medecin_id', $medecinId)->get();
+        $rdvs = RendezVous::where('medecin_id', $id)
+            ->with('client:id,name,email')
+            ->get();
+
+        return response()->json([
+            'horaires' => $horaires,
+            'indisponibilites' => $indispos,
+            'rendez_vous' => $rdvs,
+        ]);
+    }
+
+    /**
      * Set les horaires réguliers
      */
     public static function setHorairesDefaut($medecinId)

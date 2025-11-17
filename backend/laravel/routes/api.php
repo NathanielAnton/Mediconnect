@@ -24,12 +24,13 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 
 // Route de test
-Route::get('/test', function() {
+Route::get('/test', function () {
     return response()->json(['message' => 'API fonctionne !']);
 });
 
 // Route publique pour la recherche de médecins
 Route::get('/search/medecins', [SearchMedecinController::class, 'search']);
+Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', [AuthController::class, 'user']);

@@ -1,0 +1,428 @@
+/* ===== VARIABLES ET STYLES DE BASE ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* ===== EN-TÊTE DU MODAL ===== */
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalTitle h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0A1E3D;
+  margin: 0 0 0.25rem 0;
+}
+
+.modalSubtitle {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.modalLocation {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.durationButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.durationButton:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.durationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.closeButton:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+/* ===== CORPS DU MODAL ===== */
+.modalBody {
+  padding: 1.5rem;
+  max-height: calc(90vh - 200px);
+  overflow-y: auto;
+}
+
+/* États de chargement et erreur */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.loadingContainer p {
+  margin-top: 1rem;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+}
+
+.errorText {
+  margin-bottom: 1rem;
+}
+
+.retryButton {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.retryButton:hover {
+  background: #dc2626;
+}
+
+/* ===== CALENDRIER FULLCALENDAR ===== */
+.calendarContainer {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+/* Styles généraux FullCalendar */
+.calendarContainer :global(.fc) {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.calendarContainer :global(.fc .fc-toolbar) {
+  padding: 1rem;
+  margin-bottom: 0;
+}
+
+.calendarContainer :global(.fc .fc-toolbar-title) {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0A1E3D;
+}
+
+.calendarContainer :global(.fc .fc-button) {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.calendarContainer :global(.fc .fc-button-active) {
+  background: #0596DE;
+  border-color: #0596DE;
+  color: white;
+}
+
+/* Grille horaire avec petits créneaux */
+.calendarContainer :global(.fc-timegrid-slots) {
+  background: #fafafa;
+}
+
+.calendarContainer :global(.fc-timegrid-slot) {
+  height: 2rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.calendarContainer :global(.fc-timegrid-slot-lane) {
+  border-right: 1px solid #f0f0f0;
+}
+
+.calendarContainer :global(.fc-timegrid-slot-label) {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+}
+
+.calendarContainer :global(.fc-timegrid-axis) {
+  background: #f8f9fa;
+  border-right: 1px solid #e9ecef;
+}
+
+.calendarContainer :global(.fc-timegrid-col-events) {
+  margin: 0 1px;
+}
+
+.calendarContainer :global(.fc-timegrid-event) {
+  margin: 1px 2px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+}
+
+.calendarContainer :global(.fc-event-title) {
+  font-weight: 500;
+}
+
+/* Indicateur de temps actuel */
+.calendarContainer :global(.fc-timegrid-now-indicator-line) {
+  border-color: #ef4444;
+  border-width: 2px;
+}
+
+.calendarContainer :global(.fc-timegrid-now-indicator-arrow) {
+  border-color: #ef4444;
+}
+
+/* Événements personnalisés */
+.calendarContainer :global(.event-disponible) {
+  font-size: 0.7rem;
+  font-weight: 500;
+  text-align: center;
+  padding: 2px;
+}
+
+.calendarContainer :global(.event-creneau) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #10b981;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.calendarContainer :global(.creneau-disponible) {
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.calendarContainer :global(.creneau-disponible:hover) {
+  opacity: 1;
+  background-color: #f0fdf4 !important;
+  border-color: #10b981 !important;
+}
+
+/* ===== LÉGENDE ===== */
+.legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.legendColor {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.slotInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #f3f4f6;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* ===== PIED DE MODAL ===== */
+.modalFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.footerInfo {
+  flex: 1;
+}
+
+.footerInfo p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.footerActions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.closeModalButton {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.closeModalButton:hover {
+  background: #4b5563;
+}
+
+.appointmentButton {
+  background: #0596DE;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.appointmentButton:hover {
+  background: #0478b6;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .modalContent {
+    margin: 0.5rem;
+    max-height: 95vh;
+  }
+  
+  .modalHeader {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .headerActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .modalBody {
+    padding: 1rem;
+    max-height: calc(95vh - 160px);
+  }
+  
+  .legend {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .modalFooter {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .footerActions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .modalOverlay {
+    padding: 0.5rem;
+  }
+  
+  .calendarContainer :global(.fc-timegrid-slot) {
+    height: 1.5rem;
+  }
+  
+  .calendarContainer :global(.fc-timegrid-slot-label) {
+    font-size: 0.7rem;
+    padding: 0.125rem 0.25rem;
+  }
+  
+  .calendarContainer :global(.fc-timegrid-event) {
+    font-size: 0.7rem;
+    padding: 1px 2px;
+  }
+  
+  .footerActions {
+    flex-direction: column;
+  }
+  
+  .closeModalButton,
+  .appointmentButton {
+    width: 100%;
+  }
+}

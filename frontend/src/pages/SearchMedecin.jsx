@@ -2,6 +2,7 @@ import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Phone, User } from 'lucide-react';
 import styles from '../SearchMedecin.module.css';
+import ModalHoraires from './rdv/components/ModalHoraires'; 
 import api from "/src/api/axios";
 
 export default function SearchMedecin() {
@@ -9,6 +10,8 @@ export default function SearchMedecin() {
   const [medecins, setMedecins] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
+  const [selectedMedecin, setSelectedMedecin] = useState(null);
+  const [showHorairesModal, setShowHorairesModal] = useState(false);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -22,7 +25,6 @@ export default function SearchMedecin() {
 
     try {
       const response = await api.get(`/search/medecins?query=${encodeURIComponent(searchQuery)}`);
-      // Avec axios, les données sont directement dans response.data
       setMedecins(response.data);
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
@@ -32,6 +34,17 @@ export default function SearchMedecin() {
     }
   };
 
+  // Fonction pour ouvrir le modal des horaires
+  const handleShowHoraires = (medecin) => {
+    setSelectedMedecin(medecin);
+    setShowHorairesModal(true);
+  };
+
+  // Fonction pour fermer le modal
+  const handleCloseHoraires = () => {
+    setShowHorairesModal(false);
+    setSelectedMedecin(null);
+  };
 
   const handleInputChange = (e) => {
     const value = e.target.value;
@@ -154,9 +167,12 @@ export default function SearchMedecin() {
                     </div>
 
                     <div className={styles.medecinFooter}>
-                      <Link to="/register" className={styles.appointmentButton}>
-                        Prendre rendez-vous
-                      </Link>
+                      <button 
+                        onClick={() => handleShowHoraires(medecin)}
+                        className={styles.appointmentButton}
+                      >
+                        Consulter les horaires
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -178,15 +194,14 @@ export default function SearchMedecin() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className={styles.footer}>
-        <div className={styles.footerContent}>
-          <p className={styles.footerText}>
-            © 2024 MediConnect - Plateforme de prise de rendez-vous médicaux
-          </p>
-        </div>
-      </footer>
-    </div>
+      {/* Modal des horaires */}
+      {showHorairesModal && selectedMedecin && (
+        <ModalHoraires 
+          medecin={selectedMedecin}
+          onClose={handleCloseHoraires}
+        />
+      )}
 
+    </div>
   );
 }

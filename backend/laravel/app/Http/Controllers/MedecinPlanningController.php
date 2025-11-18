@@ -34,12 +34,12 @@ class MedecinPlanningController extends Controller
     /**
      * 🗓️ Récupérer le planning complet d'un medecin en fonction de son id
      */
-    public function getPlanningById($id)
+    public function getPlanningById($medecinId)
     {
-        $medecinId = MedecinProfile::where('user_id', $id)->first()->id;
+        // $medecinId = MedecinProfile::where('user_id', $id)->first()->id;
         $horaires = HoraireMedecin::where('medecin_id', $medecinId)->get();
         $indispos = IndisponibiliteMedecin::where('medecin_id', $medecinId)->get();
-        $rdvs = RendezVous::where('medecin_id', $id)
+        $rdvs = RendezVous::where('medecin_id', $medecinId)
             ->with('client:id,name,email')
             ->get();
 

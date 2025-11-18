@@ -12,7 +12,7 @@ class SearchMedecinController extends Controller
     {
         try {
             $query = $request->input('query', '');
-            
+
             // Si pas de recherche, retourner tous les médecins
             if (empty($query)) {
                 $medecins = MedecinProfile::with('user', 'specialite')
@@ -21,17 +21,17 @@ class SearchMedecinController extends Controller
             } else {
                 // Recherche avec filtres
                 $medecins = MedecinProfile::with('user', 'specialite')
-                    ->where(function($q) use ($query) {
+                    ->where(function ($q) use ($query) {
                         // Recherche par ville
                         $q->where('ville', 'LIKE', "%{$query}%")
-                          // Ou par nom d'utilisateur
-                          ->orWhereHas('user', function($userQuery) use ($query) {
-                              $userQuery->where('name', 'LIKE', "%{$query}%");
-                          })
-                          // Ou par spécialité
-                          ->orWhereHas('specialite', function($specQuery) use ($query) {
-                              $specQuery->where('nom', 'LIKE', "%{$query}%");
-                          });
+                            // Ou par nom d'utilisateur
+                            ->orWhereHas('user', function ($userQuery) use ($query) {
+                                $userQuery->where('name', 'LIKE', "%{$query}%");
+                            })
+                            // Ou par spécialité
+                            ->orWhereHas('specialite', function ($specQuery) use ($query) {
+                                $specQuery->where('nom', 'LIKE', "%{$query}%");
+                            });
                     })
                     ->limit(20)
                     ->get();
@@ -41,6 +41,7 @@ class SearchMedecinController extends Controller
             $medecins = $medecins->map(function ($profile) {
                 return [
                     'id' => $profile->user->id,
+                    'medecin_id' => MedecinProfile::where('user_id', $profile->user->id)->first()->id,
                     'name' => $profile->user->name,
                     'email' => $profile->user->email,
                     'specialite' => $profile->specialite->nom ?? 'Non renseignée',
@@ -52,7 +53,6 @@ class SearchMedecinController extends Controller
             });
 
             return response()->json($medecins);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Erreur lors de la recherche',
@@ -60,6 +60,4 @@ class SearchMedecinController extends Controller
             ], 500);
         }
     }
-
-
 }

@@ -31,9 +31,9 @@ Route::get('/test', function () {
 // Route publique pour la recherche de médecins
 Route::get('/search/medecins', [SearchMedecinController::class, 'search']);
 Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
+Route::get('/user', [AuthController::class, 'user']);
 
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [AuthController::class, 'user']);
     Route::get('/medecin/profile', [MedecinProfileController::class, 'show']);
     Route::put('/medecin/profile', [MedecinProfileController::class, 'update']);
     Route::get('/specialites', [SpecialiteController::class, 'index']);

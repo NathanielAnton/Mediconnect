@@ -5,6 +5,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -14,10 +15,11 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
   try {
       const response = await api.get("/user");
-      console.log("Réponse API /user:", response.data); // AJOUTEZ CETTE LIGNE
+      console.log("Réponse API /user:", response.data); 
       setUser(response.data.user);
+      setRoles(response.data.roles);
     } catch (error) {
-      console.log("Erreur checkAuth:", error); // AJOUTEZ CETTE LIGNE
+      console.log("Erreur checkAuth:", error); 
       setUser(null);
     } finally {
       setLoading(false);
@@ -42,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, roles, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

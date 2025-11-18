@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useContext } from 'react';
 import FullCalendar from '@fullcalendar/react';
+import { AuthContext } from '../../../context/AuthContext';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import frLocale from '@fullcalendar/core/locales/fr';
 import { X, Clock, Loader } from 'lucide-react';
@@ -12,6 +13,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const [slotDuration, setSlotDuration] = useState('00:30:00');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const { roles } = useContext(AuthContext);
 
   // Fonction pour convertir les jours texte en index FullCalendar
   const convertJourToNumber = (jour) => {
@@ -154,7 +156,10 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const extendedProps = event.extendedProps;
-    
+    if(roles === 'Non authentifié') {
+      alert('Veuillez vous connecter pour prendre un rendez-vous.');
+      return;
+    }
     if (extendedProps.type === 'creneau' && extendedProps.statut === 'disponible') {
       // Ouvrir modal de prise de rendez-vous
       console.log('Créneau sélectionné:', {
@@ -249,7 +254,6 @@ const ModalHoraires = ({ medecin, onClose }) => {
                     minute: '2-digit',
                     hour12: false
                   }}
-                  nowIndicator={true}
                   eventClick={handleEventClick}
                   eventContent={(eventInfo) => {
                     // Personnaliser l'affichage des événements

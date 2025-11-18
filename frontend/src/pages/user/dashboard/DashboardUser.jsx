@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import styles from './DashboardUser.module.css';
-import SearchMedecin from '../../SearchMedecin';
+import SearchMedecin from '../../rdv/SearchMedecin';
 
 const DashboardUser = () => {
   const { user, logout } = useContext(AuthContext);

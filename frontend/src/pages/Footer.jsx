@@ -1,6 +1,6 @@
 import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from '../SearchMedecin.module.css';
+import styles from './rdv/SearchMedecin.module.css';
 
 const Home = () => {
   return (

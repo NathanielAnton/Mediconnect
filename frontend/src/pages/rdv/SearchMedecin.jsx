@@ -1,8 +1,8 @@
 import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, MapPin, Phone, User } from 'lucide-react';
-import styles from '../SearchMedecin.module.css';
-import ModalHoraires from './rdv/components/ModalHoraires'; 
+import styles from './SearchMedecin.module.css';
+import ModalHoraires from './components/ModalHoraires'; 
 import api from "/src/api/axios";
 
 export default function SearchMedecin() {

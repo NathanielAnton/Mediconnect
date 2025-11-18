@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link, useNavigate } from 'react-router-dom';
 import { Stethoscope,LogOut, LayoutDashboard } from 'lucide-react';
-import styles from '../SearchMedecin.module.css';
+import styles from './rdv/SearchMedecin.module.css';
 
 const Navbar = () => {
   const { user, logout, loading } = useContext(AuthContext);

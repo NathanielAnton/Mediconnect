@@ -51,9 +51,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($request->only('email', 'password'))) {
             $request->session()->regenerate();
-            
+
             $user = Auth::user();
-            
+
             return response()->json([
                 'user' => [
                     'id' => $user->id,
@@ -75,12 +75,11 @@ class AuthController extends Controller
     {
         try {
             Auth::logout();
-            
+
             $request->session()->invalidate();
             $request->session()->regenerateToken();
-            
+
             return response()->json(['message' => 'Déconnexion réussie']);
-            
         } catch (\Exception $e) {
             return response()->json(['message' => 'Erreur lors de la déconnexion'], 500);
         }
@@ -91,7 +90,7 @@ class AuthController extends Controller
         try {
             if (Auth::check()) {
                 $user = Auth::user();
-                
+
                 return response()->json([
                     'user' => [
                         'id' => $user->id,
@@ -101,10 +100,12 @@ class AuthController extends Controller
                     ],
                     'roles' => $user->getRoleNames()->toArray()
                 ]);
+            } else {
+                return response()->json([
+                    'user' => null,
+                    'roles' => 'Non authentifié'
+                ]);
             }
-            
-            return response()->json(['message' => 'Non authentifié'], 401);
-            
         } catch (\Exception $e) {
             return response()->json(['message' => 'Erreur serveur'], 500);
         }

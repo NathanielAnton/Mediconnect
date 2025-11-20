@@ -7,6 +7,7 @@ use App\Http\Controllers\MedecinProfileController;
 use App\Http\Controllers\SpecialiteController;
 use App\Http\Controllers\MedecinPlanningController;
 use App\Http\Controllers\SearchMedecinController;
+use App\Http\Controllers\RendezVousController;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,4 +45,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/medecin/horaires', [MedecinPlanningController::class, 'deleteHoraire']);
     Route::post('/medecin/indisponibilites', [MedecinPlanningController::class, 'addIndisponibilite']);
     Route::delete('/medecin/indisponibilites/{id}', [MedecinPlanningController::class, 'deleteIndisponibilite']);
+    Route::post('/rendezvous', [RendezVousController::class, 'store']);
 });

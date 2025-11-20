@@ -6,6 +6,7 @@ import frLocale from '@fullcalendar/core/locales/fr';
 import { X, Clock, Loader } from 'lucide-react';
 import api from '../../../api/axios';
 import styles from './ModalHoraires.module.css';
+import ModalRendezVous from '../../user/planning/ModalRendezVous';
 
 const ModalHoraires = ({ medecin, onClose }) => {
   const calendarRef = useRef(null);
@@ -14,6 +15,8 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { roles } = useContext(AuthContext);
+  const [showRendezVousModal, setShowRendezVousModal] = useState(false);
+  const [selectedCreneau, setSelectedCreneau] = useState(null);
 
   // Fonction pour convertir les jours texte en index FullCalendar
   const convertJourToNumber = (jour) => {
@@ -37,7 +40,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
     setError(null);
 
     try {
-      const res = await api.get("/medecin/planningbyid/" + medecin.id);
+      const res = await api.get("/medecin/planningbyid/" + medecin.medecin_id);
       console.log("Réponse planning médecin:", res.data);
 
       const horaires = res.data.horaires
@@ -152,7 +155,6 @@ const ModalHoraires = ({ medecin, onClose }) => {
     setSlotDuration(prev => prev === '00:30:00' ? '00:15:00' : '00:30:00');
   };
 
-  // Gérer le clic sur un créneau
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const extendedProps = event.extendedProps;
@@ -160,16 +162,20 @@ const ModalHoraires = ({ medecin, onClose }) => {
       alert('Veuillez vous connecter pour prendre un rendez-vous.');
       return;
     }
+    
     if (extendedProps.type === 'creneau' && extendedProps.statut === 'disponible') {
-      // Ouvrir modal de prise de rendez-vous
-      console.log('Créneau sélectionné:', {
-        medecin: medecin.name,
-        date: event.start,
-        heureDebut: event.start,
-        heureFin: event.end
+      setSelectedCreneau({
+        start: event.start,
+        end: event.end
       });
-      alert(`Prendre rendez-vous avec Dr. ${medecin.name} le ${event.start.toLocaleString()}`);
+      setShowRendezVousModal(true);
     }
+  };
+
+  const handleRendezVousSuccess = (rendezVous) => {
+    console.log('Rendez-vous créé:', rendezVous);
+    // Optionnel : rafraîchir les événements du calendrier
+    fetchMedecinHoraires();
   };
 
   return (
@@ -319,6 +325,16 @@ const ModalHoraires = ({ medecin, onClose }) => {
             </button>
           </div>
         </div>
+
+        {/* Modal de prise de rendez-vous */}
+        {showRendezVousModal && selectedCreneau && (
+          <ModalRendezVous
+            medecin={medecin}
+            creneau={selectedCreneau}
+            onClose={() => setShowRendezVousModal(false)}
+            onSuccess={handleRendezVousSuccess}
+          />
+        )}
       </div>
     </div>
   );

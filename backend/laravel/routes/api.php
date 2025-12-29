@@ -20,9 +20,13 @@ use App\Http\Controllers\RendezVousController;
 |
 */
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout']);
+// Authentication routes with session support
+Route::middleware(['web'])->group(function () {
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/user', [AuthController::class, 'user']);
+});
 
 // Route de test
 Route::get('/test', function () {
@@ -32,7 +36,6 @@ Route::get('/test', function () {
 // Route publique pour la recherche de médecins
 Route::get('/search/medecins', [SearchMedecinController::class, 'search']);
 Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
-Route::get('/user', [AuthController::class, 'user']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/medecin/profile', [MedecinProfileController::class, 'show']);

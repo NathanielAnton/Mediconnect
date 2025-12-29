@@ -13,4 +13,3 @@ Thumbs.db
 *.log
 .env
 backend/laravel/composer.lock
-frontend/src/api/axios.js

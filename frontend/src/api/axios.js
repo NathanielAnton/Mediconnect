@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: process.env.REACT_APP_API_URL,
   withCredentials: true,
   headers: {
     Accept: "application/json",
@@ -12,16 +12,18 @@ const api = axios.create({
 // Fonction pour récupérer le CSRF token
 const getCSRFToken = async () => {
   try {
-    const response = await fetch("http://localhost:8000/sanctum/csrf-cookie", {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        Accept: "application/json",
-      },
-    });
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL.replace("/api", "")}/sanctum/csrf-cookie`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
 
     const xsrfToken = getCookie("XSRF-TOKEN");
-
     return xsrfToken;
   } catch (error) {
     return null;
@@ -55,12 +57,8 @@ api.interceptors.request.use(async (config) => {
 
 // Intercepteur de réponse pour debug
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (response) => response,
+  (error) => Promise.reject(error)
 );
 
 export default api;

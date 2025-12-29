@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
+  baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
   headers: {
     Accept: "application/json",
@@ -13,7 +13,7 @@ const api = axios.create({
 const getCSRFToken = async () => {
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_API_URL.replace("/api", "")}/sanctum/csrf-cookie`,
+      `${import.meta.env.VITE_API_URL.replace("/api", "")}/sanctum/csrf-cookie`,
       {
         method: "GET",
         credentials: "include",

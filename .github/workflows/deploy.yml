@@ -1,1 +1,54 @@
+name: Deploy Mediconnect
 
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Récupération du code
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Activation SSH
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      # 3️⃣ Déploiement Laravel (sans vendor, storage, .env)
+      - name: Deploy Laravel backend
+        run: |
+          rsync -avz --delete \
+            --exclude 'vendor/' \
+            --exclude 'storage/' \
+            --exclude '.env' \
+            backend/laravel/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/backend/laravel/
+
+      # 4️⃣ Déploiement React (sans dist, node_modules)
+      - name: Deploy React frontend
+        run: |
+          rsync -avz --delete \
+            --exclude 'node_modules/' \
+            --exclude 'dist/' \
+            --exclude '.env' \
+            frontend/ \
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/frontend/
+
+      # 5️⃣ Post-déploiement Laravel (OBLIGATOIRE)
+      - name: Laravel post-deploy
+        run: |
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+          cd ${{ secrets.DEPLOY_PATH }}/backend/laravel
+
+          php artisan migrate --force
+          php artisan config:clear
+          php artisan route:clear
+          php artisan view:clear
+          php artisan cache:clear
+          EOF

@@ -13,3 +13,5 @@ Thumbs.db
 *.log
 .env
 backend/laravel/composer.lock
+frontend/dist.zip
+backend/laravel/vendor.zip

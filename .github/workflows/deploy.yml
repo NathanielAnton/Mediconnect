@@ -1,9 +1,7 @@
 name: Deploy Mediconnect
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -28,7 +26,7 @@ jobs:
             --exclude 'storage/' \
             --exclude '.env' \
             backend/laravel/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/backend/laravel/
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/Mediconnect/backend/laravel/
 
       # 4️⃣ Déploiement React (sans dist, node_modules)
       - name: Deploy React frontend
@@ -38,17 +36,4 @@ jobs:
             --exclude 'dist/' \
             --exclude '.env' \
             frontend/ \
-            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.DEPLOY_PATH }}/frontend/
-
-      # 5️⃣ Post-déploiement Laravel (OBLIGATOIRE)
-      - name: Laravel post-deploy
-        run: |
-          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
-          cd ${{ secrets.DEPLOY_PATH }}/backend/laravel
-
-          php artisan migrate --force
-          php artisan config:clear
-          php artisan route:clear
-          php artisan view:clear
-          php artisan cache:clear
-          EOF
+            ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/var/www/Mediconnect/frontend/

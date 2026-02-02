@@ -21,6 +21,8 @@ return [
 
     'allowed_origins' => [
         env('FRONTEND_URL', 'http://localhost:5173'),
+        'https://medi-connect.info',
+        'https://www.medi-connect.info',
         'http://194.62.99.208',
         'http://localhost',
         'http://127.0.0.1:8000',

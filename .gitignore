@@ -15,3 +15,4 @@ Thumbs.db
 backend/laravel/composer.lock
 frontend/dist.zip
 backend/laravel/vendor.zip
+frontend/src/api/axios.js

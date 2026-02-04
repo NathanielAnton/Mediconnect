@@ -18,7 +18,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ vars.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       # 3️⃣ Déploiement Laravel (sans vendor, storage, .env)
       - name: Deploy Laravel backend
@@ -28,7 +28,7 @@ jobs:
             --exclude 'storage/' \
             --exclude '.env' \
             backend/laravel/ \
-            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:/var/www/Mediconnect/backend/laravel/
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:/var/www/Mediconnect/backend/laravel/
 
       # 4️⃣ Déploiement React (sans dist, node_modules)
       - name: Deploy React frontend
@@ -37,5 +37,6 @@ jobs:
             --exclude 'node_modules/' \
             --exclude 'dist/' \
             --exclude '.env' \
+            --exclude 'src/api/axios.js' \
             frontend/ \
-            ${{ vars.SSH_USER }}@${{ vars.SSH_HOST }}:/var/www/Mediconnect/frontend/
+            ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:/var/www/Mediconnect/frontend/

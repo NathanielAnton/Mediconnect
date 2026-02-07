@@ -9,7 +9,9 @@ use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasRoles;
+    use HasFactory;
+    use Notifiable;
+    use HasRoles;
 
     protected $fillable = [
         'name',
@@ -40,6 +42,21 @@ class User extends Authenticatable
     public function isClient()
     {
         return $this->hasRole('client');
+    }
+
+    public function isGestionnaire()
+    {
+        return $this->hasRole('gestionnaire');
+    }
+
+    public function isSecretaire()
+    {
+        return $this->hasRole('secretaire');
+    }
+
+    public function isSuperAdmin()
+    {
+        return $this->hasRole('super-admin');
     }
 
     // Méthode pour obtenir le rôle principal

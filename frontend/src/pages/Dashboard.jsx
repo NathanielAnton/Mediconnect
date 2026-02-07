@@ -1,10 +1,12 @@
-import { useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import DashboardUser from './user/dashboard/DashboardUser';
-import DashboardMedecin from './medecin/dashboard/DashboardMedecin';
-import DashboardAdmin from './admin/dashboard/DashboardAdmin';
-
+import { useContext, useEffect } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import DashboardUser from "./user/dashboard/DashboardUser";
+import DashboardMedecin from "./medecin/dashboard/DashboardMedecin";
+import DashboardAdmin from "./admin/dashboard/DashboardAdmin";
+import DashboardGestionnaire from "./gestionnaire/dashboard/DashboardGestionnaire";
+import DashboardSecretaire from "./secretaire/dashboard/DashboardSecretaire";
+import DashboardSuperAdmin from "./superadmin/dashboard/DashboardSuperAdmin";
 const Dashboard = () => {
   const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ const Dashboard = () => {
   // Rediriger si pas connecté
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, loading, navigate]);
 
@@ -29,11 +31,17 @@ const Dashboard = () => {
   // Afficher le dashboard selon le rôle
   const renderDashboardByRole = () => {
     switch (user.role) {
-      case 'admin':
+      case "super-admin":
+        return <DashboardSuperAdmin />;
+      case "admin":
         return <DashboardAdmin />;
-      case 'medecin':
+      case "medecin":
         return <DashboardMedecin />;
-      case 'client':
+      case "gestionnaire":
+        return <DashboardGestionnaire />;
+      case "secretaire":
+        return <DashboardSecretaire />;
+      case "client":
       default:
         return <DashboardUser />;
     }

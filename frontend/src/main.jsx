@@ -8,8 +8,12 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import MedecinProfile from "./pages/medecin/profile/MedecinProfile";
 import PlanningMedecin from "./pages/medecin/planning/PlanningMedecin";
+import DashboardMedecin from "./pages/medecin/dashboard/DashboardMedecin";
 import SearchMedecin from "./pages/rdv/SearchMedecin";
 import Home from "./pages/Home";
+import DashboardGestionnaire from "./pages/gestionnaire/dashboard/DashboardGestionnaire";
+import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretaire";
+import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -23,6 +27,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/medecin/profile" element={<MedecinProfile />} />
           <Route path="/medecin/planning" element={<PlanningMedecin />} />
+          <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
+          <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
+          <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
+          <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

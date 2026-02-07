@@ -1,7 +1,7 @@
-import { useContext } from 'react';
-import { AuthContext } from '../../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import styles from './NavbarMedecin.module.css';
+import { useContext } from "react";
+import { AuthContext } from "../../../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import styles from "./NavbarMedecin.module.css";
 
 const NavbarMedecin = () => {
   const { user, logout } = useContext(AuthContext);
@@ -10,9 +10,9 @@ const NavbarMedecin = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate("/login");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
   };
 
@@ -22,17 +22,30 @@ const NavbarMedecin = () => {
         <div className={styles.navbarContent}>
           {/* Logo et titre */}
           <a href="/dashboard">
-          <div className={styles.logo}>
-            <svg className={styles.logoIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            <h1 className={styles.logoTitle}>Espace Médecin</h1>
-          </div>
+            <div className={styles.logo}>
+              <svg
+                className={styles.logoIcon}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                />
+              </svg>
+              <h1 className={styles.logoTitle}>Espace Médecin</h1>
+            </div>
           </a>
           {/* Navigation links */}
           <div className={styles.navLinks}>
             <a href="/medecin/planning" className={styles.navLink}>
               Planning
+            </a>
+            <a href="/medecin/dashboard" className={styles.navLink}>
+              Liaisons
             </a>
             <a href="#patients" className={styles.navLink}>
               Dossiers Patients
@@ -48,12 +61,19 @@ const NavbarMedecin = () => {
           {/* User info et déconnexion */}
           <div className={styles.userSection}>
             <span className={styles.userGreeting}>Dr. {user?.name}</span>
-            <button 
-              onClick={handleLogout}
-              className={styles.logoutButton}
-            >
-              <svg className={styles.logoutIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <button onClick={handleLogout} className={styles.logoutButton}>
+              <svg
+                className={styles.logoutIcon}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                />
               </svg>
               <span>Déconnexion</span>
             </button>

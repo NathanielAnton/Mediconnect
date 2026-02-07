@@ -8,6 +8,10 @@ use App\Http\Controllers\SpecialiteController;
 use App\Http\Controllers\MedecinPlanningController;
 use App\Http\Controllers\SearchMedecinController;
 use App\Http\Controllers\RendezVousController;
+use App\Http\Controllers\GestionnaireController;
+use App\Http\Controllers\SecretaireController;
+use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\MedecinController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,4 +50,47 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/medecin/indisponibilites', [MedecinPlanningController::class, 'addIndisponibilite']);
     Route::delete('/medecin/indisponibilites/{id}', [MedecinPlanningController::class, 'deleteIndisponibilite']);
     Route::post('/rendezvous', [RendezVousController::class, 'store']);
+
+    // Routes pour le gestionnaire (protégées par le middleware role:gestionnaire)
+    Route::middleware('role:gestionnaire')->prefix('gestionnaire')->group(function () {
+        Route::get('/dashboard', [GestionnaireController::class, 'dashboard']);
+        Route::get('/statistiques', [GestionnaireController::class, 'getStatistiques']);
+        Route::get('/users', [GestionnaireController::class, 'getUsers']);
+    });
+    // Routes pour le secrétaire (protégées par le middleware role:secretaire)
+    Route::middleware('role:secretaire')->prefix('secretaire')->group(function () {
+        Route::get('/dashboard', [SecretaireController::class, 'dashboard']);
+        Route::get('/medecins', [SecretaireController::class, 'getMedecins']);
+        Route::get('/medecins/{medecinId}/planning', [SecretaireController::class, 'getMedecinPlanning']);
+        Route::get('/medecins/{medecinId}/rendez-vous', [SecretaireController::class, 'getMedecinRendezVous']);
+        Route::get('/rendez-vous/aujourdhui', [SecretaireController::class, 'getRendezVousAujourdhui']);
+        Route::get('/patients', [SecretaireController::class, 'getPatients']);
+        
+        // Routes pour la gestion des liaisons
+        Route::post('/liaisons', [SecretaireController::class, 'sendLiaisonRequest']);
+        Route::get('/liaisons', [SecretaireController::class, 'getMesLiaisons']);
+        Route::delete('/liaisons/{id}', [SecretaireController::class, 'cancelLiaison']);
+        Route::get('/medecins-lies', [SecretaireController::class, 'getMedecinslies']);
+    });
+
+    // Routes pour le médecin (protégées par le middleware role:medecin)
+    Route::middleware('role:medecin')->prefix('medecin')->group(function () {
+        // Routes pour la gestion des liaisons
+        Route::get('/liaisons/demandes', [MedecinController::class, 'getLiaisonRequests']);
+        Route::patch('/liaisons/{id}/accepter', [MedecinController::class, 'acceptLiaison']);
+        Route::patch('/liaisons/{id}/refuser', [MedecinController::class, 'refuseLiaison']);
+        Route::get('/liaisons', [MedecinController::class, 'getAllLiaisons']);
+        Route::get('/secretaires', [MedecinController::class, 'getMesSecretaires']);
+        Route::delete('/liaisons/{id}', [MedecinController::class, 'deleteLiaison']);
+    });
+
+    // Routes pour le super admin (protégées par le middleware role:super-admin)
+    Route::middleware('role:super-admin')->prefix('super-admin')->group(function () {
+        Route::get('/dashboard', [SuperAdminController::class, 'dashboard']);
+        Route::get('/users', [SuperAdminController::class, 'getAllUsers']);
+        Route::post('/users/assign-role', [SuperAdminController::class, 'assignRole']);
+        Route::get('/roles', [SuperAdminController::class, 'getAllRoles']);
+        Route::post('/roles', [SuperAdminController::class, 'createRole']);
+    });
 });
+

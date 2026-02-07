@@ -12,16 +12,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
+        // Créer d'abord les rôles et spécialités
         $this->call([
             RoleSeeder::class,
             SpecialiteSeeder::class,
         ]);
+
+        // Créer tous les utilisateurs avec leurs rôles
+        $this->call([
+            UserSeeder::class,
+        ]);
+
+        $this->command->newLine();
+        $this->command->info('🎉 Base de données initialisée avec succès !');
     }
 }

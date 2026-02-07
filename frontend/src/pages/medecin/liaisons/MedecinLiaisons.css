@@ -1,0 +1,339 @@
+.medecin-liaisons {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.medecin-liaisons .liaisons-header {
+  margin-bottom: 2rem;
+}
+
+.medecin-liaisons .liaisons-header h1 {
+  font-size: 2rem;
+  color: #10b981;
+  margin-bottom: 0.5rem;
+}
+
+.medecin-liaisons .liaisons-header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Alertes */
+.medecin-liaisons .alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.medecin-liaisons .alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.medecin-liaisons .alert-success {
+  background-color: #efe;
+  color: #3c3;
+  border: 1px solid #cfc;
+}
+
+/* Tabs */
+.medecin-liaisons .tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.medecin-liaisons .tab {
+  background: none;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.medecin-liaisons .tab:hover {
+  color: #10b981;
+}
+
+.medecin-liaisons .tab.active {
+  color: #10b981;
+}
+
+.medecin-liaisons .tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #10b981;
+}
+
+.medecin-liaisons .badge-count {
+  background: #10b981;
+  color: white;
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Contenu des tabs */
+.medecin-liaisons .tab-content {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.1);
+}
+
+.medecin-liaisons .no-data {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.medecin-liaisons .liaisons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Carte de liaison */
+.medecin-liaisons .liaison-card {
+  background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
+  border: 2px solid #a7f3d0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.medecin-liaisons .liaison-card.pending {
+  background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
+  border-color: #a7f3d0;
+}
+
+.medecin-liaisons .liaison-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+}
+
+.medecin-liaisons .liaison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #a7f3d0;
+}
+
+.medecin-liaisons .liaison-card.pending .liaison-header {
+  border-bottom-color: #a7f3d0;
+}
+
+.medecin-liaisons .liaison-header h3 {
+  color: #333;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+}
+
+.medecin-liaisons .secretaire-email {
+  color: #10b981;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+/* Badges de statut */
+.medecin-liaisons .badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.medecin-liaisons .badge-warning {
+  background-color: #d1fae5;
+  color: #10b981;
+  border: 1px solid #a7f3d0;
+}
+
+.medecin-liaisons .badge-success {
+  background-color: #d4edda;
+  color: #28a745;
+  border: 1px solid #9ed9a8;
+}
+
+.medecin-liaisons .badge-danger {
+  background-color: #f8d7da;
+  color: #dc3545;
+  border: 1px solid #f1aeb5;
+}
+
+/* Contenu de la liaison */
+.medecin-liaisons .liaison-content {
+  margin-top: 1rem;
+}
+
+.medecin-liaisons .message-box {
+  background: rgba(16, 185, 129, 0.05);
+  border-left: 3px solid #10b981;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.medecin-liaisons .message-label {
+  font-weight: 600;
+  color: #10b981;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+}
+
+.medecin-liaisons .message-text {
+  color: #555;
+  line-height: 1.5;
+  margin: 0;
+  font-style: italic;
+}
+
+.medecin-liaisons .info-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+
+.medecin-liaisons .info-row .label {
+  font-weight: 600;
+  color: #666;
+  min-width: 120px;
+}
+
+.medecin-liaisons .info-row span:last-child {
+  color: #333;
+  flex: 1;
+}
+
+/* Actions de la liaison */
+.medecin-liaisons .liaison-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #a7f3d0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.medecin-liaisons .liaison-card.pending .liaison-actions {
+  border-top-color: #a7f3d0;
+}
+
+.medecin-liaisons .btn-accept {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.medecin-liaisons .btn-accept:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.medecin-liaisons .btn-accept:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.medecin-liaisons .btn-refuse {
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: 1;
+}
+
+.medecin-liaisons .btn-refuse:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.medecin-liaisons .btn-refuse:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.medecin-liaisons .btn-delete {
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.medecin-liaisons .btn-delete:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .medecin-liaisons {
+    padding: 1rem;
+  }
+
+  .tabs {
+    overflow-x: auto;
+  }
+
+  .tab {
+    white-space: nowrap;
+  }
+
+  .liaisons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .liaison-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .info-row .label {
+    min-width: auto;
+  }
+
+  .liaison-actions {
+    flex-direction: column;
+  }
+}

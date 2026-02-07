@@ -7,6 +7,8 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\MedecinProfile;
 use App\Models\Specialite;
+use App\Models\SecretaireMedecin;
+use App\Models\GestionnaireMedecin;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -166,6 +168,35 @@ class UserSeeder extends Seeder
         }
         $this->command->info('✓ 5 Clients: client1@mediconnect.com à client5@mediconnect.com');
 
+        // 7. Créer les liaisons validées entre Médecin 1 et Gestionnaire/Secrétaire
+        if (isset($medecin1) && isset($gestionnaire)) {
+            GestionnaireMedecin::firstOrCreate(
+                [
+                    'gestionnaire_id' => $gestionnaire->id,
+                    'medecin_id' => $medecin1->id,
+                ],
+                [
+                    'statut' => 'accepte',
+                    'message' => 'Demande de liaison pour gestion administrative',
+                ]
+            );
+            $this->command->info('✓ Liaison validée: Médecin 1 ↔ Gestionnaire');
+        }
+
+        if (isset($medecin1) && isset($secretaire)) {
+            SecretaireMedecin::firstOrCreate(
+                [
+                    'secretaire_id' => $secretaire->id,
+                    'medecin_id' => $medecin1->id,
+                ],
+                [
+                    'statut' => 'accepte',
+                    'message' => 'Demande de liaison pour gestion des rendez-vous',
+                ]
+            );
+            $this->command->info('✓ Liaison validée: Médecin 1 ↔ Secrétaire');
+        }
+
         $this->command->newLine();
         $this->command->info('=== RÉSUMÉ DES COMPTES CRÉÉS ===');
         $this->command->table(
@@ -181,6 +212,10 @@ class UserSeeder extends Seeder
                 ['Client 1-5', 'client1-5@mediconnect.com', 'password'],
             ]
         );
+        $this->command->newLine();
+        $this->command->info('=== LIAISONS CRÉÉES ===');
+        $this->command->line('✓ Dr. Jean Dupont (Médecin 1) ↔ Gestionnaire Test (accepté)');
+        $this->command->line('✓ Dr. Jean Dupont (Médecin 1) ↔ Secrétaire Médicale (accepté)');
         $this->command->warn('⚠️  Changez ces mots de passe en production !');
     }
 }

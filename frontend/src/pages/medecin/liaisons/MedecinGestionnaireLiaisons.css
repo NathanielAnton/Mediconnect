@@ -1,0 +1,307 @@
+.medecin-gestionnaire-liaisons {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.medecin-gestionnaire-liaisons .liaisons-header {
+  margin-bottom: 2rem;
+}
+
+.medecin-gestionnaire-liaisons .liaisons-header h1 {
+  font-size: 2rem;
+  color: #10b981;
+  margin-bottom: 0.5rem;
+}
+
+.medecin-gestionnaire-liaisons .liaisons-header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+.medecin-gestionnaire-liaisons .loading {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.25rem;
+  color: #10b981;
+}
+
+/* Alertes */
+.medecin-gestionnaire-liaisons .alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.medecin-gestionnaire-liaisons .alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+/* Onglets */
+.medecin-gestionnaire-liaisons .tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.medecin-gestionnaire-liaisons .tab {
+  padding: 1rem 1.5rem;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #666;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.medecin-gestionnaire-liaisons .tab:hover {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.medecin-gestionnaire-liaisons .tab.active {
+  color: #10b981;
+  border-bottom-color: #10b981;
+}
+
+.medecin-gestionnaire-liaisons .notification-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #10b981;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+/* Grille des liaisons */
+.medecin-gestionnaire-liaisons .no-data {
+  text-align: center;
+  color: #999;
+  padding: 3rem;
+  font-style: italic;
+  font-size: 1.125rem;
+}
+
+.medecin-gestionnaire-liaisons .liaisons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Carte de liaison */
+.medecin-gestionnaire-liaisons .liaison-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.medecin-gestionnaire-liaisons .liaison-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+.medecin-gestionnaire-liaisons .liaison-card.pending {
+  background: linear-gradient(135deg, #d1fae5 0%, #ffffff 100%);
+  border-color: #6ee7b7;
+}
+
+.medecin-gestionnaire-liaisons .liaison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.medecin-gestionnaire-liaisons .liaison-card.pending .liaison-header {
+  border-bottom-color: #6ee7b7;
+}
+
+.medecin-gestionnaire-liaisons .liaison-header h3 {
+  color: #333;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+}
+
+.medecin-gestionnaire-liaisons .gestionnaire-email {
+  color: #10b981;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Badges de statut */
+.medecin-gestionnaire-liaisons .badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.medecin-gestionnaire-liaisons .badge-warning {
+  background-color: #d1fae5;
+  color: #10b981;
+  border: 1px solid #6ee7b7;
+}
+
+.medecin-gestionnaire-liaisons .badge-success {
+  background-color: #d4edda;
+  color: #28a745;
+  border: 1px solid #9ed9a8;
+}
+
+.medecin-gestionnaire-liaisons .badge-danger {
+  background-color: #f8d7da;
+  color: #dc3545;
+  border: 1px solid #f1aeb5;
+}
+
+/* Contenu de la liaison */
+.medecin-gestionnaire-liaisons .liaison-content {
+  margin-top: 1rem;
+}
+
+.medecin-gestionnaire-liaisons .info-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+
+.medecin-gestionnaire-liaisons .info-row .label {
+  font-weight: 600;
+  color: #666;
+  min-width: 140px;
+}
+
+.medecin-gestionnaire-liaisons .info-row span:last-child {
+  color: #333;
+  flex: 1;
+}
+
+.medecin-gestionnaire-liaisons .message-text {
+  font-style: italic;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Actions de la liaison */
+.medecin-gestionnaire-liaisons .liaison-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.medecin-gestionnaire-liaisons .liaison-card.pending .liaison-actions {
+  border-top-color: #6ee7b7;
+}
+
+.medecin-gestionnaire-liaisons .btn-accept {
+  flex: 1;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.medecin-gestionnaire-liaisons .btn-accept:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.medecin-gestionnaire-liaisons .btn-refuse {
+  flex: 1;
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.medecin-gestionnaire-liaisons .btn-refuse:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.medecin-gestionnaire-liaisons .btn-delete {
+  width: 100%;
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.medecin-gestionnaire-liaisons .btn-delete:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .medecin-gestionnaire-liaisons {
+    padding: 1rem;
+  }
+
+  .medecin-gestionnaire-liaisons .liaisons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .medecin-gestionnaire-liaisons .liaison-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .medecin-gestionnaire-liaisons .info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .medecin-gestionnaire-liaisons .info-row .label {
+    min-width: auto;
+  }
+
+  .medecin-gestionnaire-liaisons .tabs {
+    flex-direction: column;
+  }
+
+  .medecin-gestionnaire-liaisons .tab {
+    width: 100%;
+    text-align: left;
+  }
+
+  .medecin-gestionnaire-liaisons .liaison-actions {
+    flex-direction: column;
+  }
+}

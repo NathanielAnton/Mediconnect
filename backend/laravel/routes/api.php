@@ -56,6 +56,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', [GestionnaireController::class, 'dashboard']);
         Route::get('/statistiques', [GestionnaireController::class, 'getStatistiques']);
         Route::get('/users', [GestionnaireController::class, 'getUsers']);
+
+        // Routes pour la gestion des liaisons
+        Route::post('/liaisons', [GestionnaireController::class, 'sendLiaisonRequest']);
+        Route::get('/liaisons', [GestionnaireController::class, 'getMesLiaisons']);
+        Route::delete('/liaisons/{id}', [GestionnaireController::class, 'cancelLiaison']);
+        Route::get('/medecins-lies', [GestionnaireController::class, 'getMedecinsLies']);
     });
     // Routes pour le secrétaire (protégées par le middleware role:secretaire)
     Route::middleware('role:secretaire')->prefix('secretaire')->group(function () {
@@ -65,7 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/medecins/{medecinId}/rendez-vous', [SecretaireController::class, 'getMedecinRendezVous']);
         Route::get('/rendez-vous/aujourdhui', [SecretaireController::class, 'getRendezVousAujourdhui']);
         Route::get('/patients', [SecretaireController::class, 'getPatients']);
-        
+
         // Routes pour la gestion des liaisons
         Route::post('/liaisons', [SecretaireController::class, 'sendLiaisonRequest']);
         Route::get('/liaisons', [SecretaireController::class, 'getMesLiaisons']);
@@ -75,13 +81,21 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Routes pour le médecin (protégées par le middleware role:medecin)
     Route::middleware('role:medecin')->prefix('medecin')->group(function () {
-        // Routes pour la gestion des liaisons
+        // Routes pour la gestion des liaisons avec secrétaires
         Route::get('/liaisons/demandes', [MedecinController::class, 'getLiaisonRequests']);
         Route::patch('/liaisons/{id}/accepter', [MedecinController::class, 'acceptLiaison']);
         Route::patch('/liaisons/{id}/refuser', [MedecinController::class, 'refuseLiaison']);
         Route::get('/liaisons', [MedecinController::class, 'getAllLiaisons']);
         Route::get('/secretaires', [MedecinController::class, 'getMesSecretaires']);
         Route::delete('/liaisons/{id}', [MedecinController::class, 'deleteLiaison']);
+
+        // Routes pour la gestion des liaisons avec gestionnaires
+        Route::get('/liaisons-gestionnaires/demandes', [MedecinController::class, 'getGestionnaireLiaisonRequests']);
+        Route::patch('/liaisons-gestionnaires/{id}/accepter', [MedecinController::class, 'acceptGestionnaireLiaison']);
+        Route::patch('/liaisons-gestionnaires/{id}/refuser', [MedecinController::class, 'refuseGestionnaireLiaison']);
+        Route::get('/liaisons-gestionnaires', [MedecinController::class, 'getAllGestionnaireLiaisons']);
+        Route::get('/gestionnaires', [MedecinController::class, 'getMesGestionnaires']);
+        Route::delete('/liaisons-gestionnaires/{id}', [MedecinController::class, 'deleteGestionnaireLiaison']);
     });
 
     // Routes pour le super admin (protégées par le middleware role:super-admin)
@@ -93,4 +107,3 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/roles', [SuperAdminController::class, 'createRole']);
     });
 });
-

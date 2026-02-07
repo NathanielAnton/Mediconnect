@@ -1,0 +1,288 @@
+.gestionnaire-liaisons {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.gestionnaire-liaisons .liaisons-header {
+  margin-bottom: 2rem;
+}
+
+.gestionnaire-liaisons .liaisons-header h1 {
+  font-size: 2rem;
+  color: #ec4899;
+  margin-bottom: 0.5rem;
+}
+
+.gestionnaire-liaisons .liaisons-header p {
+  color: #666;
+  font-size: 1rem;
+}
+
+/* Formulaire de demande */
+.gestionnaire-liaisons .liaison-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.1);
+  margin-bottom: 2rem;
+  border-left: 4px solid #ec4899;
+}
+
+.gestionnaire-liaisons .liaison-form-card h2 {
+  color: #ec4899;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.gestionnaire-liaisons .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.gestionnaire-liaisons .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.gestionnaire-liaisons .form-group input,
+.gestionnaire-liaisons .form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s;
+}
+
+.gestionnaire-liaisons .form-group input:focus,
+.gestionnaire-liaisons .form-group textarea:focus {
+  outline: none;
+  border-color: #ec4899;
+}
+
+.gestionnaire-liaisons .form-group textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.gestionnaire-liaisons .form-group small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+/* Alertes */
+.gestionnaire-liaisons .alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.gestionnaire-liaisons .alert-error {
+  background-color: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.gestionnaire-liaisons .alert-success {
+  background-color: #efe;
+  color: #3c3;
+  border: 1px solid #cfc;
+}
+
+/* Boutons */
+.gestionnaire-liaisons .btn-submit {
+  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  color: white;
+  padding: 0.75rem 2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gestionnaire-liaisons .btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
+}
+
+.gestionnaire-liaisons .btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Liste des liaisons */
+.gestionnaire-liaisons .liaisons-list-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.1);
+}
+
+.gestionnaire-liaisons .liaisons-list-card h2 {
+  color: #ec4899;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.gestionnaire-liaisons .no-data {
+  text-align: center;
+  color: #999;
+  padding: 2rem;
+  font-style: italic;
+}
+
+.gestionnaire-liaisons .liaisons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Carte de liaison */
+.gestionnaire-liaisons .liaison-card {
+  background: linear-gradient(135deg, #fce7f3 0%, #ffffff 100%);
+  border: 2px solid #f9a8d4;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.gestionnaire-liaisons .liaison-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.15);
+}
+
+.gestionnaire-liaisons .liaison-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f9a8d4;
+}
+
+.gestionnaire-liaisons .liaison-header h3 {
+  color: #333;
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+}
+
+.gestionnaire-liaisons .medecin-specialite {
+  color: #ec4899;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Badges de statut */
+.gestionnaire-liaisons .badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gestionnaire-liaisons .badge-warning {
+  background-color: #fce7f3;
+  color: #ec4899;
+  border: 1px solid #f9a8d4;
+}
+
+.gestionnaire-liaisons .badge-success {
+  background-color: #d4edda;
+  color: #28a745;
+  border: 1px solid #9ed9a8;
+}
+
+.gestionnaire-liaisons .badge-danger {
+  background-color: #f8d7da;
+  color: #dc3545;
+  border: 1px solid #f1aeb5;
+}
+
+/* Contenu de la liaison */
+.gestionnaire-liaisons .liaison-content {
+  margin-top: 1rem;
+}
+
+.gestionnaire-liaisons .info-row {
+  display: flex;
+  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+}
+
+.gestionnaire-liaisons .info-row .label {
+  font-weight: 600;
+  color: #666;
+  min-width: 100px;
+}
+
+.gestionnaire-liaisons .info-row span:last-child {
+  color: #333;
+  flex: 1;
+}
+
+.gestionnaire-liaisons .message-text {
+  font-style: italic;
+  color: #555;
+  line-height: 1.5;
+}
+
+/* Actions de la liaison */
+.gestionnaire-liaisons .liaison-actions {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f9a8d4;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gestionnaire-liaisons .btn-cancel {
+  background: transparent;
+  color: #dc3545;
+  border: 2px solid #dc3545;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gestionnaire-liaisons .btn-cancel:hover {
+  background: #dc3545;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .gestionnaire-liaisons {
+    padding: 1rem;
+  }
+
+  .gestionnaire-liaisons .liaisons-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gestionnaire-liaisons .liaison-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .gestionnaire-liaisons .info-row {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .gestionnaire-liaisons .info-row .label {
+    min-width: auto;
+  }
+}

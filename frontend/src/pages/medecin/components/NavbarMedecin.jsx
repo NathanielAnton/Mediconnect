@@ -41,11 +41,11 @@ const NavbarMedecin = () => {
           </a>
           {/* Navigation links */}
           <div className={styles.navLinks}>
+            <a href="/dashboard" className={styles.navLink}>
+              Tableau de bord
+            </a>
             <a href="/medecin/planning" className={styles.navLink}>
               Planning
-            </a>
-            <a href="/medecin/dashboard" className={styles.navLink}>
-              Liaisons
             </a>
             <a href="#patients" className={styles.navLink}>
               Dossiers Patients

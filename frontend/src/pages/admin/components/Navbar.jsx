@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import styles from "./Navbar.module.css";
 
 const Navbar = () => {
@@ -41,6 +41,12 @@ const Navbar = () => {
 
           {/* Navigation links */}
           <div className={styles.navLinks}>
+            <Link to="/admin/dashboard" className={styles.navLink}>
+              Dashboard
+            </Link>
+            <Link to="/admin/demandes-gestionnaires" className={styles.navLink}>
+              Demandes Gestionnaires
+            </Link>
             <a href="#utilisateurs" className={styles.navLink}>
               Utilisateurs
             </a>
@@ -60,7 +66,7 @@ const Navbar = () => {
 
           {/* User info et déconnexion */}
           <div className={styles.userSection}>
-            <span className={styles.userGreeting}>Admin: {user.name}</span>
+            <span className={styles.userGreeting}>Admin: {user?.name || "Chargement..."}</span>
             <button onClick={handleLogout} className={styles.logoutButton}>
               <svg
                 className={styles.logoutIcon}

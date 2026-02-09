@@ -32,9 +32,13 @@ Route::get('/user', [AuthController::class, 'user']);
 
 // Routes pour les demandes de gestionnaire
 Route::post('/demande-gestionnaire', [GestionnaireRequestController::class, 'store']);
-Route::get('/demande-gestionnaire', [GestionnaireRequestController::class, 'index']);
-Route::get('/demande-gestionnaire/{id}', [GestionnaireRequestController::class, 'show']);
-Route::put('/demande-gestionnaire/{id}/statut', [GestionnaireRequestController::class, 'updateStatut']);
+
+// Routes protégées admin pour gérer les demandes
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::get('/demande-gestionnaire', [GestionnaireRequestController::class, 'index']);
+    Route::get('/demande-gestionnaire/{id}', [GestionnaireRequestController::class, 'show']);
+    Route::put('/demande-gestionnaire/{id}/statut', [GestionnaireRequestController::class, 'updateStatut']);
+});
 
 // Route de test
 Route::get('/test', function () {

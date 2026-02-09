@@ -15,6 +15,8 @@ import Home from "./pages/Home";
 import DashboardGestionnaire from "./pages/gestionnaire/dashboard/DashboardGestionnaire";
 import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretaire";
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
+import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
+import GestionnaireRequests from "./pages/admin/gestionnaire-requests/GestionnaireRequests";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -33,6 +35,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
           <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
           <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
+          <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+          <Route path="/admin/demandes-gestionnaires" element={<GestionnaireRequests />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\DemandeGestionnaire;
+use App\Models\User;
+use App\Models\Gestionnaire;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class GestionnaireRequestController extends Controller
 {
@@ -71,14 +74,73 @@ class GestionnaireRequestController extends Controller
         ]);
 
         $demande = DemandeGestionnaire::findOrFail($id);
-        $demande->update([
-            'statut' => $request->statut,
-            'commentaire_admin' => $request->commentaire_admin,
-        ]);
 
-        return response()->json([
-            'message' => 'Statut mis à jour avec succès',
-            'demande' => $demande
-        ]);
+        // Si la demande est approuvée, créer le user et le gestionnaire
+        if ($request->statut === 'approuvee' && $demande->statut !== 'approuvee') {
+            DB::beginTransaction();
+            try {
+                // Vérifier si un utilisateur avec cet email existe déjà
+                $existingUser = User::where('email', $demande->email)->first();
+
+                if ($existingUser) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'Un utilisateur avec cet email existe déjà'
+                    ], 422);
+                }
+
+                // Créer l'utilisateur
+                $user = User::create([
+                    'name' => $demande->name,
+                    'email' => $demande->email,
+                    'password' => $demande->password, // Déjà hashé
+                ]);
+
+                // Assigner le rôle gestionnaire
+                $user->assignRole('gestionnaire');
+
+                // Créer l'entrée gestionnaire avec les infos supplémentaires
+                Gestionnaire::create([
+                    'user_id' => $user->id,
+                    'telephone' => $demande->telephone,
+                    'etablissement' => $demande->etablissement,
+                ]);
+
+                // Mettre à jour le statut de la demande
+                $demande->update([
+                    'statut' => $request->statut,
+                    'commentaire_admin' => $request->commentaire_admin,
+                ]);
+
+                DB::commit();
+
+                return response()->json([
+                    'message' => 'Demande approuvée et compte gestionnaire créé avec succès',
+                    'demande' => $demande,
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'Erreur lors de la création du compte gestionnaire',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
+        } else {
+            // Si refusée ou autre statut, juste mettre à jour
+            $demande->update([
+                'statut' => $request->statut,
+                'commentaire_admin' => $request->commentaire_admin,
+            ]);
+
+            return response()->json([
+                'message' => 'Statut mis à jour avec succès',
+                'demande' => $demande
+            ]);
+        }
     }
 }

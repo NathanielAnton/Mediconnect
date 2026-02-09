@@ -1,0 +1,94 @@
+/* Navbar */
+.navbar {
+  background-color: #dc2626;
+  color: white;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.navbarInner {
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.navbarContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logoIcon {
+  width: 2rem;
+  height: 2rem;
+}
+
+.logoTitle {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+/* Navigation links */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.navLink {
+  color: white;
+  text-decoration: none;
+  transition: color 200ms ease;
+}
+
+.navLink:hover {
+  color: #fca5a5;
+}
+
+/* User section */
+.userSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.userGreeting {
+  color: #fee2e2;
+}
+
+.logoutButton {
+  background-color: #b91c1c;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 200ms ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.logoutButton:hover {
+  background-color: #991b1b;
+}
+
+.logoutIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navLinks {
+    gap: 0.75rem;
+    font-size: 0.875rem;
+  }
+}

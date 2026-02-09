@@ -8,15 +8,69 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const navigate = useNavigate();
+
+  // Validation côté frontend
+  const validateEmail = (email) => {
+    if (!email) return "L'adresse email est requise";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return "L'adresse email n'est pas valide";
+    return "";
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return "Le mot de passe est requis";
+    if (password.length < 6) return "Le mot de passe doit contenir au moins 6 caractères";
+    return "";
+  };
+
+  const handleEmailBlur = () => {
+    setErrors((prev) => ({ ...prev, email: validateEmail(email) }));
+  };
+
+  const handlePasswordBlur = () => {
+    setErrors((prev) => ({ ...prev, password: validatePassword(password) }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({ email: "", password: "" });
+
+    // Validation frontend
+    const emailError = validateEmail(email);
+    const passwordError = validatePassword(password);
+
+    if (emailError || passwordError) {
+      setErrors({ email: emailError, password: passwordError });
+      return;
+    }
+
+    setLoading(true);
     try {
       await login(email, password);
       navigate("/dashboard");
-    } catch {
-      alert("Erreur de connexion");
+    } catch (error) {
+      setLoading(false);
+      // Gérer les erreurs du backend
+      if (error.response?.data?.errors) {
+        const backendErrors = error.response.data.errors;
+        setErrors({
+          email: backendErrors.email?.[0] || "",
+          password: backendErrors.password?.[0] || "",
+        });
+      } else if (error.response?.status === 401) {
+        // Message générique pour erreur de connexion
+        setErrors({
+          email: "",
+          password: error.response?.data?.message || "Email ou mot de passe incorrect",
+        });
+      } else {
+        setErrors({
+          email: "",
+          password: "Erreur de connexion. Veuillez réessayer.",
+        });
+      }
     }
   };
 
@@ -33,7 +87,7 @@ export default function Login() {
         <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
           Votre plateforme médicale de référence pour une santé connectée
         </p>
-        
+
         {/* Features */}
         <div className="space-y-6 w-full max-w-md">
           <div className="flex items-start space-x-4">
@@ -45,7 +99,7 @@ export default function Login() {
               <p className="text-gray-600 text-sm">Prenez vos rendez-vous en quelques clics</p>
             </div>
           </div>
-          
+
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-blue-600 font-bold">✓</span>
@@ -55,14 +109,16 @@ export default function Login() {
               <p className="text-gray-600 text-sm">Accédez à vos dossiers et consultations</p>
             </div>
           </div>
-          
+
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
               <span className="text-blue-600 font-bold">✓</span>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800">Sécurisé et confidentiel</h3>
-              <p className="text-gray-600 text-sm">Vos données protégées par les normes médicales</p>
+              <p className="text-gray-600 text-sm">
+                Vos données protégées par les normes médicales
+              </p>
             </div>
           </div>
         </div>
@@ -87,38 +143,55 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adresse email
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Adresse email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
                   placeholder="exemple@email.com"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                  }}
+                  onBlur={handleEmailBlur}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
+                  } focus:border-transparent transition`}
                 />
               </div>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="password"
                   placeholder="••••••••"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                  }}
+                  onBlur={handlePasswordBlur}
                   className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 />
               </div>
+              {errors.password && (
+                <p className="mt-2 text-sm text-red-600 flex items-start">
+                  <span className="mr-1 mt-0.5">ℹ️</span>
+                  <span>{errors.password}</span>
+                </p>
+              )}
             </div>
 
             {/* Remember & Forgot Password */}

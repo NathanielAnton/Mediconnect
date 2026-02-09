@@ -44,11 +44,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        // Validation des champs requis
         $request->validate([
             'email' => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:6',
+        ], [
+            'email.required' => 'L\'adresse email est requise',
+            'email.email' => 'L\'adresse email n\'est pas valide',
+            'password.required' => 'Le mot de passe est requis',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères'
         ]);
 
+        // Tentative de connexion
         if (Auth::attempt($request->only('email', 'password'))) {
             $request->session()->regenerate();
 
@@ -59,16 +66,17 @@ class AuthController extends Controller
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
-                    'role' => $user->getMainRoleAttribute(), // Récupérer le rôle principal
+                    'role' => $user->getMainRoleAttribute(),
                 ],
                 'token' => 'session-based',
                 'roles' => $user->getRoleNames()->toArray()
             ]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => ['The provided credentials are incorrect.'],
-        ]);
+        // Message générique pour ne pas révéler d'informations
+        return response()->json([
+            'message' => 'Email ou mot de passe incorrect'
+        ], 401);
     }
 
     public function logout(Request $request)

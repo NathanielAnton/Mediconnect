@@ -12,11 +12,22 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
+        // Validation avec messages en français
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:6',
             'role' => 'required|string|in:client,medecin,admin',
+        ], [
+            'name.required' => 'Le nom est requis',
+            'name.max' => 'Le nom ne peut pas dépasser 255 caractères',
+            'email.required' => 'L\'adresse email est requise',
+            'email.email' => 'L\'adresse email n\'est pas valide',
+            'email.unique' => 'Il existe déjà un compte avec cette adresse email',
+            'password.required' => 'Le mot de passe est requis',
+            'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
+            'role.required' => 'Le rôle est requis',
+            'role.in' => 'Le rôle sélectionné n\'est pas valide'
         ]);
 
         $user = User::create([
@@ -35,7 +46,7 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->getMainRoleAttribute(), // Récupérer le rôle principal
+                'role' => $user->getMainRoleAttribute(),
             ],
             'token' => 'session-based',
             'roles' => $user->getRoleNames()->toArray()

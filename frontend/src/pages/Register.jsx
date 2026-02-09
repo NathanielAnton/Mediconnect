@@ -7,15 +7,51 @@ export default function Register() {
   const { register } = useContext(AuthContext);
   const [form, setForm] = useState({ name: "", email: "", password: "", role: "client" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [errors, setErrors] = useState({ name: "", email: "", password: "", general: "" });
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+
+  // Validation côté frontend
+  const validateName = (name) => {
+    if (!name.trim()) return "Le nom est requis";
+    if (name.length > 255) return "Le nom ne peut pas dépasser 255 caractères";
+    return "";
+  };
+
+  const validateEmail = (email) => {
+    if (!email) return "L'adresse email est requise";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return "L'adresse email n'est pas valide";
+    return "";
+  };
+
+  const validatePassword = (password) => {
+    if (!password) return "Le mot de passe est requis";
+    if (password.length < 6) return "Le mot de passe doit contenir au moins 6 caractères";
+    return "";
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
-    
+    setErrors({ name: "", email: "", password: "", general: "" });
+
+    // Validation frontend
+    const nameError = validateName(form.name);
+    const emailError = validateEmail(form.email);
+    const passwordError = validatePassword(form.password);
+
+    if (nameError || emailError || passwordError) {
+      setErrors({
+        name: nameError,
+        email: emailError,
+        password: passwordError,
+        general: "",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       await register(form.name, form.email, form.password, form.role);
       setSuccess(true);
@@ -23,9 +59,35 @@ export default function Register() {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      setError("Erreur lors de l'inscription. Veuillez réessayer.");
-    } finally {
       setLoading(false);
+
+      // Gérer les différents types d'erreurs
+      if (err.response?.data?.errors) {
+        const backendErrors = err.response.data.errors;
+        setErrors({
+          name: backendErrors.name?.[0] || "",
+          email: backendErrors.email?.[0] || "",
+          password: backendErrors.password?.[0] || "",
+          general: "",
+        });
+      } else if (err.response?.status >= 500) {
+        // Erreur serveur
+        setErrors({
+          name: "",
+          email: "",
+          password: "",
+          general:
+            "Problème de l'application, veuillez réessayer plus tard ou contactez le support",
+        });
+      } else {
+        // Autre erreur
+        setErrors({
+          name: "",
+          email: "",
+          password: "",
+          general: "Une erreur est survenue lors de l'inscription",
+        });
+      }
     }
   };
 
@@ -42,7 +104,7 @@ export default function Register() {
         <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
           Rejoignez notre communauté médicale et commencez votre parcours de santé connectée
         </p>
-        
+
         {/* Benefits */}
         <div className="space-y-6 w-full max-w-md">
           <div className="flex items-start space-x-4">
@@ -51,10 +113,12 @@ export default function Register() {
             </div>
             <div>
               <h3 className="font-semibold text-gray-800">Accès gratuit</h3>
-              <p className="text-gray-600 text-sm">Créez votre compte gratuitement sans engagement</p>
+              <p className="text-gray-600 text-sm">
+                Créez votre compte gratuitement sans engagement
+              </p>
             </div>
           </div>
-          
+
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-green-600 font-bold">✓</span>
@@ -64,7 +128,7 @@ export default function Register() {
               <p className="text-gray-600 text-sm">Inscription en moins de 2 minutes</p>
             </div>
           </div>
-          
+
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
               <span className="text-green-600 font-bold">✓</span>
@@ -93,74 +157,101 @@ export default function Register() {
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Créer un compte</h2>
           <p className="text-gray-600 mb-8">Rejoignez MediConnect en quelques secondes</p>
 
-          {/* Error Message */}
-          {error && (
+          {/* General Error Message */}
+          {errors.general && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-600 text-sm font-medium">{error}</p>
+              <p className="text-red-600 text-sm font-medium">{errors.general}</p>
             </div>
           )}
 
           {/* Success Message */}
           {success && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-600 text-sm font-medium">Inscription réussie ! Redirection...</p>
+              <p className="text-green-600 text-sm font-medium">
+                Inscription réussie ! Redirection...
+              </p>
             </div>
           )}
 
           <div className="space-y-5">
             {/* Name Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nom complet
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Jean Dupont"
                   value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  required
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  onChange={(e) => {
+                    setForm({ ...form, name: e.target.value });
+                    if (errors.name) setErrors((prev) => ({ ...prev, name: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.name ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
+                  } focus:border-transparent transition`}
                 />
               </div>
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.name}
+                </p>
+              )}
             </div>
 
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adresse email
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Adresse email</label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
                   placeholder="exemple@email.com"
                   value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  required
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  onChange={(e) => {
+                    setForm({ ...form, email: e.target.value });
+                    if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.email ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
+                  } focus:border-transparent transition`}
                 />
               </div>
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.email}
+                </p>
+              )}
             </div>
 
             {/* Password Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mot de passe
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Mot de passe</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="password"
                   placeholder="••••••••"
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  required
+                  onChange={(e) => {
+                    setForm({ ...form, password: e.target.value });
+                    if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
+                  }}
                   className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 />
               </div>
-              <p className="text-gray-500 text-xs mt-2">Au moins 6 caractères</p>
+              {errors.password ? (
+                <p className="mt-2 text-sm text-red-600 flex items-start">
+                  <span className="mr-1 mt-0.5">ℹ️</span>
+                  <span>{errors.password}</span>
+                </p>
+              ) : (
+                <p className="text-gray-500 text-xs mt-2">Au moins 6 caractères</p>
+              )}
             </div>
 
             {/* Role Selection */}
@@ -169,7 +260,9 @@ export default function Register() {
                 Je m'inscris en tant que...
               </label>
               <div className="grid grid-cols-2 gap-3">
-                <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition ${form.role === "client" ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}`}>
+                <label
+                  className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition ${form.role === "client" ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}`}
+                >
                   <input
                     type="radio"
                     name="role"
@@ -184,7 +277,9 @@ export default function Register() {
                   </div>
                 </label>
 
-                <label className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition ${form.role === "medecin" ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}`}>
+                <label
+                  className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition ${form.role === "medecin" ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}`}
+                >
                   <input
                     type="radio"
                     name="role"
@@ -205,7 +300,14 @@ export default function Register() {
             <div className="flex items-start space-x-2">
               <input type="checkbox" required className="w-4 h-4 mt-1 rounded border-gray-300" />
               <label className="text-sm text-gray-600">
-                J'accepte les <a href="#" className="text-blue-600 hover:underline">conditions d'utilisation</a> et la <a href="#" className="text-blue-600 hover:underline">politique de confidentialité</a>
+                J'accepte les{" "}
+                <a href="#" className="text-blue-600 hover:underline">
+                  conditions d'utilisation
+                </a>{" "}
+                et la{" "}
+                <a href="#" className="text-blue-600 hover:underline">
+                  politique de confidentialité
+                </a>
               </label>
             </div>
 

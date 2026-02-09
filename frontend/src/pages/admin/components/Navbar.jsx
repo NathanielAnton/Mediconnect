@@ -36,14 +36,13 @@ const Navbar = () => {
                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
               />
             </svg>
-            <h1 className={styles.logoTitle}>Espace Administrateur</h1>
+            <Link to="/admin/dashboard" className={styles.logoTitle}>
+              <h1>Espace Administrateur</h1>
+            </Link>
           </div>
 
           {/* Navigation links */}
           <div className={styles.navLinks}>
-            <Link to="/admin/dashboard" className={styles.navLink}>
-              Dashboard
-            </Link>
             <Link to="/admin/demandes-gestionnaires" className={styles.navLink}>
               Demandes Gestionnaires
             </Link>

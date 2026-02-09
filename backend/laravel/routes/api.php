@@ -12,6 +12,7 @@ use App\Http\Controllers\GestionnaireController;
 use App\Http\Controllers\SecretaireController;
 use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\MedecinController;
+use App\Http\Controllers\GestionnaireRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,6 +29,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout']);
 Route::get('/user', [AuthController::class, 'user']);
+
+// Routes pour les demandes de gestionnaire
+Route::post('/demande-gestionnaire', [GestionnaireRequestController::class, 'store']);
+Route::get('/demande-gestionnaire', [GestionnaireRequestController::class, 'index']);
+Route::get('/demande-gestionnaire/{id}', [GestionnaireRequestController::class, 'show']);
+Route::put('/demande-gestionnaire/{id}/statut', [GestionnaireRequestController::class, 'updateStatut']);
 
 // Route de test
 Route::get('/test', function () {

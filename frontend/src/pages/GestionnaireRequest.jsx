@@ -1,13 +1,25 @@
-import { useState, useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Stethoscope, UserCheck } from "lucide-react";
+import { Mail, Lock, User, Stethoscope, UserCheck, Building, Phone } from "lucide-react";
+import axios from "../api/axios";
 
-export default function Register() {
-  const { register } = useContext(AuthContext);
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "client" });
+export default function GestionnaireRequest() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    telephone: "",
+    etablissement: "",
+  });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ name: "", email: "", password: "", general: "" });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    telephone: "",
+    etablissement: "",
+    general: "",
+  });
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
@@ -31,21 +43,35 @@ export default function Register() {
     return "";
   };
 
+  const validateTelephone = (telephone) => {
+    if (!telephone.trim()) return "Le numéro de téléphone est requis";
+    return "";
+  };
+
+  const validateEtablissement = (etablissement) => {
+    if (!etablissement.trim()) return "Le nom de l'établissement est requis";
+    return "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrors({ name: "", email: "", password: "", general: "" });
+    setErrors({ name: "", email: "", password: "", telephone: "", etablissement: "", general: "" });
 
     // Validation frontend
     const nameError = validateName(form.name);
     const emailError = validateEmail(form.email);
     const passwordError = validatePassword(form.password);
+    const telephoneError = validateTelephone(form.telephone);
+    const etablissementError = validateEtablissement(form.etablissement);
 
-    if (nameError || emailError || passwordError) {
+    if (nameError || emailError || passwordError || telephoneError || etablissementError) {
       setErrors({
         name: nameError,
         email: emailError,
         password: passwordError,
+        telephone: telephoneError,
+        etablissement: etablissementError,
         general: "",
       });
       setLoading(false);
@@ -53,11 +79,11 @@ export default function Register() {
     }
 
     try {
-      await register(form.name, form.email, form.password, form.role);
+      await axios.post("/demande-gestionnaire", form);
       setSuccess(true);
       setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 3000);
     } catch (err) {
       setLoading(false);
 
@@ -68,24 +94,28 @@ export default function Register() {
           name: backendErrors.name?.[0] || "",
           email: backendErrors.email?.[0] || "",
           password: backendErrors.password?.[0] || "",
+          telephone: backendErrors.telephone?.[0] || "",
+          etablissement: backendErrors.etablissement?.[0] || "",
           general: "",
         });
       } else if (err.response?.status >= 500) {
-        // Erreur serveur
         setErrors({
           name: "",
           email: "",
           password: "",
+          telephone: "",
+          etablissement: "",
           general:
             "Problème de l'application, veuillez réessayer plus tard ou contactez le support",
         });
       } else {
-        // Autre erreur
         setErrors({
           name: "",
           email: "",
           password: "",
-          general: "Une erreur est survenue lors de l'inscription",
+          telephone: "",
+          etablissement: "",
+          general: "Une erreur est survenue lors de l'envoi de votre demande",
         });
       }
     }
@@ -96,66 +126,66 @@ export default function Register() {
       {/* Left Section - Branding */}
       <div className="hidden lg:flex w-1/2 flex-col justify-center items-center pr-12">
         <div className="mb-8">
-          <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
-            <Stethoscope className="w-10 h-10 text-white" />
+          <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full shadow-lg">
+            <Building className="w-10 h-10 text-white" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">MediConnect</h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Demande Gestionnaire</h1>
         <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
-          Rejoignez notre communauté médicale et commencez votre parcours de santé connectée
+          Demandez un compte gestionnaire pour gérer votre établissement médical
         </p>
 
         {/* Benefits */}
         <div className="space-y-6 w-full max-w-md">
           <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 font-bold">✓</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+              <span className="text-purple-600 font-bold">1</span>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800">Accès gratuit</h3>
+              <h3 className="font-semibold text-gray-800">Remplissez le formulaire</h3>
               <p className="text-gray-600 text-sm">
-                Créez votre compte gratuitement sans engagement
+                Fournissez vos informations et celles de votre établissement
               </p>
             </div>
           </div>
 
           <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 font-bold">✓</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+              <span className="text-purple-600 font-bold">2</span>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800">Simple et rapide</h3>
-              <p className="text-gray-600 text-sm">Inscription en moins de 2 minutes</p>
+              <h3 className="font-semibold text-gray-800">Validation par l'admin</h3>
+              <p className="text-gray-600 text-sm">Notre équipe examine votre demande</p>
             </div>
           </div>
 
           <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <span className="text-green-600 font-bold">✓</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+              <span className="text-purple-600 font-bold">3</span>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-800">Sécurisé</h3>
-              <p className="text-gray-600 text-sm">Vos données sont protégées et confidentielles</p>
+              <h3 className="font-semibold text-gray-800">Compte activé</h3>
+              <p className="text-gray-600 text-sm">Recevez un email de confirmation</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Right Section - Register Form */}
+      {/* Right Section - Request Form */}
       <div className="w-full lg:w-1/2 max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Mobile Logo */}
           <div className="lg:hidden mb-8">
             <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
-                <Stethoscope className="w-8 h-8 text-white" />
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full shadow-lg">
+                <Building className="w-8 h-8 text-white" />
               </div>
             </div>
             <h1 className="text-2xl font-bold text-gray-800 text-center">MediConnect</h1>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Créer un compte</h2>
-          <p className="text-gray-600 mb-8">Rejoignez MediConnect en quelques secondes</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Demande de compte gestionnaire</h2>
+          <p className="text-gray-600 mb-8">Votre demande sera examinée par notre équipe</p>
 
           {/* General Error Message */}
           {errors.general && (
@@ -168,12 +198,13 @@ export default function Register() {
           {success && (
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-green-600 text-sm font-medium">
-                Inscription réussie ! Redirection...
+                Votre demande a été envoyée avec succès ! Vous serez notifié par email une fois
+                approuvée.
               </p>
             </div>
           )}
 
-          <div className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Name Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Nom complet</label>
@@ -190,7 +221,7 @@ export default function Register() {
                   className={`w-full pl-12 pr-4 py-3 border ${
                     errors.name ? "border-red-500" : "border-gray-300"
                   } rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
+                    errors.name ? "focus:ring-red-500" : "focus:ring-purple-500"
                   } focus:border-transparent transition`}
                 />
               </div>
@@ -203,12 +234,14 @@ export default function Register() {
 
             {/* Email Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Adresse email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Adresse email professionnelle
+              </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
-                  placeholder="exemple@email.com"
+                  placeholder="gestionnaire@hopital.com"
                   value={form.email}
                   onChange={(e) => {
                     setForm({ ...form, email: e.target.value });
@@ -217,13 +250,71 @@ export default function Register() {
                   className={`w-full pl-12 pr-4 py-3 border ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   } rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
+                    errors.email ? "focus:ring-red-500" : "focus:ring-purple-500"
                   } focus:border-transparent transition`}
                 />
               </div>
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center">
                   <span className="mr-1">⚠</span> {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Telephone Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Numéro de téléphone
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="tel"
+                  placeholder="06 12 34 56 78"
+                  value={form.telephone}
+                  onChange={(e) => {
+                    setForm({ ...form, telephone: e.target.value });
+                    if (errors.telephone) setErrors((prev) => ({ ...prev, telephone: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.telephone ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.telephone ? "focus:ring-red-500" : "focus:ring-purple-500"
+                  } focus:border-transparent transition`}
+                />
+              </div>
+              {errors.telephone && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.telephone}
+                </p>
+              )}
+            </div>
+
+            {/* Etablissement Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Nom de l'établissement
+              </label>
+              <div className="relative">
+                <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Hôpital Central"
+                  value={form.etablissement}
+                  onChange={(e) => {
+                    setForm({ ...form, etablissement: e.target.value });
+                    if (errors.etablissement) setErrors((prev) => ({ ...prev, etablissement: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.etablissement ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.etablissement ? "focus:ring-red-500" : "focus:ring-purple-500"
+                  } focus:border-transparent transition`}
+                />
+              </div>
+              {errors.etablissement && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.etablissement}
                 </p>
               )}
             </div>
@@ -241,7 +332,7 @@ export default function Register() {
                     setForm({ ...form, password: e.target.value });
                     if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
                   }}
-                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
                 />
               </div>
               {errors.password ? (
@@ -254,82 +345,25 @@ export default function Register() {
               )}
             </div>
 
-            {/* Role Selection */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Je m'inscris en tant que...
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <label
-                  className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition ${form.role === "client" ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}`}
-                >
-                  <input
-                    type="radio"
-                    name="role"
-                    value="client"
-                    checked={form.role === "client"}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
-                    className="w-4 h-4"
-                  />
-                  <div className="ml-3">
-                    <p className="font-semibold text-gray-800 text-sm">Patient</p>
-                    <p className="text-gray-500 text-xs">Consulter un médecin</p>
-                  </div>
-                </label>
-
-                <label
-                  className={`relative flex items-center p-4 border rounded-lg cursor-pointer transition ${form.role === "medecin" ? "border-blue-500 bg-blue-50" : "border-gray-300 hover:border-gray-400"}`}
-                >
-                  <input
-                    type="radio"
-                    name="role"
-                    value="medecin"
-                    checked={form.role === "medecin"}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
-                    className="w-4 h-4"
-                  />
-                  <div className="ml-3">
-                    <p className="font-semibold text-gray-800 text-sm">Médecin</p>
-                    <p className="text-gray-500 text-xs">Gérer mes patients</p>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Terms Checkbox */}
-            <div className="flex items-start space-x-2">
-              <input type="checkbox" required className="w-4 h-4 mt-1 rounded border-gray-300" />
-              <label className="text-sm text-gray-600">
-                J'accepte les{" "}
-                <a href="#" className="text-blue-600 hover:underline">
-                  conditions d'utilisation
-                </a>{" "}
-                et la{" "}
-                <a href="#" className="text-blue-600 hover:underline">
-                  politique de confidentialité
-                </a>
-              </label>
-            </div>
-
             {/* Submit Button */}
             <button
-              onClick={handleSubmit}
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              type="submit"
+              disabled={loading || success}
+              className="w-full bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  <span>Inscription en cours...</span>
+                  <span>Envoi en cours...</span>
                 </>
               ) : (
                 <>
                   <UserCheck className="w-5 h-5" />
-                  <span>Créer mon compte</span>
+                  <span>Envoyer ma demande</span>
                 </>
               )}
             </button>
-          </div>
+          </form>
 
           {/* Divider */}
           <div className="relative my-8">
@@ -341,31 +375,28 @@ export default function Register() {
             </div>
           </div>
 
-          {/* Login Link */}
-          <p className="text-center text-gray-600">
-            Vous avez déjà un compte ?{" "}
-            <a href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
-              Se connecter
-            </a>
-          </p>
-
-          {/* Gestionnaire Request Link */}
-          <p className="text-center text-gray-600 text-sm mt-4">
-            Vous voulez faire la demande d'un compte de gestionnaire ?{" "}
-            <a
-              href="/demande-gestionnaire"
-              className="text-blue-600 hover:text-blue-700 font-semibold"
-            >
-              Faire une demande
-            </a>
-          </p>
+          {/* Login/Register Links */}
+          <div className="space-y-2 text-center text-sm">
+            <p className="text-gray-600">
+              Vous avez déjà un compte ?{" "}
+              <a href="/login" className="text-purple-600 hover:text-purple-700 font-semibold">
+                Se connecter
+              </a>
+            </p>
+            <p className="text-gray-600">
+              Vous êtes un patient ou médecin ?{" "}
+              <a href="/register" className="text-purple-600 hover:text-purple-700 font-semibold">
+                S'inscrire
+              </a>
+            </p>
+          </div>
         </div>
 
         {/* Footer Info */}
         <div className="mt-8 text-center text-gray-600 text-sm">
           <p>
             Besoin d'aide ?{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="#" className="text-purple-600 hover:underline">
               Contactez le support
             </a>
           </p>

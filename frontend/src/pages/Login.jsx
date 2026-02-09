@@ -239,6 +239,17 @@ export default function Login() {
               S'inscrire
             </a>
           </p>
+
+          {/* Gestionnaire Request Link */}
+          <p className="text-center text-gray-600 text-sm mt-4">
+            Vous voulez faire la demande d'un compte de gestionnaire ?{" "}
+            <a
+              href="/demande-gestionnaire"
+              className="text-blue-600 hover:text-blue-700 font-semibold"
+            >
+              Faire une demande
+            </a>
+          </p>
         </div>
 
         {/* Footer Info */}

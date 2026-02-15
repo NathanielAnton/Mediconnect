@@ -42,6 +42,5 @@ jobs:
             --exclude 'node_modules/' \
             --exclude 'dist/' \
             --exclude '.env' \
-            --exclude 'src/api/axios.js' \
             frontend/ \
             ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:/var/www/Mediconnect/frontend/

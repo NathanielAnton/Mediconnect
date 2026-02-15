@@ -12,16 +12,13 @@ const api = axios.create({
 // Fonction pour récupérer le CSRF token
 const getCSRFToken = async () => {
   try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL.replace("/api", "")}/sanctum/csrf-cookie`,
-      {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          Accept: "application/json",
-        },
-      }
-    );
+    const response = await fetch(`${import.meta.env.VITE_API_URL}`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+      },
+    });
 
     const xsrfToken = getCookie("XSRF-TOKEN");
     return xsrfToken;

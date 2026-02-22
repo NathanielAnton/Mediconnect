@@ -19,26 +19,24 @@ import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
 import GestionnaireRequests from "./pages/admin/gestionnaire-requests/GestionnaireRequests";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/home" element={<SearchMedecin />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/demande-gestionnaire" element={<GestionnaireRequest />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/medecin/profile" element={<MedecinProfile />} />
-          <Route path="/medecin/planning" element={<PlanningMedecin />} />
-          <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
-          <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
-          <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
-          <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
-          <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-          <Route path="/admin/demandes-gestionnaires" element={<GestionnaireRequests />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
-  </React.StrictMode>
+  <AuthProvider>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/home" element={<SearchMedecin />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/demande-gestionnaire" element={<GestionnaireRequest />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/medecin/profile" element={<MedecinProfile />} />
+        <Route path="/medecin/planning" element={<PlanningMedecin />} />
+        <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
+        <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
+        <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
+        <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
+        <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+        <Route path="/admin/demandes-gestionnaires" element={<GestionnaireRequests />} />
+      </Routes>
+    </BrowserRouter>
+  </AuthProvider>
 );

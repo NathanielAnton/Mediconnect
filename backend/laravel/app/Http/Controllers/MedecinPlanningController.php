@@ -25,6 +25,7 @@ class MedecinPlanningController extends Controller
             ->get();
 
         return response()->json([
+            'manager_id' => $medecinId,
             'horaires' => $horaires,
             'indisponibilites' => $indispos,
             'rendez_vous' => $rdvs,
@@ -44,6 +45,7 @@ class MedecinPlanningController extends Controller
             ->get();
 
         return response()->json([
+            'manager_id' => $medecinId,
             'horaires' => $horaires,
             'indisponibilites' => $indispos,
             'rendez_vous' => $rdvs,
@@ -227,8 +229,14 @@ class MedecinPlanningController extends Controller
             'motif' => 'nullable|string|max:255',
         ]);
 
+        $medecinId = MedecinProfile::where('user_id', Auth::id())->value('id');
+
+        if (!$medecinId) {
+            return response()->json(['message' => 'Profil médecin introuvable'], 403);
+        }
+
         $indispo = IndisponibiliteMedecin::create([
-            'medecin_id' => Auth::id(),
+            'medecin_id' => $medecinId,
             'date_debut' => $validated['date_debut'],
             'date_fin' => $validated['date_fin'],
             'motif' => $validated['motif'],
@@ -242,7 +250,13 @@ class MedecinPlanningController extends Controller
      */
     public function deleteIndisponibilite($id)
     {
-        $indispo = IndisponibiliteMedecin::where('medecin_id', Auth::id())->findOrFail($id);
+        $medecinId = MedecinProfile::where('user_id', Auth::id())->value('id');
+
+        if (!$medecinId) {
+            return response()->json(['message' => 'Profil médecin introuvable'], 403);
+        }
+
+        $indispo = IndisponibiliteMedecin::where('medecin_id', $medecinId)->findOrFail($id);
         $indispo->delete();
 
         return response()->json(['message' => 'Indisponibilité supprimée']);

@@ -14,6 +14,8 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
     type: "info",
   });
   const [formData, setFormData] = useState({
+    email: "",
+    name: "",
     motif: "",
     notes: "",
     statut: "en_attente",
@@ -56,6 +58,16 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (!formData.email.trim()) {
+      showToast("Veuillez indiquer l'email", "error");
+      return;
+    }
+
+    if (!formData.name.trim()) {
+      showToast("Veuillez indiquer le nom", "error");
+      return;
+    }
+
     if (!formData.motif.trim()) {
       showToast("Veuillez indiquer le motif du rendez-vous", "error");
       return;
@@ -64,8 +76,9 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
     setLoading(true);
     try {
       const payload = {
+        email: formData.email,
+        name: formData.name,
         medecin_id: medecin.medecin_id,
-        client_id: user.id,
         date_debut: creneau.start.toISOString(),
         date_fin: creneau.end.toISOString(),
         motif: formData.motif,
@@ -74,7 +87,8 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
       };
 
       const response = await api.post("/rendezvous", payload);
-      showToast("Réservation effectuée avec succès !", "success", 1200);
+      const successMessage = response.data?.message || "Réservation effectuée avec succès !";
+      showToast(successMessage, "success", 5000);
       onSuccess(response.data?.rendezVous);
       setTimeout(() => {
         onClose();
@@ -164,6 +178,32 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Email *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="email@example.com"
+              required
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Nom *</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Nom de la personne"
+              required
+              className={styles.input}
+            />
+          </div>
+
           <div className={styles.formGroup}>
             <label className={styles.label}>Statut</label>
             <select

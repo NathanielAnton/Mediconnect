@@ -1,6 +1,7 @@
 import { useState, useContext, useRef, useEffect } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
 import { X, Calendar, Clock, User, Stethoscope, MessageSquare, Trash2 } from "lucide-react";
+import Swal from "sweetalert2";
 import api from "../../../../api/axios";
 import styles from "./ModalUpdateRendezVous.module.css";
 
@@ -14,10 +15,22 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
     type: "info",
   });
   const [formData, setFormData] = useState({
+    email: rendezVous?.email || "",
+    name: rendezVous?.name || "",
     motif: rendezVous?.motif || "",
     notes: rendezVous?.notes || "",
     statut: rendezVous?.statut || "en_attente",
   });
+
+  useEffect(() => {
+    setFormData({
+      email: rendezVous?.email || "",
+      name: rendezVous?.name || "",
+      motif: rendezVous?.motif || "",
+      notes: rendezVous?.notes || "",
+      statut: rendezVous?.statut || "en_attente",
+    });
+  }, [rendezVous]);
 
   useEffect(() => {
     return () => {
@@ -58,6 +71,16 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (!formData.email.trim()) {
+      showToast("Veuillez indiquer l'email", "error");
+      return;
+    }
+
+    if (!formData.name.trim()) {
+      showToast("Veuillez indiquer le nom", "error");
+      return;
+    }
+
     if (!formData.motif.trim()) {
       showToast("Veuillez indiquer le motif", "error");
       return;
@@ -66,13 +89,16 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
     setLoading(true);
     try {
       const payload = {
+        email: formData.email,
+        name: formData.name,
         motif: formData.motif,
         notes: formData.notes || null,
         statut: formData.statut,
       };
 
-      await api.put(`/rendezvous/${rendezVous.id}`, payload);
-      showToast("Rendez-vous mis à jour avec succès !", "success", 1200);
+      const response = await api.put(`/rendezvous/${rendezVous.id}`, payload);
+      const successMessage = response.data?.message || "Rendez-vous mis à jour avec succès !";
+      showToast(successMessage, "success", 5000);
       onSuccess();
       setTimeout(() => {
         onClose();
@@ -89,14 +115,26 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Confirmez-vous la suppression de ce rendez-vous ?")) {
+    const result = await Swal.fire({
+      title: "Êtes-vous sûr ?",
+      text: "Cette action supprimera le rendez-vous de manière permanente.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Oui, supprimer",
+      cancelButtonText: "Annuler",
+    });
+
+    if (!result.isConfirmed) {
       return;
     }
 
     setLoading(true);
     try {
-      await api.delete(`/rendezvous/${rendezVous.id}`);
-      showToast("Rendez-vous supprimé avec succès !", "success", 1200);
+      const response = await api.delete(`/rendezvous/${rendezVous.id}`);
+      const successMessage = response.data?.message || "Rendez-vous supprimé avec succès !";
+      showToast(successMessage, "success", 5000);
       onSuccess();
       setTimeout(() => {
         onClose();
@@ -150,7 +188,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
               <Stethoscope className={styles.infoIcon} />
               <div>
                 <label>Médecin</label>
-                <p>Dr. {rendezVous?.medecin?.name}</p>
+                <p>{rendezVous?.medecin?.user?.name}</p>
               </div>
             </div>
 
@@ -176,13 +214,39 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
               <User className={styles.infoIcon} />
               <div>
                 <label>Patient</label>
-                <p>{rendezVous?.patient?.name}</p>
+                <p>{rendezVous?.client_id ? rendezVous?.client?.name : rendezVous?.name}</p>
               </div>
             </div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Email *</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="email@example.com"
+              required
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Nom *</label>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleInputChange}
+              placeholder="Nom de la personne"
+              required
+              className={styles.input}
+            />
+          </div>
+
           <div className={styles.formGroup}>
             <label className={styles.label}>Statut</label>
             <select

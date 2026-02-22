@@ -4,19 +4,22 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class () extends Migration {
     public function up(): void
     {
         Schema::create('rendez_vous', function (Blueprint $table) {
             $table->id();
             $table->foreignId('medecin_id')->constrained('medecin_profiles')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('client_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('author_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('confirmed_by')->nullable()->constrained('users')->onDelete('set null');
             $table->dateTime('date_debut');
             $table->dateTime('date_fin');
             $table->enum('statut', ['confirmé', 'annulé', 'en_attente', 'terminé'])->default('en_attente');
             $table->text('motif');
             $table->text('notes')->nullable();
+            $table->string('name')->nullable();
+            $table->string('email')->nullable();
             $table->timestamps();
 
             // Index pour les recherches

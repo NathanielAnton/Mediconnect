@@ -21,7 +21,10 @@ class MedecinPlanningController extends Controller
         $horaires = HoraireMedecin::where('medecin_id', $medecinId)->get();
         $indispos = IndisponibiliteMedecin::where('medecin_id', $medecinId)->get();
         $rdvs = RendezVous::where('medecin_id', $medecinId)
-            ->with('client:id,name,email')
+            ->with([
+                'medecin.user:id,name',
+                'client:id,name,email'
+            ])
             ->get();
 
         return response()->json([
@@ -41,7 +44,10 @@ class MedecinPlanningController extends Controller
         $horaires = HoraireMedecin::where('medecin_id', $medecinId)->get();
         $indispos = IndisponibiliteMedecin::where('medecin_id', $medecinId)->get();
         $rdvs = RendezVous::where('medecin_id', $medecinId)
-            ->with('client:id,name,email')
+            ->with([
+                'medecin.user:id,name',
+                'client:id,name,email'
+            ])
             ->get();
 
         return response()->json([

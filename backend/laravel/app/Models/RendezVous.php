@@ -14,11 +14,15 @@ class RendezVous extends Model
     protected $fillable = [
         'medecin_id',
         'client_id',
+        'author_id',
+        'confirmed_by',
         'date_debut',
         'date_fin',
         'statut',
         'motif',
-        'notes'
+        'notes',
+        'name',
+        'email'
     ];
 
     protected $casts = [
@@ -34,5 +38,15 @@ class RendezVous extends Model
     public function client()
     {
         return $this->belongsTo(User::class, 'client_id');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function confirmedBy()
+    {
+        return $this->belongsTo(User::class, 'confirmed_by');
     }
 }

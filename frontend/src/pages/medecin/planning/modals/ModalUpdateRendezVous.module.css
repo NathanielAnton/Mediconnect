@@ -20,11 +20,27 @@
 }
 
 .toast {
-  margin: 1rem 1rem 0;
-  padding: 0.75rem 1rem;
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 2000;
+  padding: 1rem 1.5rem;
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .toastSuccess {
@@ -156,6 +172,21 @@
 }
 
 .select:focus {
+  outline: none;
+  border-color: #0596de;
+  box-shadow: 0 0 0 3px rgba(5, 150, 222, 0.1);
+}
+
+.input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+}
+
+.input:focus {
   outline: none;
   border-color: #0596de;
   box-shadow: 0 0 0 3px rgba(5, 150, 222, 0.1);

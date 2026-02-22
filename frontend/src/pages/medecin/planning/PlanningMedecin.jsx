@@ -1,11 +1,14 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useContext } from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import ModalHorairesHebdo from "./modals/ModalHorairesHebdo";
 import ModalIndisponibilite from "./modals/ModalIndisponibilite";
+import ModalReservationCreneau from "./modals/ModalReservationCreneau";
+import ModalUpdateRendezVous from "./modals/ModalUpdateRendezVous";
 import NavbarMedecin from "../components/NavbarMedecin";
 import styles from "./PlanningMedecin.module.css";
 import api from "../../../api/axios";
+import { AuthContext } from "../../../context/AuthContext";
 
 const formatDateKey = (date) => {
   const year = date.getFullYear();
@@ -22,6 +25,14 @@ const addDays = (date, days) => {
   return copy;
 };
 
+const addMinutes = (date, minutes) => {
+  const copy = new Date(date);
+  copy.setMinutes(copy.getMinutes() + minutes);
+  return copy;
+};
+
+const parseDateTime = (dateKey, time) => new Date(`${dateKey}T${time}`);
+
 const convertJourToNumber = (jour) => {
   const jours = {
     dimanche: 0,
@@ -35,10 +46,39 @@ const convertJourToNumber = (jour) => {
   return jours[jour.toLowerCase()] ?? 0;
 };
 
-const buildEvents = (horaires, indisponibilitesRaw, range) => {
+const buildEvents = (horaires, indisponibilitesRaw, range, rendezvousRaw = []) => {
   if (!range) {
     return [];
   }
+
+  const rendezvousEvents = rendezvousRaw
+    .filter((rdv) => rdv.statut !== "annulé")
+    .map((rdv) => {
+      const backgroundColor = rdv.statut === "confirmé" ? "#10b981" : "#f59e0b";
+      const borderColor = rdv.statut === "confirmé" ? "#059669" : "#d97706";
+      return {
+        id: `rdv-${rdv.id}`,
+        title: rdv.patient?.name || "RDV",
+        start: new Date(rdv.date_debut),
+        end: new Date(rdv.date_fin),
+        backgroundColor,
+        borderColor,
+        textColor: "white",
+        extendedProps: {
+          type: "rendezvous",
+          statut: rdv.statut,
+          rdvData: rdv,
+        },
+      };
+    });
+
+  // Créer un ensemble des créneaux occupés par des RDV (en attente ou confirmé)
+  const occupiedSlots = rendezvousRaw
+    .filter((rdv) => rdv.statut === "en_attente" || rdv.statut === "confirmé")
+    .map((rdv) => ({
+      start: new Date(rdv.date_debut),
+      end: new Date(rdv.date_fin),
+    }));
 
   const indisponibilites = indisponibilitesRaw.map((i) => {
     const startKey = i.date_debut.slice(0, 10);
@@ -81,8 +121,15 @@ const buildEvents = (horaires, indisponibilitesRaw, range) => {
   }, {});
 
   const disponibilites = [];
+  const creneauxDisponibles = [];
   let cursor = new Date(range.start);
   const rangeEnd = new Date(range.end);
+  const slotDurationMinutes = 30;
+  const now = new Date();
+
+  // Calculer la date limite (2 mois après aujourd'hui)
+  const twoMonthsFromNow = new Date();
+  twoMonthsFromNow.setMonth(twoMonthsFromNow.getMonth() + 2);
 
   while (cursor < rangeEnd) {
     const dateKey = formatDateKey(cursor);
@@ -98,22 +145,68 @@ const buildEvents = (horaires, indisponibilitesRaw, range) => {
           backgroundColor: "darkblue",
           borderColor: "#3c57a2",
         });
+
+        let currentSlotStart = parseDateTime(dateKey, h.heure_debut);
+        const dayEnd = parseDateTime(dateKey, h.heure_fin);
+
+        while (currentSlotStart < dayEnd) {
+          const currentSlotEnd = addMinutes(currentSlotStart, slotDurationMinutes);
+
+          if (currentSlotEnd <= dayEnd) {
+            // Vérifier si ce créneau chevauche un RDV existant
+            const hasConflict = occupiedSlots.some(
+              (slot) =>
+                (currentSlotStart >= slot.start && currentSlotStart < slot.end) ||
+                (currentSlotEnd > slot.start && currentSlotEnd <= slot.end) ||
+                (currentSlotStart <= slot.start && currentSlotEnd >= slot.end)
+            );
+
+            // Ne pas afficher le créneau s'il est dans le passé ou après 2 mois
+            const isInPast = currentSlotEnd <= now;
+            const isAfterTwoMonths = currentSlotStart >= twoMonthsFromNow;
+
+            if (!hasConflict && !isInPast && !isAfterTwoMonths) {
+              creneauxDisponibles.push({
+                title: "Créneau",
+                start: new Date(currentSlotStart),
+                end: new Date(currentSlotEnd),
+                classNames: ["creneau-disponible"],
+                backgroundColor: "transparent",
+                borderColor: "#10b981",
+                textColor: "#10b981",
+                extendedProps: {
+                  type: "creneau",
+                  statut: "disponible",
+                },
+              });
+            }
+          }
+
+          currentSlotStart = currentSlotEnd;
+        }
       });
     }
 
     cursor = addDays(cursor, 1);
   }
 
-  return [...disponibilites, ...indisponibilites];
+  return [...disponibilites, ...indisponibilites, ...creneauxDisponibles, ...rendezvousEvents];
 };
 
 export default function PlanningMedecin() {
+  const { user } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
   const horairesRef = useRef([]);
   const indisposRef = useRef([]);
+  const rendezvousRef = useRef([]);
   const currentRangeRef = useRef(null);
   const [showHoraireModal, setShowHoraireModal] = useState(false);
   const [showIndispoModal, setShowIndispoModal] = useState(false);
+  const [showRendezVousModal, setShowRendezVousModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [selectedCreneau, setSelectedCreneau] = useState(null);
+  const [selectedRendezVous, setSelectedRendezVous] = useState(null);
+  const currentMedecinId = horairesRef.current[0]?.medecin_id ?? user?.id;
 
   const fetchEvents = useCallback(async () => {
     try {
@@ -121,12 +214,21 @@ export default function PlanningMedecin() {
       console.log("Réponse brute du planning :", res.data);
       const nextHoraires = res.data.horaires || [];
       const nextIndispos = res.data.indisponibilites || [];
+      const nextRendezvous = res.data.rendez_vous || [];
 
       horairesRef.current = nextHoraires;
       indisposRef.current = nextIndispos;
+      rendezvousRef.current = nextRendezvous;
 
       if (currentRangeRef.current) {
-        setEvents(buildEvents(nextHoraires, nextIndispos, currentRangeRef.current));
+        const newEvents = buildEvents(
+          nextHoraires,
+          nextIndispos,
+          currentRangeRef.current,
+          nextRendezvous
+        );
+        console.log("Événements recalculés :", newEvents);
+        setEvents(newEvents);
       }
     } catch (err) {
       console.error("Erreur lors du chargement du planning :", err);
@@ -176,10 +278,32 @@ export default function PlanningMedecin() {
               right: "timeGridWeek,timeGridDay",
             }}
             eventTextColor="#000"
+            eventClick={(clickInfo) => {
+              const { event } = clickInfo;
+              if (event.extendedProps?.type === "creneau") {
+                setSelectedCreneau({
+                  start: event.start,
+                  end: event.end,
+                });
+                setShowRendezVousModal(true);
+              } else if (event.extendedProps?.type === "rendezvous") {
+                setSelectedRendezVous(event.extendedProps.rdvData);
+                setShowUpdateModal(true);
+              }
+            }}
+            eventContent={(eventInfo) => {
+              const type = eventInfo.event.extendedProps?.type;
+              if (type === "creneau") {
+                return { html: '<div class="event-creneau">✓</div>' };
+              }
+              return undefined;
+            }}
             datesSet={(arg) => {
               const range = { start: arg.start, end: arg.end };
               currentRangeRef.current = range;
-              setEvents(buildEvents(horairesRef.current, indisposRef.current, range));
+              setEvents(
+                buildEvents(horairesRef.current, indisposRef.current, range, rendezvousRef.current)
+              );
             }}
           />
         </div>
@@ -188,6 +312,30 @@ export default function PlanningMedecin() {
           <ModalHorairesHebdo onClose={() => setShowHoraireModal(false)} onUpdate={fetchEvents} />
         )}
         {showIndispoModal && <ModalIndisponibilite onClose={() => setShowIndispoModal(false)} />}
+        {showRendezVousModal && selectedCreneau && (
+          <ModalReservationCreneau
+            medecin={{
+              medecin_id: currentMedecinId,
+              name: user?.name,
+            }}
+            creneau={selectedCreneau}
+            onClose={() => setShowRendezVousModal(false)}
+            onSuccess={() => {
+              setShowRendezVousModal(false);
+              fetchEvents();
+            }}
+          />
+        )}
+        {showUpdateModal && selectedRendezVous && (
+          <ModalUpdateRendezVous
+            rendezVous={selectedRendezVous}
+            onClose={() => setShowUpdateModal(false)}
+            onSuccess={() => {
+              setShowUpdateModal(false);
+              fetchEvents();
+            }}
+          />
+        )}
       </div>
     </div>
   );

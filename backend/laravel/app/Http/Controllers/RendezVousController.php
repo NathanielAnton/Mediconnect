@@ -26,4 +26,32 @@ class RendezVousController extends Controller
             'rendez_vous' => $rendezVous
         ], 201);
     }
+
+    public function update(Request $request, $id)
+    {
+        $rendezVous = RendezVous::findOrFail($id);
+
+        $validated = $request->validate([
+            'motif' => 'nullable|string|max:500',
+            'notes' => 'nullable|string|max:1000',
+            'statut' => 'required|string'
+        ]);
+
+        $rendezVous->update($validated);
+
+        return response()->json([
+            'message' => 'Rendez-vous mis à jour avec succès',
+            'rendez_vous' => $rendezVous
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $rendezVous = RendezVous::findOrFail($id);
+        $rendezVous->delete();
+
+        return response()->json([
+            'message' => 'Rendez-vous supprimé avec succès'
+        ], 200);
+    }
 }

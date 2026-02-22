@@ -93,6 +93,49 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.container :global(.creneau-disponible) {
+  background-color: transparent !important;
+  border: 1px dashed #10b981 !important;
+  cursor: pointer;
+  box-shadow: none !important;
+}
+
+.container :global(.creneau-disponible:hover) {
+  background-color: rgba(16, 185, 129, 0.08) !important;
+}
+
+.container :global(.event-creneau) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: #10b981;
+  font-weight: 700;
+}
+
+/* Rendez-vous confirmé (vert) */
+.container :global(.fc-event[style*="background-color: rgb(16, 185, 129)"]) {
+  background-color: #10b981 !important;
+  border-color: #059669 !important;
+  cursor: pointer;
+}
+
+.container :global(.fc-event[style*="background-color: rgb(16, 185, 129)"]:hover) {
+  opacity: 0.8;
+}
+
+/* Rendez-vous en attente (orange) */
+.container :global(.fc-event[style*="background-color: rgb(245, 158, 11)"]) {
+  background-color: #f59e0b !important;
+  border-color: #d97706 !important;
+  cursor: pointer;
+}
+
+.container :global(.fc-event[style*="background-color: rgb(245, 158, 11)"]:hover) {
+  opacity: 0.8;
+}
+
 /* Aujourd'hui */
 .container :global(.fc .fc-day-today) {
   background-color: #f0f9ff !important;

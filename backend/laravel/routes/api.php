@@ -61,6 +61,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/medecin/indisponibilites', [MedecinPlanningController::class, 'addIndisponibilite']);
     Route::delete('/medecin/indisponibilites/{id}', [MedecinPlanningController::class, 'deleteIndisponibilite']);
     Route::post('/rendezvous', [RendezVousController::class, 'store']);
+    Route::put('/rendezvous/{id}', [RendezVousController::class, 'update']);
+    Route::delete('/rendezvous/{id}', [RendezVousController::class, 'destroy']);
 
     // Routes pour le gestionnaire (protégées par le middleware role:gestionnaire)
     Route::middleware('role:gestionnaire')->prefix('gestionnaire')->group(function () {

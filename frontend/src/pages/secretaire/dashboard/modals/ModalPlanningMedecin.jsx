@@ -5,6 +5,7 @@ import { X } from "lucide-react";
 import axiosInstance from "../../../../api/axios";
 import { AuthContext } from "../../../../context/AuthContext";
 import ModalReservationCreneau from "./ModalReservationCreneau";
+import ModalUpdateRendezVous from "./ModalUpdateRendezVous";
 import styles from "./ModalPlanningMedecin.module.css";
 
 const formatDateKey = (date) => {
@@ -193,6 +194,8 @@ const ModalPlanningMedecin = ({ medecin, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [selectedCreneau, setSelectedCreneau] = useState(null);
   const [showRendezVousModal, setShowRendezVousModal] = useState(false);
+  const [selectedRendezVous, setSelectedRendezVous] = useState(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const horairesRef = useRef([]);
   const indisposRef = useRef([]);
   const rendezvousRef = useRef([]);
@@ -269,6 +272,9 @@ const ModalPlanningMedecin = ({ medecin, onClose }) => {
                     end: event.end,
                   });
                   setShowRendezVousModal(true);
+                } else if (event.extendedProps?.type === "rendezvous") {
+                  setSelectedRendezVous(event.extendedProps.rdvData);
+                  setShowUpdateModal(true);
                 }
               }}
               eventContent={(eventInfo) => {
@@ -306,6 +312,21 @@ const ModalPlanningMedecin = ({ medecin, onClose }) => {
           onSuccess={() => {
             fetchEvents();
             setShowRendezVousModal(false);
+          }}
+        />
+      )}
+
+      {showUpdateModal && selectedRendezVous && (
+        <ModalUpdateRendezVous
+          rendezVous={selectedRendezVous}
+          onClose={() => {
+            setShowUpdateModal(false);
+            setSelectedRendezVous(null);
+          }}
+          onSuccess={() => {
+            fetchEvents();
+            setShowUpdateModal(false);
+            setSelectedRendezVous(null);
           }}
         />
       )}

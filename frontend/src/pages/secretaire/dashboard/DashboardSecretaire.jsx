@@ -325,6 +325,10 @@ const DashboardSecretaire = () => {
             setShowPlanningModal(false);
             setSelectedMedecinForPlanning(null);
           }}
+          onSuccess={() => {
+            fetchDashboardData();
+            fetchRdvAujourdhui();
+          }}
         />
       )}
     </div>

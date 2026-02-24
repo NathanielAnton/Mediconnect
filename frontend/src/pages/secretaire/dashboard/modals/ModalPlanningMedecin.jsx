@@ -188,7 +188,7 @@ const buildEvents = (horaires, indisponibilitesRaw, range, rendezvousRaw = []) =
   return [...rendezvousEvents, ...disponibilites, ...indisponibilites, ...creneauxDisponibles];
 };
 
-const ModalPlanningMedecin = ({ medecin, onClose }) => {
+const ModalPlanningMedecin = ({ medecin, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -312,6 +312,7 @@ const ModalPlanningMedecin = ({ medecin, onClose }) => {
           onSuccess={() => {
             fetchEvents();
             setShowRendezVousModal(false);
+            if (onSuccess) onSuccess();
           }}
         />
       )}
@@ -327,6 +328,7 @@ const ModalPlanningMedecin = ({ medecin, onClose }) => {
             fetchEvents();
             setShowUpdateModal(false);
             setSelectedRendezVous(null);
+            if (onSuccess) onSuccess();
           }}
         />
       )}

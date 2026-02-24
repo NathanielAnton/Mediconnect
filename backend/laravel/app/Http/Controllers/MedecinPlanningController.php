@@ -241,6 +241,21 @@ class MedecinPlanningController extends Controller
             return response()->json(['message' => 'Profil médecin introuvable'], 403);
         }
 
+        // Vérifier s'il y a des chevauchements avec les indisponibilités existantes
+        $dateDebut = $validated['date_debut'];
+        $dateFin = $validated['date_fin'];
+
+        $chevauchement = IndisponibiliteMedecin::where('medecin_id', $medecinId)
+            ->where('date_debut', '<=', $dateFin)
+            ->where('date_fin', '>=', $dateDebut)
+            ->exists();
+
+        if ($chevauchement) {
+            return response()->json([
+                'message' => 'Cette période chevauche avec une indisponibilité existante. Veuillez choisir une autre période.'
+            ], 422);
+        }
+
         $indispo = IndisponibiliteMedecin::create([
             'medecin_id' => $medecinId,
             'date_debut' => $validated['date_debut'],

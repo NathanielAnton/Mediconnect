@@ -24,7 +24,8 @@ export default function ModalIndisponibilite({ onClose, onUpdate }) {
       onUpdate();
     } catch (error) {
       console.error("Erreur lors de l'ajout de l'indisponibilité :", error);
-      toast.error("Une erreur est survenue lors de la création.");
+      const errorMessage = error.response?.data?.message || "Une erreur est survenue lors de la création.";
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

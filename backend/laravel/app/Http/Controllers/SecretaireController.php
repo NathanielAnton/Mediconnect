@@ -13,37 +13,51 @@ use Illuminate\Validation\ValidationException;
 class SecretaireController extends Controller
 {
     /**
-     * Dashboard du secrétaire avec statistiques globales
+     * Dashboard du secrétaire avec statistiques globales (uniquement médecins liés)
      */
-    public function dashboard()
+    public function dashboard(Request $request)
     {
-        // Récupérer tous les médecins
-        $medecins = User::role('medecin')
-            ->with(['medecinProfile.specialite'])
+        $secretaire = $request->user();
+
+        // Vérifier que l'utilisateur est bien un secrétaire
+        if (!$secretaire->hasRole('secretaire')) {
+            return response()->json(['message' => 'Vous devez être secrétaire pour effectuer cette action'], 403);
+        }
+
+        // Récupérer les médecins liés avec le statut "accepte"
+        // Note: medecin_id dans secretaire_medecin = user_id
+        $medecinsLies = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+            ->where('statut', 'accepte')
+            ->with(['medecin.medecinProfile.specialite'])
             ->get();
 
-        // Statistiques globales
+        // Récupérer les IDs des profils médecins
+        $medecinProfileIds = $medecinsLies->pluck('medecin.medecinProfile.id')->toArray();
+
+        // Statistiques globales (filtrées aux médecins liés)
         $stats = [
-            'total_medecins' => $medecins->count(),
-            'total_rdv_aujourdhui' => RendezVous::whereDate('date_heure', Carbon::today())->count(),
-            'total_rdv_semaine' => RendezVous::whereBetween('date_heure', [
-                Carbon::now()->startOfWeek(),
-                Carbon::now()->endOfWeek()
-            ])->count(),
-            'total_patients' => User::role('client')->count(),
+            'total_medecins' => count($medecinsLies),
+            'total_rdv_aujourdhui' => RendezVous::whereIn('medecin_id', $medecinProfileIds)
+                ->whereDate('date_debut', Carbon::today())
+                ->count(),
+            'total_rdv_semaine' => RendezVous::whereIn('medecin_id', $medecinProfileIds)
+                ->whereBetween('date_debut', [
+                    Carbon::now()->startOfWeek(),
+                    Carbon::now()->endOfWeek()
+                ])->count(),
         ];
 
         return response()->json([
             'message' => 'Dashboard Secrétaire',
             'stats' => $stats,
-            'medecins' => $medecins->map(function ($medecin) {
+            'medecins' => $medecinsLies->map(function ($liaison) {
                 return [
-                    'id' => $medecin->id,
-                    'name' => $medecin->name,
-                    'email' => $medecin->email,
-                    'specialite' => $medecin->medecinProfile?->specialite?->nom ?? 'Non spécifié',
-                    'telephone' => $medecin->medecinProfile?->telephone ?? '',
-                    'adresse' => $medecin->medecinProfile?->adresse ?? '',
+                    'id' => $liaison->medecin->id,
+                    'name' => $liaison->medecin->name,
+                    'email' => $liaison->medecin->email,
+                    'specialite' => $liaison->medecin->medecinProfile?->specialite?->nom ?? 'Non spécifié',
+                    'telephone' => $liaison->medecin->medecinProfile?->telephone ?? '',
+                    'adresse' => $liaison->medecin->medecinProfile?->adresse ?? '',
                 ];
             })
         ]);
@@ -86,6 +100,10 @@ class SecretaireController extends Controller
 
         $horaires = $profile->horaires()->get();
         $indisponibilites = $profile->indisponibilites()->get();
+        $rendezVous = RendezVous::where('medecin_id', $profile->id)
+            ->with(['client'])
+            ->orderBy('date_debut', 'asc')
+            ->get();
 
         return response()->json([
             'medecin' => [
@@ -95,6 +113,7 @@ class SecretaireController extends Controller
             ],
             'horaires' => $horaires,
             'indisponibilites' => $indisponibilites,
+            'rendez_vous' => $rendezVous,
         ]);
     }
 
@@ -111,19 +130,19 @@ class SecretaireController extends Controller
         }
 
         $rendezVous = RendezVous::where('medecin_id', $profile->id)
-            ->with(['patient'])
-            ->orderBy('date_heure', 'asc')
+            ->with(['client'])
+            ->orderBy('date_debut', 'asc')
             ->get()
             ->map(function ($rdv) {
                 return [
                     'id' => $rdv->id,
-                    'date_heure' => $rdv->date_heure,
+                    'date_heure' => $rdv->date_debut,
                     'motif' => $rdv->motif,
                     'statut' => $rdv->statut,
                     'patient' => [
-                        'id' => $rdv->patient->id,
-                        'name' => $rdv->patient->name,
-                        'email' => $rdv->patient->email,
+                        'id' => $rdv->client->id ?? null,
+                        'name' => $rdv->client->name ?? null,
+                        'email' => $rdv->client->email ?? null,
                     ],
                 ];
             });
@@ -138,52 +157,54 @@ class SecretaireController extends Controller
     }
 
     /**
-     * Tous les rendez-vous d'aujourd'hui
+     * Tous les rendez-vous d'aujourd'hui (uniquement des médecins liés)
      */
-    public function getRendezVousAujourdhui()
+    public function getRendezVousAujourdhui(Request $request)
     {
-        $rendezVous = RendezVous::whereDate('date_heure', Carbon::today())
-            ->with(['patient', 'medecinProfile.user'])
-            ->orderBy('date_heure', 'asc')
+        $secretaire = $request->user();
+
+        // Vérifier que l'utilisateur est bien un secrétaire
+        if (!$secretaire->hasRole('secretaire')) {
+            return response()->json(['message' => 'Vous devez être secrétaire pour effectuer cette action'], 403);
+        }
+
+        // Récupérer les médecins liés avec le statut "accepte"
+        // Note: medecin_id dans secretaire_medecin = user_id
+        $medecinsLies = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+            ->where('statut', 'accepte')
+            ->with(['medecin.medecinProfile'])
+            ->get();
+
+        if ($medecinsLies->isEmpty()) {
+            return response()->json(['rendez_vous' => []]);
+        }
+
+        // Récupérer les IDs des profils médecins
+        $medecinProfileIds = $medecinsLies->pluck('medecin.medecinProfile.id')->toArray();
+
+        // Récupérer les rendez-vous d'aujourd'hui pour les médecins liés
+        $rendezVous = RendezVous::whereIn('medecin_id', $medecinProfileIds)
+            ->whereDate('date_debut', Carbon::today())
+            ->with(['medecin.user'])
+            ->orderBy('date_debut', 'asc')
             ->get()
             ->map(function ($rdv) {
                 return [
                     'id' => $rdv->id,
-                    'date_heure' => $rdv->date_heure,
+                    'date_debut' => $rdv->date_debut,
+                    'date_fin' => $rdv->date_fin,
+                    'name' => $rdv->name,
                     'motif' => $rdv->motif,
                     'statut' => $rdv->statut,
-                    'patient' => [
-                        'id' => $rdv->patient->id,
-                        'name' => $rdv->patient->name,
-                        'email' => $rdv->patient->email,
-                    ],
+                    'email' => $rdv->email,
                     'medecin' => [
-                        'id' => $rdv->medecinProfile->user->id,
-                        'name' => $rdv->medecinProfile->user->name,
+                        'id' => $rdv->medecin?->user_id ?? null,
+                        'name' => $rdv->medecin?->user?->name ?? 'Inconnu',
                     ],
                 ];
             });
 
         return response()->json(['rendez_vous' => $rendezVous]);
-    }
-
-    /**
-     * Liste de tous les patients
-     */
-    public function getPatients()
-    {
-        $patients = User::role('client')
-            ->get()
-            ->map(function ($patient) {
-                return [
-                    'id' => $patient->id,
-                    'name' => $patient->name,
-                    'email' => $patient->email,
-                    'created_at' => $patient->created_at,
-                ];
-            });
-
-        return response()->json(['patients' => $patients]);
     }
 
     /**

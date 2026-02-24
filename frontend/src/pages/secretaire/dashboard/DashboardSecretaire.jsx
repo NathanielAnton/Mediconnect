@@ -4,6 +4,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import axiosInstance from "../../../api/axios";
 import styles from "./DashboardSecretaire.module.css";
 import SecretaireLiaisons from "../liaisons/SecretaireLiaisons";
+import ModalPlanningMedecin from "./modals/ModalPlanningMedecin";
 
 const DashboardSecretaire = () => {
   const navigate = useNavigate();
@@ -14,13 +15,13 @@ const DashboardSecretaire = () => {
   const [selectedMedecin, setSelectedMedecin] = useState(null);
   const [rendezVous, setRendezVous] = useState([]);
   const [rdvAujourdhui, setRdvAujourdhui] = useState([]);
-  const [patients, setPatients] = useState([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [showPlanningModal, setShowPlanningModal] = useState(false);
+  const [selectedMedecinForPlanning, setSelectedMedecinForPlanning] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
     fetchRdvAujourdhui();
-    fetchPatients();
   }, []);
 
   const fetchDashboardData = async () => {
@@ -43,15 +44,6 @@ const DashboardSecretaire = () => {
     try {
       const response = await axiosInstance.get("/secretaire/rendez-vous/aujourdhui");
       setRdvAujourdhui(response.data.rendez_vous);
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
-  const fetchPatients = async () => {
-    try {
-      const response = await axiosInstance.get("/secretaire/patients");
-      setPatients(response.data.patients);
     } catch (error) {
       console.error("Erreur:", error);
     }
@@ -121,10 +113,6 @@ const DashboardSecretaire = () => {
           <h3 className={styles.statCardTitle}>RDV Cette Semaine</h3>
           <p className={styles.statValue}>{stats?.total_rdv_semaine || 0}</p>
         </div>
-        <div className={`${styles.statCard} ${styles.cardOrange}`}>
-          <h3 className={styles.statCardTitle}>Patients</h3>
-          <p className={styles.statValue}>{stats?.total_patients || 0}</p>
-        </div>
       </div>
 
       {/* Tabs Navigation */}
@@ -148,12 +136,6 @@ const DashboardSecretaire = () => {
           Rendez-vous du jour
         </button>
         <button
-          className={`${styles.tab} ${activeTab === "patients" ? styles.tabActive : ""}`}
-          onClick={() => setActiveTab("patients")}
-        >
-          Patients
-        </button>
-        <button
           className={`${styles.tab} ${activeTab === "liaisons" ? styles.tabActive : ""}`}
           onClick={() => setActiveTab("liaisons")}
         >
@@ -174,20 +156,27 @@ const DashboardSecretaire = () => {
                 <ul className={styles.appointmentsList}>
                   {rdvAujourdhui.slice(0, 5).map((rdv) => (
                     <li key={rdv.id} className={styles.appointmentItem}>
-                      <div>
-                        <span className={styles.appointmentTime}>
-                          {new Date(rdv.date_heure).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                      <span className={styles.appointmentTime}>
+                        {new Date(rdv.date_debut).toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                        - {rdv.name}
+                      </span>
+                      <div className={styles.appointmentMeta}>
+                        <span className={styles.appointmentDoctor}>
+                          Dr. {rdv.medecin?.name || "Inconnu"}
                         </span>
-                        <span className={styles.appointmentDetail}>
-                          {rdv.patient.name} - Dr. {rdv.medecin.name}
+                        <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
+                          {rdv.statut === "confirmé"
+                            ? "Confirmé"
+                            : rdv.statut === "en_attente"
+                              ? "En attente"
+                              : rdv.statut === "annulé"
+                                ? "Annulé"
+                                : rdv.statut}
                         </span>
                       </div>
-                      <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
-                        {rdv.statut}
-                      </span>
                     </li>
                   ))}
                 </ul>
@@ -231,12 +220,23 @@ const DashboardSecretaire = () => {
                   <p className={styles.specialite}>{medecin.specialite}</p>
                   <p className={styles.contact}>{medecin.telephone}</p>
                   <p className={styles.contact}>{medecin.adresse}</p>
-                  <button
-                    className={styles.btnPrimary}
-                    onClick={() => fetchMedecinRendezVous(medecin.id)}
-                  >
-                    Voir les rendez-vous
-                  </button>
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button
+                      className={styles.btnPrimary}
+                      onClick={() => fetchMedecinRendezVous(medecin.id)}
+                    >
+                      Voir les rendez-vous
+                    </button>
+                    <button
+                      className={styles.btnSecondary}
+                      onClick={() => {
+                        setSelectedMedecinForPlanning(medecin);
+                        setShowPlanningModal(true);
+                      }}
+                    >
+                      Voir Planning Complet
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -284,21 +284,28 @@ const DashboardSecretaire = () => {
               <ul className={styles.appointmentsList}>
                 {rdvAujourdhui.map((rdv) => (
                   <li key={rdv.id} className={styles.appointmentItem}>
-                    <div>
-                      <span className={styles.appointmentTime}>
-                        {new Date(rdv.date_heure).toLocaleTimeString("fr-FR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
-                      <span className={styles.appointmentDetail}>
-                        {rdv.patient.name} - Dr. {rdv.medecin.name}
-                      </span>
-                      <small className={styles.motif}>{rdv.motif}</small>
-                    </div>
-                    <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
-                      {rdv.statut}
+                    <span className={styles.appointmentTime}>
+                      {new Date(rdv.date_debut).toLocaleTimeString("fr-FR", {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}{" "}
+                      - {rdv.name}
                     </span>
+                    <div className={styles.appointmentMeta}>
+                      <span className={styles.appointmentDoctor}>
+                        Dr. {rdv.medecin?.name || "Inconnu"}
+                      </span>
+                      <span className={styles.motif}>{rdv.motif}</span>
+                      <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
+                        {rdv.statut === "confirmé"
+                          ? "Confirmé"
+                          : rdv.statut === "en_attente"
+                            ? "En attente"
+                            : rdv.statut === "annulé"
+                              ? "Annulé"
+                              : rdv.statut}
+                      </span>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -306,36 +313,20 @@ const DashboardSecretaire = () => {
           </div>
         )}
 
-        {/* Liste des patients */}
-        {activeTab === "patients" && (
-          <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Liste des Patients</h3>
-            <div className={styles.tableContainer}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Nom</th>
-                    <th>Email</th>
-                    <th>Inscrit le</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {patients.map((patient) => (
-                    <tr key={patient.id}>
-                      <td>{patient.name}</td>
-                      <td>{patient.email}</td>
-                      <td>{new Date(patient.created_at).toLocaleDateString("fr-FR")}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
         {/* Liaisons */}
         {activeTab === "liaisons" && <SecretaireLiaisons />}
       </div>
+
+      {/* Modal Planning Medecin */}
+      {showPlanningModal && selectedMedecinForPlanning && (
+        <ModalPlanningMedecin
+          medecin={selectedMedecinForPlanning}
+          onClose={() => {
+            setShowPlanningModal(false);
+            setSelectedMedecinForPlanning(null);
+          }}
+        />
+      )}
     </div>
   );
 };

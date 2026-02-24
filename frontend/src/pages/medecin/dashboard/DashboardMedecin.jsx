@@ -182,7 +182,10 @@ const DashboardMedecin = () => {
                     >
                       Nouvelle Consultation
                     </button>
-                    <button className={`${styles.actionButton} ${styles.actionButtonBlue}`}>
+                    <button
+                      className={`${styles.actionButton} ${styles.actionButtonBlue}`}
+                      onClick={() => navigate("/medecin/planning")}
+                    >
                       Voir le Planning
                     </button>
                     <button className={`${styles.actionButton} ${styles.actionButtonPurple}`}>

@@ -258,6 +258,12 @@ export default function PlanningMedecin() {
             >
               Ajouter indisponibilité
             </button>
+            <button
+              onClick={fetchEvents}
+              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+            >
+              Rafraîchir
+            </button>
           </div>
         </div>
 

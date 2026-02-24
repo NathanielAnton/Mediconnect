@@ -82,4 +82,119 @@ class RendezVousController extends Controller
             'message' => 'Rendez-vous supprimé avec succès'
         ], 200);
     }
+
+    /**
+     * Récupérer les rendez-vous du médecin connecté
+     */
+    public function getMedecinRendezVous(Request $request)
+    {
+        $user = $request->user();
+
+        // Vérifier que l'utilisateur est bien un médecin
+        if (!$user->hasRole('medecin')) {
+            return response()->json(['message' => 'Vous devez être médecin pour effectuer cette action'], 403);
+        }
+
+        $medecin = $user->medecinProfile;
+
+        $rendezVous = RendezVous::where('medecin_id', $medecin->id)
+            ->orderBy('date_debut', 'desc')
+            ->get()
+            ->map(function ($rdv) {
+                return [
+                    'id' => $rdv->id,
+                    'name' => $rdv->name,
+                    'email' => $rdv->email,
+                    'date_debut' => $rdv->date_debut,
+                    'date_fin' => $rdv->date_fin,
+                    'motif' => $rdv->motif,
+                    'statut' => $rdv->statut,
+                    'notes' => $rdv->notes
+                ];
+            });
+
+        return response()->json([
+            'rendez_vous' => $rendezVous
+        ]);
+    }
+
+    /**
+     * Récupérer les rendez-vous d'aujourd'hui pour le médecin connecté
+     */
+    public function getTodayRendezVous(Request $request)
+    {
+        $user = $request->user();
+
+        // Vérifier que l'utilisateur est bien un médecin
+        if (!$user->hasRole('medecin')) {
+            return response()->json(['message' => 'Vous devez être médecin pour effectuer cette action'], 403);
+        }
+
+        $medecin = $user->medecinProfile;
+
+        $today = now()->startOfDay();
+        $tomorrow = now()->addDay()->startOfDay();
+
+        $rendezVous = RendezVous::where('medecin_id', $medecin->id)
+            ->whereBetween('date_debut', [$today, $tomorrow])
+            ->orderBy('date_debut', 'asc')
+            ->get()
+            ->map(function ($rdv) {
+                return [
+                    'id' => $rdv->id,
+                    'name' => $rdv->name,
+                    'email' => $rdv->email,
+                    'date_debut' => $rdv->date_debut,
+                    'date_fin' => $rdv->date_fin,
+                    'motif' => $rdv->motif,
+                    'statut' => $rdv->statut,
+                    'notes' => $rdv->notes
+                ];
+            });
+
+        return response()->json([
+            'rendez_vous' => $rendezVous,
+            'count' => count($rendezVous)
+        ]);
+    }
+
+    /**
+     * Récupérer les rendez-vous du mois en cours pour le médecin connecté
+     */
+    public function getMonthRendezVous(Request $request)
+    {
+        $user = $request->user();
+
+        // Vérifier que l'utilisateur est bien un médecin
+        if (!$user->hasRole('medecin')) {
+            return response()->json(['message' => 'Vous devez être médecin pour effectuer cette action'], 403);
+        }
+
+        $medecin = $user->medecinProfile;
+
+        $startOfMonth = now()->startOfMonth();
+        $endOfMonth = now()->endOfMonth();
+
+        $rendezVous = RendezVous::where('medecin_id', $medecin->id)
+            ->whereBetween('date_debut', [$startOfMonth, $endOfMonth])
+            ->orderBy('date_debut', 'desc')
+            ->get()
+            ->map(function ($rdv) {
+                return [
+                    'id' => $rdv->id,
+                    'name' => $rdv->name,
+                    'email' => $rdv->email,
+                    'date_debut' => $rdv->date_debut,
+                    'date_fin' => $rdv->date_fin,
+                    'motif' => $rdv->motif,
+                    'statut' => $rdv->statut,
+                    'notes' => $rdv->notes
+                ];
+            });
+
+        return response()->json([
+            'rendez_vous' => $rendezVous,
+            'count' => count($rendezVous)
+        ]);
+    }
 }

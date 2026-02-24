@@ -94,6 +94,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Routes pour le médecin (protégées par le middleware role:medecin)
     Route::middleware('role:medecin')->prefix('medecin')->group(function () {
+        // Routes pour les rendez-vous
+        Route::get('/rendez-vous', [RendezVousController::class, 'getMedecinRendezVous']);
+        Route::get('/rendez-vous/aujourd-hui', [RendezVousController::class, 'getTodayRendezVous']);
+        Route::get('/rendez-vous/mois', [RendezVousController::class, 'getMonthRendezVous']);
+
         // Routes pour la gestion des liaisons avec secrétaires
         Route::get('/liaisons/demandes', [MedecinController::class, 'getLiaisonRequests']);
         Route::patch('/liaisons/{id}/accepter', [MedecinController::class, 'acceptLiaison']);

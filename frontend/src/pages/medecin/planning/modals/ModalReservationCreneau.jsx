@@ -1,18 +1,13 @@
-import { useState, useContext, useRef, useEffect } from "react";
+import { useState, useContext } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
 import { X, Calendar, Clock, User, Stethoscope, MessageSquare } from "lucide-react";
+import { toast } from "react-toastify";
 import api from "../../../../api/axios";
 import styles from "./ModalReservationCreneau.module.css";
 
 const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
-  const toastTimerRef = useRef(null);
-  const [toast, setToast] = useState({
-    show: false,
-    message: "",
-    type: "info",
-  });
   const [formData, setFormData] = useState({
     email: "",
     name: "",
@@ -21,22 +16,14 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
     statut: "en_attente",
   });
 
-  useEffect(() => {
-    return () => {
-      if (toastTimerRef.current) {
-        clearTimeout(toastTimerRef.current);
-      }
-    };
-  }, []);
-
-  const showToast = (message, type = "info", duration = 3000) => {
-    setToast({ show: true, message, type });
-    if (toastTimerRef.current) {
-      clearTimeout(toastTimerRef.current);
+  const showToast = (message, type = "info") => {
+    if (type === "error") {
+      toast.error(message);
+    } else if (type === "success") {
+      toast.success(message);
+    } else {
+      toast.info(message);
     }
-    toastTimerRef.current = setTimeout(() => {
-      setToast({ show: false, message: "", type: "info" });
-    }, duration);
   };
 
   const formatDate = (date) => {
@@ -88,11 +75,11 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
 
       const response = await api.post("/rendezvous", payload);
       const successMessage = response.data?.message || "Réservation effectuée avec succès !";
-      showToast(successMessage, "success", 5000);
+      showToast(successMessage, "success");
       onSuccess(response.data?.rendezVous);
       setTimeout(() => {
         onClose();
-      }, 800);
+      }, 500);
     } catch (error) {
       let errorMessage = "Erreur lors de la réservation";
       if (error.response?.data?.message) {
@@ -121,14 +108,6 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.modalContent} onClick={(event) => event.stopPropagation()}>
-        {toast.show && (
-          <div
-            className={`${styles.toast} ${styles[`toast${toast.type.charAt(0).toUpperCase() + toast.type.slice(1)}`]}`}
-          >
-            <span>{toast.message}</span>
-          </div>
-        )}
-
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>
             <h2>Réserver ce créneau</h2>

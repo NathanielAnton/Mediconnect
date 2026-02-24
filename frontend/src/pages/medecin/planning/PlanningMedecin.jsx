@@ -311,7 +311,9 @@ export default function PlanningMedecin() {
         {showHoraireModal && (
           <ModalHorairesHebdo onClose={() => setShowHoraireModal(false)} onUpdate={fetchEvents} />
         )}
-        {showIndispoModal && <ModalIndisponibilite onClose={() => setShowIndispoModal(false)} />}
+        {showIndispoModal && (
+          <ModalIndisponibilite onClose={() => setShowIndispoModal(false)} onUpdate={fetchEvents} />
+        )}
         {showRendezVousModal && selectedCreneau && (
           <ModalReservationCreneau
             medecin={{

@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 import api from "../../../../api/axios";
 import styles from "./ModalIndisponibilite.module.css";
 
-export default function ModalIndisponibilite({ onClose }) {
+export default function ModalIndisponibilite({ onClose, onUpdate }) {
   const [dateDebut, setDateDebut] = useState("");
   const [dateFin, setDateFin] = useState("");
   const [motif, setMotif] = useState("");
@@ -21,6 +21,7 @@ export default function ModalIndisponibilite({ onClose }) {
       });
       toast.success("Indisponibilité ajoutée avec succès !");
       onClose();
+      onUpdate();
     } catch (error) {
       console.error("Erreur lors de l'ajout de l'indisponibilité :", error);
       toast.error("Une erreur est survenue lors de la création.");

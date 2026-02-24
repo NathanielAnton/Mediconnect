@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 import api from "../../../../api/axios";
-import styles from './ModalIndisponibilite.module.css';
+import styles from "./ModalIndisponibilite.module.css";
 
 export default function ModalIndisponibilite({ onClose }) {
   const [dateDebut, setDateDebut] = useState("");
@@ -18,11 +19,11 @@ export default function ModalIndisponibilite({ onClose }) {
         date_fin: dateFin,
         motif,
       });
-      alert("Indisponibilité ajoutée avec succès !");
+      toast.success("Indisponibilité ajoutée avec succès !");
       onClose();
     } catch (error) {
       console.error("Erreur lors de l'ajout de l'indisponibilité :", error);
-      alert("Une erreur est survenue lors de la création.");
+      toast.error("Une erreur est survenue lors de la création.");
     } finally {
       setIsSubmitting(false);
     }
@@ -54,12 +55,10 @@ export default function ModalIndisponibilite({ onClose }) {
       <div className={styles.modalContent}>
         {/* Header */}
         <div className={styles.modalHeader}>
-          <h3 className={styles.modalTitle}>
-            🚫 Ajouter une indisponibilité
-          </h3>
-          <button 
-            type="button" 
-            className={styles.closeButton} 
+          <h3 className={styles.modalTitle}>🚫 Ajouter une indisponibilité</h3>
+          <button
+            type="button"
+            className={styles.closeButton}
             onClick={onClose}
             aria-label="Fermer"
           >
@@ -70,7 +69,10 @@ export default function ModalIndisponibilite({ onClose }) {
         {/* Warning Box */}
         <div className={styles.warningBox}>
           <span className={styles.warningIcon}>⚠️</span>
-          <span>Pendant cette période, vous ne pourrez pas recevoir de rendez-vous. Les patients en seront informés.</span>
+          <span>
+            Pendant cette période, vous ne pourrez pas recevoir de rendez-vous. Les patients en
+            seront informés.
+          </span>
         </div>
 
         {/* Form */}
@@ -80,13 +82,13 @@ export default function ModalIndisponibilite({ onClose }) {
             <label className={styles.formLabel}>
               📅 Date de début <span className={styles.required}>*</span>
             </label>
-            <input 
-              type="date" 
-              className={styles.formInput} 
-              value={dateDebut} 
+            <input
+              type="date"
+              className={styles.formInput}
+              value={dateDebut}
               onChange={(e) => setDateDebut(e.target.value)}
               required
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date().toISOString().split("T")[0]}
             />
             <span className={styles.helperText}>
               Date à partir de laquelle vous ne serez pas disponible
@@ -98,17 +100,15 @@ export default function ModalIndisponibilite({ onClose }) {
             <label className={styles.formLabel}>
               📅 Date de fin <span className={styles.required}>*</span>
             </label>
-            <input 
-              type="date" 
-              className={styles.formInput} 
-              value={dateFin} 
+            <input
+              type="date"
+              className={styles.formInput}
+              value={dateFin}
               onChange={(e) => setDateFin(e.target.value)}
               required
-              min={dateDebut || new Date().toISOString().split('T')[0]}
+              min={dateDebut || new Date().toISOString().split("T")[0]}
             />
-            <span className={styles.helperText}>
-              Date à laquelle vous redevenez disponible
-            </span>
+            <span className={styles.helperText}>Date à laquelle vous redevenez disponible</span>
           </div>
 
           {/* Motif */}
@@ -116,11 +116,11 @@ export default function ModalIndisponibilite({ onClose }) {
             <label className={styles.formLabel}>
               📝 Motif <span className={styles.required}>*</span>
             </label>
-            <input 
-              type="text" 
-              className={styles.formInput} 
-              placeholder="Vacances, congé maladie, formation..." 
-              value={motif} 
+            <input
+              type="text"
+              className={styles.formInput}
+              placeholder="Vacances, congé maladie, formation..."
+              value={motif}
               onChange={(e) => setMotif(e.target.value)}
               required
               maxLength={100}
@@ -133,34 +133,31 @@ export default function ModalIndisponibilite({ onClose }) {
           {/* Date Range Preview */}
           {days && (
             <div className={styles.dateRangePreview}>
-              📊 Durée : <strong>{days} jour{days > 1 ? 's' : ''}</strong>
+              📊 Durée :{" "}
+              <strong>
+                {days} jour{days > 1 ? "s" : ""}
+              </strong>
             </div>
           )}
 
           {/* Buttons */}
           <div className={styles.buttonContainer}>
-            <button 
-              type="button" 
-              className={styles.cancelButton} 
+            <button
+              type="button"
+              className={styles.cancelButton}
               onClick={onClose}
               disabled={isSubmitting}
             >
               Annuler
             </button>
-            <button 
-              type="submit" 
-              className={styles.submitButton}
-              disabled={isSubmitting}
-            >
+            <button type="submit" className={styles.submitButton} disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <span className={styles.spinner}>⏳</span>
                   Enregistrement...
                 </>
               ) : (
-                <>
-                  Enregistrer l'indisponibilité
-                </>
+                <>Enregistrer l'indisponibilité</>
               )}
             </button>
           </div>

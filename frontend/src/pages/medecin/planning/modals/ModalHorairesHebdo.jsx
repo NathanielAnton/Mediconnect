@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-toastify";
 import api from "../../../../api/axios";
 
 export default function ModalHorairesHebdo({ onClose, onUpdate }) {
@@ -33,19 +34,18 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
   const updateHoraire = (jour, creneau, field, value) => {
     setHoraires((prev) => {
       const existing = prev.find((h) => h.jour === jour && h.creneau === creneau);
-      
+
       if (existing) {
         return prev.map((h) =>
-          h.jour === jour && h.creneau === creneau
-            ? { ...h, [field]: value }
-            : h
+          h.jour === jour && h.creneau === creneau ? { ...h, [field]: value } : h
         );
       } else {
         // Créer un nouvel horaire
-        const defaultHeures = creneau === "matin" 
-          ? { heure_debut: "08:30", heure_fin: "12:30" }
-          : { heure_debut: "13:30", heure_fin: "17:00" };
-        
+        const defaultHeures =
+          creneau === "matin"
+            ? { heure_debut: "08:30", heure_fin: "12:30" }
+            : { heure_debut: "13:30", heure_fin: "17:00" };
+
         return [
           ...prev,
           {
@@ -84,12 +84,12 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
     setSaving(true);
     try {
       await api.put("/medecin/horaires", { horaires });
-      alert("Horaires mis à jour avec succès !");
+      toast.success("Horaires mis à jour avec succès !");
       onClose();
       onUpdate();
     } catch (err) {
       console.error("Erreur lors de la sauvegarde :", err);
-      alert("Erreur lors de la sauvegarde");
+      toast.error("Erreur lors de la sauvegarde");
     } finally {
       setSaving(false);
     }
@@ -132,12 +132,15 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
                 Appliquer à tous
               </button>
             </div>
-            
+
             <div className="space-y-2">
               {jours.map((jour) => {
                 const horaire = getHoraire(jour, "matin");
                 return (
-                  <div key={`${jour}-matin`} className="flex items-center gap-3 bg-gray-50 p-3 rounded">
+                  <div
+                    key={`${jour}-matin`}
+                    className="flex items-center gap-3 bg-gray-50 p-3 rounded"
+                  >
                     <input
                       type="checkbox"
                       checked={horaire?.actif ?? false}
@@ -177,12 +180,15 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
                 Appliquer à tous
               </button>
             </div>
-            
+
             <div className="space-y-2">
               {jours.map((jour) => {
                 const horaire = getHoraire(jour, "apres_midi");
                 return (
-                  <div key={`${jour}-apres_midi`} className="flex items-center gap-3 bg-gray-50 p-3 rounded">
+                  <div
+                    key={`${jour}-apres_midi`}
+                    className="flex items-center gap-3 bg-gray-50 p-3 rounded"
+                  >
                     <input
                       type="checkbox"
                       checked={horaire?.actif ?? false}
@@ -193,7 +199,9 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
                     <input
                       type="time"
                       value={horaire?.heure_debut ?? "13:30"}
-                      onChange={(e) => updateHoraire(jour, "apres_midi", "heure_debut", e.target.value)}
+                      onChange={(e) =>
+                        updateHoraire(jour, "apres_midi", "heure_debut", e.target.value)
+                      }
                       disabled={!horaire?.actif}
                       className="border rounded px-2 py-1 disabled:bg-gray-200 disabled:cursor-not-allowed"
                     />
@@ -201,7 +209,9 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
                     <input
                       type="time"
                       value={horaire?.heure_fin ?? "17:00"}
-                      onChange={(e) => updateHoraire(jour, "apres_midi", "heure_fin", e.target.value)}
+                      onChange={(e) =>
+                        updateHoraire(jour, "apres_midi", "heure_fin", e.target.value)
+                      }
                       disabled={!horaire?.actif}
                       className="border rounded px-2 py-1 disabled:bg-gray-200 disabled:cursor-not-allowed"
                     />
@@ -213,8 +223,8 @@ export default function ModalHorairesHebdo({ onClose, onUpdate }) {
 
           {/* Info */}
           <div className="bg-blue-50 border border-blue-200 rounded p-4 text-sm text-blue-800">
-            💡 <strong>Astuce :</strong> Cochez la case pour activer un créneau, puis définissez les heures. 
-            Utilisez "Appliquer à tous" pour copier les horaires sur toute la semaine.
+            💡 <strong>Astuce :</strong> Cochez la case pour activer un créneau, puis définissez les
+            heures. Utilisez "Appliquer à tous" pour copier les horaires sur toute la semaine.
           </div>
         </div>
 

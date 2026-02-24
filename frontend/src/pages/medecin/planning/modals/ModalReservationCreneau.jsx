@@ -145,14 +145,6 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
                 </p>
               </div>
             </div>
-
-            <div className={styles.infoItem}>
-              <User className={styles.infoIcon} />
-              <div>
-                <label>Patient</label>
-                <p>{user?.name}</p>
-              </div>
-            </div>
           </div>
         </div>
 

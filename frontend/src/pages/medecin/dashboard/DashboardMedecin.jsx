@@ -5,6 +5,7 @@ import NavbarMedecin from "../components/NavbarMedecin";
 import styles from "./DashboardMedecin.module.css";
 import MedecinLiaisons from "../liaisons/MedecinLiaisons";
 import MedecinGestionnaireLiaisons from "../liaisons/MedecinGestionnaireLiaisons";
+import ModalNouveauRendezVous from "./modals/ModalNouveauRendezVous";
 import api from "../../../api/axios";
 
 const DashboardMedecin = () => {
@@ -16,6 +17,7 @@ const DashboardMedecin = () => {
   const [monthCount, setMonthCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showNewRdvModal, setShowNewRdvModal] = useState(false);
 
   // Charger les données des rendez-vous au montage du composant
   useEffect(() => {
@@ -174,7 +176,10 @@ const DashboardMedecin = () => {
                 <div className={styles.section}>
                   <h3 className={styles.sectionTitle}>Actions Rapides</h3>
                   <div className={styles.actionsGrid}>
-                    <button className={`${styles.actionButton} ${styles.actionButtonGreen}`}>
+                    <button
+                      className={`${styles.actionButton} ${styles.actionButtonGreen}`}
+                      onClick={() => setShowNewRdvModal(true)}
+                    >
                       Nouvelle Consultation
                     </button>
                     <button className={`${styles.actionButton} ${styles.actionButtonBlue}`}>
@@ -195,6 +200,8 @@ const DashboardMedecin = () => {
           {activeTab === "gestionnaires" && <MedecinGestionnaireLiaisons />}
         </div>
       </main>
+
+      {showNewRdvModal && <ModalNouveauRendezVous onClose={() => setShowNewRdvModal(false)} />}
     </div>
   );
 };

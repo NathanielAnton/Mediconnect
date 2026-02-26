@@ -1,39 +1,40 @@
-import { useState, useContext } from 'react';
-import { AuthContext } from '../../../context/AuthContext';
-import { X, Calendar, Clock, User, Stethoscope, MessageSquare } from 'lucide-react';
-import api from '../../../api/axios';
-import styles from './ModalRendezVous.module.css';
+import { useState, useContext } from "react";
+import { AuthContext } from "../../../context/AuthContext";
+import { X, Calendar, Clock, User, Stethoscope, MessageSquare } from "lucide-react";
+import { toast } from "react-toastify";
+import api from "../../../api/axios";
+import styles from "./ModalRendezVous.module.css";
 
 const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    motif: '',
-    notes: ''
+    motif: "",
+    notes: "",
   });
 
   // Formater la date pour l'affichage
   const formatDate = (date) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    return new Date(date).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   const formatTime = (date) => {
-    return new Date(date).toLocaleTimeString('fr-FR', {
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(date).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!formData.motif.trim()) {
-      alert('Veuillez indiquer le motif de la consultation');
+      toast.error("Veuillez indiquer le motif de la consultation");
       return;
     }
 
@@ -47,32 +48,31 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
         date_fin: creneau.end.toISOString(),
         motif: formData.motif,
         notes: formData.notes || null,
-        statut: 'en_attente'
+        statut: "en_attente",
       };
 
-      console.log('Envoi des données:', rendezVousData);
+      console.log("Envoi des données:", rendezVousData);
 
-      const response = await api.post('/rendezvous', rendezVousData);
-      
-      console.log('Rendez-vous créé:', response.data);
-      
-      alert('Rendez-vous pris avec succès !');
+      const response = await api.post("/rendezvous", rendezVousData);
+
+      console.log("Rendez-vous créé:", response.data);
+
+      toast.success("Rendez-vous pris avec succès !");
       onSuccess(response.data.rendezVous);
       onClose();
-      
     } catch (error) {
-      console.error('Erreur lors de la prise de rendez-vous:', error);
-      
-      let errorMessage = 'Erreur lors de la prise de rendez-vous';
+      console.error("Erreur lors de la prise de rendez-vous:", error);
+
+      let errorMessage = "Erreur lors de la prise de rendez-vous";
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.response?.status === 422) {
-        errorMessage = 'Données invalides. Veuillez vérifier les informations.';
+        errorMessage = "Données invalides. Veuillez vérifier les informations.";
       } else if (error.response?.status === 409) {
-        errorMessage = 'Ce créneau n\'est plus disponible. Veuillez en choisir un autre.';
+        errorMessage = "Ce créneau n'est plus disponible. Veuillez en choisir un autre.";
       }
-      
-      alert(errorMessage);
+
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -80,20 +80,20 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const motifsPredefinis = [
-    'Consultation générale',
-    'Suivi médical',
-    'Prescription',
-    'Bilan de santé',
-    'Urgence',
-    'Vaccination',
-    'Autre'
+    "Consultation générale",
+    "Suivi médical",
+    "Prescription",
+    "Bilan de santé",
+    "Urgence",
+    "Vaccination",
+    "Autre",
   ];
 
   return (
@@ -136,7 +136,9 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
               <Clock className={styles.infoIcon} />
               <div>
                 <label>Horaire</label>
-                <p>{formatTime(creneau.start)} - {formatTime(creneau.end)}</p>
+                <p>
+                  {formatTime(creneau.start)} - {formatTime(creneau.end)}
+                </p>
               </div>
             </div>
 
@@ -159,7 +161,7 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
               <MessageSquare className={styles.labelIcon} />
               Motif de la consultation *
             </label>
-            
+
             {/* Suggestions de motifs */}
             <div className={styles.motifSuggestions}>
               {motifsPredefinis.map((motif, index) => (
@@ -167,9 +169,9 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
                   key={index}
                   type="button"
                   className={`${styles.motifChip} ${
-                    formData.motif === motif ? styles.motifChipActive : ''
+                    formData.motif === motif ? styles.motifChipActive : ""
                   }`}
-                  onClick={() => setFormData(prev => ({ ...prev, motif }))}
+                  onClick={() => setFormData((prev) => ({ ...prev, motif }))}
                 >
                   {motif}
                 </button>
@@ -189,9 +191,7 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
 
           {/* Notes supplémentaires */}
           <div className={styles.formGroup}>
-            <label className={styles.label}>
-              Notes supplémentaires (optionnel)
-            </label>
+            <label className={styles.label}>Notes supplémentaires (optionnel)</label>
             <textarea
               name="notes"
               placeholder="Informations complémentaires, symptômes particuliers, antécédents..."
@@ -212,18 +212,14 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
             >
               Annuler
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className={styles.submitButton}
-            >
+            <button type="submit" disabled={loading} className={styles.submitButton}>
               {loading ? (
                 <>
                   <div className={styles.spinner}></div>
                   Prise de rendez-vous...
                 </>
               ) : (
-                'Confirmer le rendez-vous'
+                "Confirmer le rendez-vous"
               )}
             </button>
           </div>

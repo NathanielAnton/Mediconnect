@@ -15,7 +15,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const [slotDuration, setSlotDuration] = useState("00:30:00");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const { roles } = useContext(AuthContext);
+  const { roles, user } = useContext(AuthContext);
   const [showRendezVousModal, setShowRendezVousModal] = useState(false);
   const [selectedCreneau, setSelectedCreneau] = useState(null);
 
@@ -75,15 +75,56 @@ const ModalHoraires = ({ medecin, onClose }) => {
         },
       }));
 
+      // Récupérer les rendez-vous existants (déjà dans la réponse du planning)
+      const rendezVousReserves = (res.data.rendez_vous || []).map((rdv) => {
+        const isClientActuel = user?.id === rdv.client_id;
+        return {
+          title: isClientActuel ? "Votre RDV" : "RDV réservé",
+          start: rdv.date_debut,
+          end: rdv.date_fin,
+          backgroundColor: isClientActuel ? "#10b981" : "#9ca3af",
+          borderColor: isClientActuel ? "#059669" : "#6b7280",
+          display: "block",
+          extendedProps: {
+            type: "rendezvous",
+            isClientActuel,
+            motif: rdv.motif,
+          },
+        };
+      });
+
+      // Créer un tableau des créneaux occupés par le client connecté
+      const creneauxOccupesClient = rendezVousReserves
+        .filter((rdv) => rdv.extendedProps.isClientActuel)
+        .map((rdv) => ({
+          start: new Date(rdv.start).getTime(),
+          end: new Date(rdv.end).getTime(),
+        }));
+
+      // Fonction pour vérifier si un créneau est occupé par le client
+      const isCrenauOccupyByClient = (creneauStart, creneauEnd) => {
+        const creneauStartTime = new Date(creneauStart).getTime();
+        const creneauEndTime = new Date(creneauEnd).getTime();
+        return creneauxOccupesClient.some(
+          (occupied) => creneauStartTime >= occupied.start && creneauEndTime <= occupied.end
+        );
+      };
+
       // Événements normaux pour les créneaux réservables
       const creneauxDisponibles = res.data.horaires
         .filter((h) => h.actif === true)
         .flatMap((h) => {
           const dayNumber = convertJourToNumber(h.jour);
-          return genererCreneaux(h.heure_debut, h.heure_fin, dayNumber, slotDuration);
+          return genererCreneaux(
+            h.heure_debut,
+            h.heure_fin,
+            dayNumber,
+            slotDuration,
+            isCrenauOccupyByClient
+          );
         });
 
-      setEvents([...horaires, ...indisponibilites, ...creneauxDisponibles]);
+      setEvents([...horaires, ...indisponibilites, ...rendezVousReserves, ...creneauxDisponibles]);
     } catch (err) {
       console.error("Erreur lors du chargement du planning :", err);
       setError("Impossible de charger les horaires du médecin");
@@ -93,7 +134,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
   };
 
   // Fonction pour générer les créneaux individuels
-  const genererCreneaux = (heureDebut, heureFin, jour, dureeCreneau) => {
+  const genererCreneaux = (heureDebut, heureFin, jour, dureeCreneau, isCrenauOccupyByClient) => {
     const creneaux = [];
     const debut = new Date(`1970-01-01T${heureDebut}`);
     const fin = new Date(`1970-01-01T${heureFin}`);
@@ -105,20 +146,40 @@ const ModalHoraires = ({ medecin, onClose }) => {
       const endTime = new Date(currentTime.getTime() + dureeMs);
 
       if (endTime <= fin) {
-        creneaux.push({
-          title: "Créneau disponible",
-          startTime: formatTime(currentTime),
-          endTime: formatTime(endTime),
-          daysOfWeek: [jour],
-          backgroundColor: "transparent",
-          borderColor: "#d1d5db",
-          textColor: "#6b7280",
-          classNames: ["creneau-disponible"],
-          extendedProps: {
-            type: "creneau",
-            statut: "disponible",
-          },
-        });
+        // Créer des dates complètes pour vérifier si le client a un RDV
+        const now = new Date();
+        const creneauStartFull = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          currentTime.getHours(),
+          currentTime.getMinutes()
+        );
+        const creneauEndFull = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          endTime.getHours(),
+          endTime.getMinutes()
+        );
+
+        // Ne pas ajouter le créneau si le client a déjà un RDV à ce moment
+        if (!isCrenauOccupyByClient(creneauStartFull, creneauEndFull)) {
+          creneaux.push({
+            title: "Créneau disponible",
+            startTime: formatTime(currentTime),
+            endTime: formatTime(endTime),
+            daysOfWeek: [jour],
+            backgroundColor: "transparent",
+            borderColor: "#d1d5db",
+            textColor: "#6b7280",
+            classNames: ["creneau-disponible"],
+            extendedProps: {
+              type: "creneau",
+              statut: "disponible",
+            },
+          });
+        }
       }
 
       currentTime = endTime;
@@ -158,6 +219,16 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const extendedProps = event.extendedProps;
+
+    // Gestion des clics sur les rendez-vous
+    if (extendedProps.type === "rendezvous") {
+      if (extendedProps.isClientActuel) {
+        toast.info("Votre RDV");
+      } else {
+        toast.info("Rendez-vous réservé");
+      }
+      return;
+    }
 
     // Vérifier si le créneau est passé
     if (event.start && new Date(event.start) < new Date()) {
@@ -266,13 +337,46 @@ const ModalHoraires = ({ medecin, onClose }) => {
                   }}
                   eventClick={handleEventClick}
                   eventDidMount={(eventInfo) => {
-                    // Supprimer les créneaux passés du DOM
                     const type = eventInfo.event.extendedProps.type;
                     const isPassé =
                       eventInfo.event.start && new Date(eventInfo.event.start) < new Date();
 
+                    // Supprimer les créneaux passés
                     if (type === "creneau" && isPassé) {
-                      eventInfo.el.style.display = "none";
+                      eventInfo.event.remove();
+                      return;
+                    }
+
+                    // Masquer et désactiver les créneaux qui chevauchent un RDV (client ou autres)
+                    if (type === "creneau") {
+                      const creneauStart = new Date(eventInfo.event.start).getTime();
+                      const creneauEnd = new Date(eventInfo.event.end).getTime();
+
+                      // Vérifier si UN RDV (quel qu'il soit) chevauche ce créneau
+                      const hasRDV = events.some((event) => {
+                        if (event.extendedProps?.type === "rendezvous") {
+                          const rdvStart = new Date(event.start).getTime();
+                          const rdvEnd = new Date(event.end).getTime();
+                          // Vérifier le chevauchement
+                          return creneauStart < rdvEnd && creneauEnd > rdvStart;
+                        }
+                        return false;
+                      });
+
+                      if (hasRDV) {
+                        eventInfo.event.remove();
+                        return;
+                      }
+                    }
+
+                    // Ajouter les classes pour les rendez-vous
+                    if (type === "rendezvous") {
+                      const isClientActuel = eventInfo.event.extendedProps.isClientActuel;
+                      if (isClientActuel) {
+                        eventInfo.el.classList.add("fc-event-rendezvous-client");
+                      } else {
+                        eventInfo.el.classList.add("fc-event-rendezvous-other");
+                      }
                     }
                   }}
                   eventContent={(eventInfo) => {
@@ -315,6 +419,14 @@ const ModalHoraires = ({ medecin, onClose }) => {
                     }}
                   ></div>
                   <span>Créneaux réservables</span>
+                </div>
+                <div className={styles.legendItem}>
+                  <div className={styles.legendColor} style={{ backgroundColor: "#10b981" }}></div>
+                  <span>Vos rendez-vous</span>
+                </div>
+                <div className={styles.legendItem}>
+                  <div className={styles.legendColor} style={{ backgroundColor: "#9ca3af" }}></div>
+                  <span>RDV réservés (autres)</span>
                 </div>
                 <div className={styles.legendItem}>
                   <div className={styles.slotInfo}>

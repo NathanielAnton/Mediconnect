@@ -259,6 +259,31 @@
   border-color: #10b981 !important;
 }
 
+/* Rendez-vous du client connecté (vert) */
+.calendarContainer :global(.fc-event-rendezvous-client) {
+  background-color: #10b981 !important;
+  border-color: #059669 !important;
+}
+
+.calendarContainer :global(.fc-event-rendezvous-client .fc-event-title) {
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* Rendez-vous des autres personnes (gris) */
+.calendarContainer :global(.fc-event-rendezvous-other) {
+  background-color: #9ca3af !important;
+  border-color: #6b7280 !important;
+  opacity: 0.7;
+}
+
+.calendarContainer :global(.fc-event-rendezvous-other .fc-event-title) {
+  color: white;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
 /* ===== LÉGENDE ===== */
 .legend {
   display: grid;

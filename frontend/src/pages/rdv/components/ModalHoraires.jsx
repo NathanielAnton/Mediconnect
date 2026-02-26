@@ -1,17 +1,18 @@
-import { useEffect, useRef, useState, useContext } from 'react';
-import FullCalendar from '@fullcalendar/react';
-import { AuthContext } from '../../../context/AuthContext';
-import timeGridPlugin from '@fullcalendar/timegrid';
-import frLocale from '@fullcalendar/core/locales/fr';
-import { X, Clock, Loader } from 'lucide-react';
-import api from '../../../api/axios';
-import styles from './ModalHoraires.module.css';
-import ModalRendezVous from '../../user/planning/ModalRendezVous';
+import { useEffect, useRef, useState, useContext } from "react";
+import FullCalendar from "@fullcalendar/react";
+import { AuthContext } from "../../../context/AuthContext";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import frLocale from "@fullcalendar/core/locales/fr";
+import { X, Clock, Loader } from "lucide-react";
+import api from "../../../api/axios";
+import styles from "./ModalHoraires.module.css";
+import ModalRendezVous from "../../user/planning/ModalRendezVous";
+import { toast } from "react-toastify";
 
 const ModalHoraires = ({ medecin, onClose }) => {
   const calendarRef = useRef(null);
   const [events, setEvents] = useState([]);
-  const [slotDuration, setSlotDuration] = useState('00:30:00');
+  const [slotDuration, setSlotDuration] = useState("00:30:00");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const { roles } = useContext(AuthContext);
@@ -35,7 +36,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
   // Charger les horaires du médecin
   const fetchMedecinHoraires = async () => {
     if (!medecin?.id) return;
-    
+
     setLoading(true);
     setError(null);
 
@@ -44,46 +45,45 @@ const ModalHoraires = ({ medecin, onClose }) => {
       console.log("Réponse planning médecin:", res.data);
 
       const horaires = res.data.horaires
-        .filter(h => h.actif === true) 
+        .filter((h) => h.actif === true)
         .map((h) => ({
           title: `Disponible - ${h.heure_debut} à ${h.heure_fin}`,
           startTime: h.heure_debut,
           endTime: h.heure_fin,
-          daysOfWeek: [convertJourToNumber(h.jour)], 
+          daysOfWeek: [convertJourToNumber(h.jour)],
           display: "background",
-          backgroundColor: "#0596DE", 
+          backgroundColor: "#0596DE",
           borderColor: "#0478b6",
-          extendedProps: { 
-            type: 'disponible',
+          extendedProps: {
+            type: "disponible",
             jour: h.jour,
             heure_debut: h.heure_debut,
-            heure_fin: h.heure_fin
-          }
+            heure_fin: h.heure_fin,
+          },
         }));
 
       const indisponibilites = res.data.indisponibilites.map((i) => ({
         title: i.motif || "Indisponible",
         start: i.date_debut,
         end: i.date_fin,
-        backgroundColor: "#6b7280", 
+        backgroundColor: "#6b7280",
         borderColor: "#4b5563",
         display: "background",
-        extendedProps: { 
-          type: 'indisponible',
-          motif: i.motif
-        }
+        extendedProps: {
+          type: "indisponible",
+          motif: i.motif,
+        },
       }));
 
       // Événements normaux pour les créneaux réservables
       const creneauxDisponibles = res.data.horaires
-        .filter(h => h.actif === true)
+        .filter((h) => h.actif === true)
         .flatMap((h) => {
           const dayNumber = convertJourToNumber(h.jour);
           return genererCreneaux(h.heure_debut, h.heure_fin, dayNumber, slotDuration);
         });
 
       setEvents([...horaires, ...indisponibilites, ...creneauxDisponibles]);
-
     } catch (err) {
       console.error("Erreur lors du chargement du planning :", err);
       setError("Impossible de charger les horaires du médecin");
@@ -97,30 +97,30 @@ const ModalHoraires = ({ medecin, onClose }) => {
     const creneaux = [];
     const debut = new Date(`1970-01-01T${heureDebut}`);
     const fin = new Date(`1970-01-01T${heureFin}`);
-    const dureeMs = dureeCreneau === '00:15:00' ? 15 * 60 * 1000 : 30 * 60 * 1000;
+    const dureeMs = dureeCreneau === "00:15:00" ? 15 * 60 * 1000 : 30 * 60 * 1000;
 
     let currentTime = debut;
 
     while (currentTime < fin) {
       const endTime = new Date(currentTime.getTime() + dureeMs);
-      
+
       if (endTime <= fin) {
         creneaux.push({
-          title: 'Créneau disponible',
+          title: "Créneau disponible",
           startTime: formatTime(currentTime),
           endTime: formatTime(endTime),
           daysOfWeek: [jour],
-          backgroundColor: 'transparent',
-          borderColor: '#d1d5db',
-          textColor: '#6b7280',
-          classNames: ['creneau-disponible'],
+          backgroundColor: "transparent",
+          borderColor: "#d1d5db",
+          textColor: "#6b7280",
+          classNames: ["creneau-disponible"],
           extendedProps: {
-            type: 'creneau',
-            statut: 'disponible'
-          }
+            type: "creneau",
+            statut: "disponible",
+          },
         });
       }
-      
+
       currentTime = endTime;
     }
 
@@ -152,28 +152,35 @@ const ModalHoraires = ({ medecin, onClose }) => {
   };
 
   const toggleSlotDuration = () => {
-    setSlotDuration(prev => prev === '00:30:00' ? '00:15:00' : '00:30:00');
+    setSlotDuration((prev) => (prev === "00:30:00" ? "00:15:00" : "00:30:00"));
   };
 
   const handleEventClick = (clickInfo) => {
     const event = clickInfo.event;
     const extendedProps = event.extendedProps;
-    if(roles === 'Non authentifié') {
-      alert('Veuillez vous connecter pour prendre un rendez-vous.');
+
+    // Vérifier si le créneau est passé
+    if (event.start && new Date(event.start) < new Date()) {
+      toast.error("Ce créneau est passé.");
       return;
     }
-    
-    if (extendedProps.type === 'creneau' && extendedProps.statut === 'disponible') {
+
+    if (roles === "Non authentifié") {
+      toast.error("Veuillez vous connecter pour prendre un rendez-vous.");
+      return;
+    }
+
+    if (extendedProps.type === "creneau" && extendedProps.statut === "disponible") {
       setSelectedCreneau({
         start: event.start,
-        end: event.end
+        end: event.end,
       });
       setShowRendezVousModal(true);
     }
   };
 
   const handleRendezVousSuccess = (rendezVous) => {
-    console.log('Rendez-vous créé:', rendezVous);
+    console.log("Rendez-vous créé:", rendezVous);
     // Optionnel : rafraîchir les événements du calendrier
     fetchMedecinHoraires();
   };
@@ -193,13 +200,13 @@ const ModalHoraires = ({ medecin, onClose }) => {
             )}
           </div>
           <div className={styles.headerActions}>
-            <button 
+            <button
               onClick={toggleSlotDuration}
               className={styles.durationButton}
               disabled={loading}
             >
               <Clock size={16} />
-              {slotDuration === '00:30:00' ? '30min' : '15min'}
+              {slotDuration === "00:30:00" ? "30min" : "15min"}
             </button>
             <button onClick={onClose} className={styles.closeButton}>
               <X size={24} />
@@ -219,10 +226,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
           {error && (
             <div className={styles.errorContainer}>
               <p className={styles.errorText}>{error}</p>
-              <button 
-                onClick={fetchMedecinHoraires}
-                className={styles.retryButton}
-              >
+              <button onClick={fetchMedecinHoraires} className={styles.retryButton}>
                 Réessayer
               </button>
             </div>
@@ -236,9 +240,9 @@ const ModalHoraires = ({ medecin, onClose }) => {
                   plugins={[timeGridPlugin]}
                   initialView="timeGridWeek"
                   headerToolbar={{
-                    left: 'prev,next',
-                    center: 'title',
-                    right: 'timeGridWeek,timeGridDay'
+                    left: "prev,next",
+                    center: "title",
+                    right: "timeGridWeek,timeGridDay",
                   }}
                   locale={frLocale}
                   firstDay={1}
@@ -251,29 +255,39 @@ const ModalHoraires = ({ medecin, onClose }) => {
                   events={events}
                   eventDisplay="block"
                   eventTimeFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
                   }}
                   slotLabelFormat={{
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
                   }}
                   eventClick={handleEventClick}
+                  eventDidMount={(eventInfo) => {
+                    // Supprimer les créneaux passés du DOM
+                    const type = eventInfo.event.extendedProps.type;
+                    const isPassé =
+                      eventInfo.event.start && new Date(eventInfo.event.start) < new Date();
+
+                    if (type === "creneau" && isPassé) {
+                      eventInfo.el.style.display = "none";
+                    }
+                  }}
                   eventContent={(eventInfo) => {
                     // Personnaliser l'affichage des événements
                     const type = eventInfo.event.extendedProps.type;
-                    
-                    if (type === 'disponible') {
+
+                    if (type === "disponible") {
                       return {
-                        html: `<div class="event-disponible">${eventInfo.timeText}</div>`
+                        html: `<div class="event-disponible">${eventInfo.timeText}</div>`,
                       };
                     }
-                    
-                    if (type === 'creneau') {
+
+                    if (type === "creneau") {
                       return {
-                        html: `<div class="event-creneau">✓</div>`
+                        html: `<div class="event-creneau">✓</div>`,
                       };
                     }
 
@@ -285,24 +299,29 @@ const ModalHoraires = ({ medecin, onClose }) => {
               {/* Légende */}
               <div className={styles.legend}>
                 <div className={styles.legendItem}>
-                  <div className={styles.legendColor} style={{ backgroundColor: '#0596DE' }}></div>
+                  <div className={styles.legendColor} style={{ backgroundColor: "#0596DE" }}></div>
                   <span>Plages horaires disponibles</span>
                 </div>
                 <div className={styles.legendItem}>
-                  <div className={styles.legendColor} style={{ backgroundColor: '#6b7280' }}></div>
+                  <div className={styles.legendColor} style={{ backgroundColor: "#6b7280" }}></div>
                   <span>Indisponible</span>
                 </div>
                 <div className={styles.legendItem}>
-                  <div className={styles.legendColor} style={{ 
-                    backgroundColor: 'transparent',
-                    border: '2px solid #10b981'
-                  }}></div>
+                  <div
+                    className={styles.legendColor}
+                    style={{
+                      backgroundColor: "transparent",
+                      border: "2px solid #10b981",
+                    }}
+                  ></div>
                   <span>Créneaux réservables</span>
                 </div>
                 <div className={styles.legendItem}>
                   <div className={styles.slotInfo}>
                     <Clock size={14} />
-                    <span>Créneaux : {slotDuration === '00:30:00' ? '30 minutes' : '15 minutes'}</span>
+                    <span>
+                      Créneaux : {slotDuration === "00:30:00" ? "30 minutes" : "15 minutes"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -314,9 +333,9 @@ const ModalHoraires = ({ medecin, onClose }) => {
         <div className={styles.modalFooter}>
           <div className={styles.footerInfo}>
             <p>
-              {!loading && !error && 
-                "Cliquez sur un créneau disponible (✓) pour prendre rendez-vous"
-              }
+              {!loading &&
+                !error &&
+                "Cliquez sur un créneau disponible (✓) pour prendre rendez-vous"}
             </p>
           </div>
           <div className={styles.footerActions}>

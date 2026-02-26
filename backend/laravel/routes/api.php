@@ -51,6 +51,8 @@ Route::get('/test', function () {
 // Public search routes
 Route::get('/search/medecins', [SearchMedecinController::class, 'search']);
 Route::get('/specialites', [ClientSearchController::class, 'getSpecialites']);
+Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
+
 
 // Routes pour les demandes de gestionnaire
 Route::post('/demande-gestionnaire', [GestionnaireRequestController::class, 'store']);
@@ -61,7 +63,6 @@ Route::post('/demande-gestionnaire', [GestionnaireRequestController::class, 'sto
 
 Route::middleware('auth:sanctum')->group(function () {
     // Shared resources for authenticated users
-    Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
     Route::get('/medecin/profile', [MedecinProfileController::class, 'show']);
     Route::put('/medecin/profile', [MedecinProfileController::class, 'update']);
     Route::get('/medecin/planning', [MedecinPlanningController::class, 'getPlanning']);

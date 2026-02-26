@@ -299,7 +299,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
             <button
               onClick={toggleSlotDuration}
               className={styles.durationButton}
-              disabled={loading}
+              disabled={true}
             >
               <Clock size={16} />
               {slotDuration === "00:30:00" ? "30min" : "15min"}

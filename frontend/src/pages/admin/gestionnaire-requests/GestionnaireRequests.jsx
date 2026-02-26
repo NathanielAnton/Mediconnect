@@ -25,7 +25,7 @@ const GestionnaireRequests = () => {
 
   const fetchDemandes = async () => {
     try {
-      const response = await axios.get("/demande-gestionnaire");
+      const response = await axios.get("/admin/demande-gestionnaire");
       setDemandes(response.data);
       setLoading(false);
     } catch (error) {
@@ -37,7 +37,7 @@ const GestionnaireRequests = () => {
   const handleUpdateStatut = async (id, statut) => {
     setActionLoading(true);
     try {
-      await axios.put(`/demande-gestionnaire/${id}/statut`, {
+      await axios.put(`/admin/demande-gestionnaire/${id}/statut`, {
         statut,
         commentaire_admin: commentaire || null,
       });
@@ -46,7 +46,10 @@ const GestionnaireRequests = () => {
       await fetchDemandes();
       setSelectedDemande(null);
       setCommentaire("");
-      showToast(`Demande ${statut === "approuvee" ? "approuvée" : "refusée"} avec succès`, "success");
+      showToast(
+        `Demande ${statut === "approuvee" ? "approuvée" : "refusée"} avec succès`,
+        "success"
+      );
     } catch (error) {
       console.error("Erreur lors de la mise à jour:", error);
       showToast("Erreur lors de la mise à jour du statut", "error");
@@ -86,16 +89,38 @@ const GestionnaireRequests = () => {
 
       {/* Toast Notification */}
       {toast.show && (
-        <div className={`${styles.toast} ${styles[`toast${toast.type.charAt(0).toUpperCase() + toast.type.slice(1)}`]}`}>
+        <div
+          className={`${styles.toast} ${styles[`toast${toast.type.charAt(0).toUpperCase() + toast.type.slice(1)}`]}`}
+        >
           <div className={styles.toastContent}>
             {toast.type === "success" && (
-              <svg className={styles.toastIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <svg
+                className={styles.toastIcon}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             )}
             {toast.type === "error" && (
-              <svg className={styles.toastIcon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className={styles.toastIcon}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             )}
             <span>{toast.message}</span>

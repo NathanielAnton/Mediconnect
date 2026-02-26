@@ -71,7 +71,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
         statut: formData.statut,
       };
 
-      const response = await axiosInstance.put(`/rendezvous/${rendezVous.id}`, payload);
+      const response = await axiosInstance.put(`/secretaire/rendez-vous/${rendezVous.id}`, payload);
       const successMessage = response.data?.message || "Rendez-vous mis à jour avec succès !";
       showToast(successMessage, "success");
       onSuccess();
@@ -107,7 +107,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
 
     setLoading(true);
     try {
-      const response = await axiosInstance.delete(`/rendezvous/${rendezVous.id}`);
+      const response = await axiosInstance.delete(`secretaire/rendez-vous/${rendezVous.id}`);
       const successMessage = response.data?.message || "Rendez-vous supprimé avec succès !";
       showToast(successMessage, "success");
       onSuccess();

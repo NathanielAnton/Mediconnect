@@ -42,7 +42,7 @@ const DashboardSecretaire = () => {
 
   const fetchRdvAujourdhui = async () => {
     try {
-      const response = await axiosInstance.get("/secretaire/rendez-vous/aujourdhui");
+      const response = await axiosInstance.get("/secretaire/rendez-vous/today");
       setRdvAujourdhui(response.data.rendez_vous);
     } catch (error) {
       console.error("Erreur:", error);
@@ -51,7 +51,7 @@ const DashboardSecretaire = () => {
 
   const fetchMedecinRendezVous = async (medecinId) => {
     try {
-      const response = await axiosInstance.get(`/secretaire/medecins/${medecinId}/rendez-vous`);
+      const response = await axiosInstance.get(`/secretaire/rendez-vous/medecin/${medecinId}`);
       setRendezVous(response.data.rendez_vous);
       setSelectedMedecin(response.data.medecin);
     } catch (error) {

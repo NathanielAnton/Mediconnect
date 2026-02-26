@@ -73,7 +73,7 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
         statut: formData.statut,
       };
 
-      const response = await api.post("/rendezvous", payload);
+      const response = await api.post("/medecin/rendez-vous", payload);
       const successMessage = response.data?.message || "Réservation effectuée avec succès !";
       showToast(successMessage, "success");
       onSuccess(response.data?.rendezVous);

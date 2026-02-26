@@ -17,8 +17,8 @@ function MedecinLiaisons() {
 
   const fetchDemandes = async () => {
     try {
-      const response = await axiosInstance.get("/medecin/liaisons/demandes");
-      setDemandes(response.data.demandes);
+      const response = await axiosInstance.get("/medecin/liaisons-secretaire/demandes");
+      setDemandes(response.data.demandes || []);
     } catch (err) {
       console.error("Erreur lors de la récupération des demandes:", err);
     }
@@ -26,8 +26,8 @@ function MedecinLiaisons() {
 
   const fetchLiaisons = async () => {
     try {
-      const response = await axiosInstance.get("/medecin/liaisons");
-      setLiaisons(response.data.liaisons);
+      const response = await axiosInstance.get("/medecin/liaisons-secretaire");
+      setLiaisons(response.data.secretaires || []);
     } catch (err) {
       console.error("Erreur lors de la récupération des liaisons:", err);
     }
@@ -39,7 +39,7 @@ function MedecinLiaisons() {
     setSuccess("");
 
     try {
-      const response = await axiosInstance.patch(`/medecin/liaisons/${id}/accepter`);
+      const response = await axiosInstance.patch(`/medecin/liaisons-secretaire/${id}/accepter`);
       setSuccess(response.data.message);
       fetchDemandes();
       fetchLiaisons();
@@ -58,7 +58,7 @@ function MedecinLiaisons() {
     setSuccess("");
 
     try {
-      const response = await axiosInstance.patch(`/medecin/liaisons/${id}/refuser`);
+      const response = await axiosInstance.patch(`/medecin/liaisons-secretaire/${id}/refuser`);
       setSuccess(response.data.message);
       fetchDemandes();
       fetchLiaisons();
@@ -73,7 +73,7 @@ function MedecinLiaisons() {
     if (!window.confirm("Voulez-vous vraiment supprimer cette liaison ?")) return;
 
     try {
-      await axiosInstance.delete(`/medecin/liaisons/${id}`);
+      await axiosInstance.delete(`/medecin/liaisons-secretaire/${id}`);
       setSuccess("Liaison supprimée avec succès");
       fetchLiaisons();
     } catch (err) {
@@ -182,38 +182,24 @@ function MedecinLiaisons() {
                   <div key={liaison.id} className="liaison-card">
                     <div className="liaison-header">
                       <div>
-                        <h3>{liaison.secretaire.name}</h3>
-                        <p className="secretaire-email">{liaison.secretaire.email}</p>
+                        <h3>{liaison.name}</h3>
+                        <p className="secretaire-email">{liaison.email}</p>
                       </div>
-                      {getStatutBadge(liaison.statut)}
+                      {getStatutBadge("accepte")}
                     </div>
 
                     <div className="liaison-content">
-                      {liaison.message && (
-                        <div className="message-box">
-                          <p className="message-label">Message:</p>
-                          <p className="message-text">{liaison.message}</p>
-                        </div>
-                      )}
                       <div className="info-row">
-                        <span className="label">Date de demande:</span>
+                        <span className="label">Date de liaison:</span>
                         <span>{new Date(liaison.created_at).toLocaleDateString("fr-FR")}</span>
                       </div>
-                      {liaison.statut !== "en_attente" && (
-                        <div className="info-row">
-                          <span className="label">Date de réponse:</span>
-                          <span>{new Date(liaison.updated_at).toLocaleDateString("fr-FR")}</span>
-                        </div>
-                      )}
                     </div>
 
-                    {liaison.statut === "accepte" && (
-                      <div className="liaison-actions">
-                        <button onClick={() => handleDelete(liaison.id)} className="btn-delete">
-                          Supprimer la liaison
-                        </button>
-                      </div>
-                    )}
+                    <div className="liaison-actions">
+                      <button onClick={() => handleDelete(liaison.id)} className="btn-delete">
+                        Supprimer la liaison
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

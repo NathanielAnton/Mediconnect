@@ -73,7 +73,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
         statut: formData.statut,
       };
 
-      const response = await api.put(`/rendezvous/${rendezVous.id}`, payload);
+      const response = await api.put(`/medecin/rendez-vous/${rendezVous.id}`, payload);
       const successMessage = response.data?.message || "Rendez-vous mis à jour avec succès !";
       showToast(successMessage, "success");
       onSuccess();
@@ -109,7 +109,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
 
     setLoading(true);
     try {
-      const response = await api.delete(`/rendezvous/${rendezVous.id}`);
+      const response = await api.delete(`/medecin/rendez-vous/${rendezVous.id}`);
       const successMessage = response.data?.message || "Rendez-vous supprimé avec succès !";
       showToast(successMessage, "success");
       onSuccess();

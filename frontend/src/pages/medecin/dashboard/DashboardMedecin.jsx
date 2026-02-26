@@ -27,14 +27,14 @@ const DashboardMedecin = () => {
         setError(null);
 
         // Récupérer les rendez-vous d'aujourd'hui
-        const todayResponse = await api.get("/medecin/rendez-vous/aujourd-hui");
+        const todayResponse = await api.get("/medecin/rendez-vous/today");
         const todayData = todayResponse.data;
 
         setTodayAppointments(todayData.rendez_vous || []);
         setTodayCount(todayData.count || 0);
 
         // Récupérer les rendez-vous du mois
-        const monthResponse = await api.get("/medecin/rendez-vous/mois");
+        const monthResponse = await api.get("/medecin/rendez-vous/month");
         const monthData = monthResponse.data;
 
         setMonthCount(monthData.count || 0);

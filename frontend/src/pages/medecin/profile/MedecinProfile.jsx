@@ -2,16 +2,16 @@ import { useEffect, useState, useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import api from "../../../api/axios";
 import NavbarMedecin from "../components/NavbarMedecin";
-import styles from './MedecinProfile.module.css';
+import styles from "./MedecinProfile.module.css";
 
 export default function MedecinProfile() {
   const { user } = useContext(AuthContext);
   const [profile, setProfile] = useState({
-    specialite_id: '',
-    telephone: '',
-    description: '',
-    adresse: '',
-    ville: '',
+    specialite_id: "",
+    telephone: "",
+    description: "",
+    adresse: "",
+    ville: "",
   });
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -19,7 +19,7 @@ export default function MedecinProfile() {
   const [specialites, setSpecialites] = useState([]);
   const [filteredSpecialites, setFilteredSpecialites] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Charger le profil et les spécialités au montage
   useEffect(() => {
@@ -29,33 +29,32 @@ export default function MedecinProfile() {
         const res = await api.get("/medecin/profile");
         if (res.data) {
           setProfile(res.data);
-          
+
           // Mettre à jour le searchTerm avec le nom de la spécialité
-            if (res.data.specialite_nom) {
+          if (res.data.specialite_nom) {
             setSearchTerm(res.data.specialite_nom);
-            }
+          }
         }
-        
+
         // Charger les spécialités
         const specialitesRes = await api.get("/specialites");
-        setSpecialites(specialitesRes.data);
-        
+        setSpecialites(specialitesRes.data.specialites || []);
       } catch (err) {
         console.error("Erreur lors du chargement:", err);
       } finally {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, []);
 
   // Filtrer les spécialités selon la recherche
   useEffect(() => {
-    if (searchTerm.trim() === '') {
+    if (searchTerm.trim() === "") {
       setFilteredSpecialites([]);
     } else {
-      const filtered = specialites.filter(specialite =>
+      const filtered = specialites.filter((specialite) =>
         specialite.nom.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredSpecialites(filtered);
@@ -64,24 +63,24 @@ export default function MedecinProfile() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
+    setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSpecialiteSearch = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     setShowSuggestions(true);
-    
+
     // Si l'utilisateur efface la recherche, effacer aussi l'ID
-    if (value.trim() === '') {
-      setProfile(prev => ({ ...prev, specialite_id: '' }));
+    if (value.trim() === "") {
+      setProfile((prev) => ({ ...prev, specialite_id: "" }));
     }
   };
 
   const selectSpecialite = (specialite) => {
-    setProfile(prev => ({
+    setProfile((prev) => ({
       ...prev,
-      specialite_id: specialite.id
+      specialite_id: specialite.id,
     }));
     setSearchTerm(specialite.nom);
     setShowSuggestions(false);
@@ -108,9 +107,9 @@ export default function MedecinProfile() {
       setShowSuggestions(false);
     };
 
-    document.addEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener("click", handleClickOutside);
     };
   }, []);
 
@@ -131,7 +130,7 @@ export default function MedecinProfile() {
   return (
     <div className={styles.container}>
       <NavbarMedecin />
-      
+
       <div className={styles.mainContent}>
         {/* Page Header */}
         <div className={styles.pageHeader}>
@@ -141,21 +140,22 @@ export default function MedecinProfile() {
 
         {/* Message Display */}
         {message && (
-          <div className={`${styles.messageContainer} ${messageType === "success" ? styles.messageSuccess : styles.messageError}`}>
+          <div
+            className={`${styles.messageContainer} ${messageType === "success" ? styles.messageSuccess : styles.messageError}`}
+          >
             {message}
           </div>
         )}
 
         {/* Info Section */}
         <div className={styles.infoSection}>
-          💡 Mettez à jour vos informations professionnelles pour aider les patients à vous trouver facilement.
+          💡 Mettez à jour vos informations professionnelles pour aider les patients à vous trouver
+          facilement.
         </div>
 
         {/* Profile Card */}
         <div className={styles.profileCard}>
-          <h2 className={styles.profileCardTitle}>
-            📋 Informations Professionnelles
-          </h2>
+          <h2 className={styles.profileCardTitle}>📋 Informations Professionnelles</h2>
 
           <form onSubmit={handleSubmit}>
             <div className={styles.formGrid}>
@@ -172,10 +172,10 @@ export default function MedecinProfile() {
                     className={styles.formInput}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  
+
                   {showSuggestions && filteredSpecialites.length > 0 && (
                     <div className={styles.suggestionsList}>
-                      {filteredSpecialites.map(specialite => (
+                      {filteredSpecialites.map((specialite) => (
                         <div
                           key={specialite.id}
                           className={styles.suggestionItem}
@@ -250,10 +250,7 @@ export default function MedecinProfile() {
 
             {/* Button Container */}
             <div className={styles.buttonContainer}>
-              <button
-                type="submit"
-                className={styles.submitButton}
-              >
+              <button type="submit" className={styles.submitButton}>
                 Sauvegarder les modifications
               </button>
             </div>

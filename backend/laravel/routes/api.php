@@ -84,6 +84,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Rendez-vous
         Route::post('/rendez-vous', [ClientRendezVousController::class, 'store']);
+        Route::get('/rendez-vous/{id}', [ClientRendezVousController::class, 'show']);
         Route::get('/rendez-vous', [ClientRendezVousController::class, 'getMyRendezVous']);
         Route::patch('/rendez-vous/{id}/cancel', [ClientRendezVousController::class, 'cancel']);
     });

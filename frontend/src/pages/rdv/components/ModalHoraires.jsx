@@ -18,6 +18,8 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const { roles, user } = useContext(AuthContext);
   const [showRendezVousModal, setShowRendezVousModal] = useState(false);
   const [selectedCreneau, setSelectedCreneau] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedRDV, setSelectedRDV] = useState(null);
 
   // Fonction pour convertir les jours texte en index FullCalendar
   const convertJourToNumber = (jour) => {
@@ -89,6 +91,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
             type: "rendezvous",
             isClientActuel,
             motif: rdv.motif,
+            rdvId: rdv.id,
           },
         };
       });
@@ -222,11 +225,33 @@ const ModalHoraires = ({ medecin, onClose }) => {
 
     // Gestion des clics sur les rendez-vous
     if (extendedProps.type === "rendezvous") {
-      if (extendedProps.isClientActuel) {
-        toast.info("Votre RDV");
-      } else {
-        toast.info("Rendez-vous réservé");
-      }
+      const rdvId = extendedProps.rdvId;
+
+      // Faire un appel API pour récupérer les détails complets du RDV
+      const fetchRDVDetails = async () => {
+        try {
+          const response = await api.get(`/client/rendez-vous/${rdvId}`);
+          const rdvComplet = response.data.rendezVous;
+          const isClientActuel = user?.id === rdvComplet.client_id;
+
+          setSelectedRDV({
+            title: isClientActuel ? "Votre RDV" : "RDV réservé",
+            start: rdvComplet.date_debut,
+            end: rdvComplet.date_fin,
+            extendedProps: {
+              type: "rendezvous",
+              isClientActuel,
+              motif: rdvComplet.motif,
+            },
+          });
+          setShowDetailsModal(true);
+        } catch (error) {
+          console.error("Erreur lors de la récupération du RDV:", error);
+          toast.error("Erreur lors du chargement des détails");
+        }
+      };
+
+      fetchRDVDetails();
       return;
     }
 
@@ -465,6 +490,141 @@ const ModalHoraires = ({ medecin, onClose }) => {
             onClose={() => setShowRendezVousModal(false)}
             onSuccess={handleRendezVousSuccess}
           />
+        )}
+
+        {/* Modal de détails du rendez-vous */}
+        {showDetailsModal && selectedRDV && (
+          <div className={styles.modalOverlay} onClick={() => setShowDetailsModal(false)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <div className={styles.modalHeader}>
+                <div className={styles.modalTitle}>
+                  <h2>Détails du rendez-vous</h2>
+                </div>
+                <button onClick={() => setShowDetailsModal(false)} className={styles.closeButton}>
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className={styles.modalBody}>
+                <div style={{ padding: "1.5rem" }}>
+                  {/* Médecin */}
+                  <div
+                    style={{
+                      marginBottom: "1.5rem",
+                      paddingBottom: "1rem",
+                      borderBottom: "1px solid #e5e7eb",
+                    }}
+                  >
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                      Médecin
+                    </p>
+                    <p style={{ fontSize: "1rem", fontWeight: "500", color: "#1f2937" }}>
+                      Dr. {medecin?.name}
+                    </p>
+                    {medecin?.specialite && (
+                      <p style={{ fontSize: "0.875rem", color: "#6b7280" }}>{medecin.specialite}</p>
+                    )}
+                  </div>
+
+                  {/* Date et heure */}
+                  <div
+                    style={{
+                      marginBottom: "1.5rem",
+                      paddingBottom: "1rem",
+                      borderBottom: "1px solid #e5e7eb",
+                    }}
+                  >
+                    <div style={{ marginBottom: "1rem" }}>
+                      <p
+                        style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "0.25rem" }}
+                      >
+                        Date
+                      </p>
+                      <p style={{ fontSize: "1rem", fontWeight: "500", color: "#1f2937" }}>
+                        {new Date(selectedRDV.start).toLocaleDateString("fr-FR", {
+                          weekday: "long",
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <p
+                        style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "0.25rem" }}
+                      >
+                        Horaire
+                      </p>
+                      <p style={{ fontSize: "1rem", fontWeight: "500", color: "#1f2937" }}>
+                        {new Date(selectedRDV.start).toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                        -{" "}
+                        {new Date(selectedRDV.end).toLocaleTimeString("fr-FR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Motif */}
+                  <div
+                    style={{
+                      marginBottom: "1.5rem",
+                      paddingBottom: "1rem",
+                      borderBottom: "1px solid #e5e7eb",
+                    }}
+                  >
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                      Motif
+                    </p>
+                    <p style={{ fontSize: "1rem", fontWeight: "500", color: "#1f2937" }}>
+                      {selectedRDV.extendedProps?.motif || "Non spécifié"}
+                    </p>
+                  </div>
+
+                  {/* Statut */}
+                  <div>
+                    <p style={{ fontSize: "0.875rem", color: "#6b7280", marginBottom: "0.25rem" }}>
+                      Statut
+                    </p>
+                    <p
+                      style={{
+                        fontSize: "1rem",
+                        fontWeight: "500",
+                        color:
+                          (selectedRDV.extendedProps?.isClientActuel && "#10b981") ||
+                          (selectedRDV.backgroundColor === "#10b981" && "#10b981") ||
+                          "#9ca3af",
+                        display: "inline-block",
+                        padding: "0.25rem 0.75rem",
+                        borderRadius: "0.375rem",
+                        backgroundColor:
+                          (selectedRDV.extendedProps?.isClientActuel && "#ecfdf5") ||
+                          (selectedRDV.backgroundColor === "#10b981" && "#ecfdf5") ||
+                          "#f3f4f6",
+                      }}
+                    >
+                      {selectedRDV.extendedProps?.isClientActuel
+                        ? "Votre rendez-vous"
+                        : "Rendez-vous réservé"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.modalFooter}>
+                <button
+                  onClick={() => setShowDetailsModal(false)}
+                  className={styles.closeModalButton}
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

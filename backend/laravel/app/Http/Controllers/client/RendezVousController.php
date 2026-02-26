@@ -75,6 +75,37 @@ class RendezVousController extends Controller
     }
 
     /**
+     * Client récupère les détails d'un rendez-vous
+     */
+    public function show(Request $request, $id)
+    {
+        $rendezVous = RendezVous::findOrFail($id);
+        
+        // Charger les relations
+        $rendezVous->load(['medecin']);
+
+        return response()->json([
+            'rendezVous' => [
+                'id' => $rendezVous->id,
+                'name' => $rendezVous->name,
+                'email' => $rendezVous->email,
+                'date_debut' => $rendezVous->date_debut,
+                'date_fin' => $rendezVous->date_fin,
+                'motif' => $rendezVous->motif,
+                'statut' => $rendezVous->statut,
+                'notes' => $rendezVous->notes,
+                'client_id' => $rendezVous->client_id,
+                'medecin_id' => $rendezVous->medecin_id,
+                'medecin' => $rendezVous->medecin ? [
+                    'id' => $rendezVous->medecin->id,
+                    'name' => $rendezVous->medecin->name,
+                    'specialite' => $rendezVous->medecin->specialite,
+                ] : null
+            ]
+        ]);
+    }
+
+    /**
      * Client annule son rendez-vous
      */
     public function cancel(Request $request, $id)

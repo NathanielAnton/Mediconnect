@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import styles from "./DashboardUser.module.css";
 import SearchMedecin from "../../rdv/SearchMedecin";
+import { toast } from "react-toastify";
 
 const DashboardUser = () => {
   const { user, logout } = useContext(AuthContext);
@@ -50,6 +51,14 @@ const DashboardUser = () => {
     });
   };
 
+  const handleDevelopment = (e) => {
+    e.preventDefault();
+    toast.warning("En développement", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -75,10 +84,10 @@ const DashboardUser = () => {
               <a href="#rdv" className={styles.navLink}>
                 Mes Rendez-vous
               </a>
-              <a href="#documents" className={styles.navLink}>
+              <a href="#documents" className={styles.navLink} onClick={handleDevelopment}>
                 Mes Documents
               </a>
-              <a href="#profil" className={styles.navLink}>
+              <a href="#profil" className={styles.navLink} onClick={handleDevelopment}>
                 Mon Profil
               </a>
             </div>
@@ -151,10 +160,16 @@ const DashboardUser = () => {
               <button className={`${styles.actionButton} ${styles.actionButtonBlue}`}>
                 Prendre Rendez-vous
               </button>
-              <button className={`${styles.actionButton} ${styles.actionButtonGreen}`}>
+              <button 
+                className={`${styles.actionButton} ${styles.actionButtonGreen}`}
+                onClick={handleDevelopment}
+              >
                 Consulter mes Documents
               </button>
-              <button className={`${styles.actionButton} ${styles.actionButtonPurple}`}>
+              <button 
+                className={`${styles.actionButton} ${styles.actionButtonPurple}`}
+                onClick={handleDevelopment}
+              >
                 Contacter le Support
               </button>
             </div>

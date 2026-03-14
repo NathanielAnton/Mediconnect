@@ -144,13 +144,15 @@ const ModalHoraires = ({ medecin, onClose }) => {
     const dureeMs = dureeCreneau === "00:15:00" ? 15 * 60 * 1000 : 30 * 60 * 1000;
 
     const now = new Date();
-    
+
     // Générer les créneaux pour les 8 prochaines semaines (au lieu d'un pattern récurrent)
     for (let semaine = 0; semaine < 8; semaine++) {
       // Calculer la date du jour cible pour cette semaine
       const dateTarget = new Date(now);
       const dayDiff = jour - dateTarget.getDay();
-      dateTarget.setDate(dateTarget.getDate() + dayDiff + (semaine > 0 ? (semaine - 1) * 7 + 7 : 0));
+      dateTarget.setDate(
+        dateTarget.getDate() + dayDiff + (semaine > 0 ? (semaine - 1) * 7 + 7 : 0)
+      );
       dateTarget.setHours(0, 0, 0, 0); // Réinitialiser l'heure
 
       let currentTime = debut;
@@ -161,7 +163,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
           // Créer des dates complètes et absolues
           const creneauStartFull = new Date(dateTarget);
           creneauStartFull.setHours(currentTime.getHours(), currentTime.getMinutes(), 0, 0);
-          
+
           const creneauEndFull = new Date(dateTarget);
           creneauEndFull.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
 
@@ -292,11 +294,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
             )}
           </div>
           <div className={styles.headerActions}>
-            <button
-              onClick={toggleSlotDuration}
-              className={styles.durationButton}
-              disabled={true}
-            >
+            <button onClick={toggleSlotDuration} className={styles.durationButton} disabled={true}>
               <Clock size={16} />
               {slotDuration === "00:30:00" ? "30min" : "15min"}
             </button>

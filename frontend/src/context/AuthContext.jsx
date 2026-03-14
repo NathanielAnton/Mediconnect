@@ -13,28 +13,32 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const checkAuth = async () => {
-  try {
+    try {
       const response = await api.get("/user");
-      console.log("Réponse API /user:", response.data); 
+      console.log("Réponse API /user:", response.data);
       setUser(response.data.user);
       setRoles(response.data.roles);
     } catch (error) {
-      console.log("Erreur checkAuth:", error); 
+      console.log("Erreur checkAuth:", error);
       setUser(null);
     } finally {
       setLoading(false);
     }
-};
+  };
 
   const login = async (email, password) => {
     const response = await api.post("/login", { email, password });
     setUser(response.data.user);
+    // Récupérer les données complètes de l'utilisateur (avec rôles)
+    await checkAuth();
     return response.data;
   };
 
   const register = async (name, email, password, role) => {
     const response = await api.post("/register", { name, email, password, role });
     setUser(response.data.user);
+    // Récupérer les données complètes de l'utilisateur (avec rôles)
+    await checkAuth();
     return response.data;
   };
 

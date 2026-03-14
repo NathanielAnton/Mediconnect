@@ -221,6 +221,25 @@
   background-color: #9333ea;
 }
 
+/* Appointment details */
+.appointmentDate {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.appointmentDoctor {
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.appointmentReason {
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .navLinks {

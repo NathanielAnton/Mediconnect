@@ -136,56 +136,58 @@ const ModalHoraires = ({ medecin, onClose }) => {
     }
   };
 
-  // Fonction pour générer les créneaux individuels
+  // Fonction pour générer les créneaux individuels avec dates absolues
   const genererCreneaux = (heureDebut, heureFin, jour, dureeCreneau, isCrenauOccupyByClient) => {
     const creneaux = [];
     const debut = new Date(`1970-01-01T${heureDebut}`);
     const fin = new Date(`1970-01-01T${heureFin}`);
     const dureeMs = dureeCreneau === "00:15:00" ? 15 * 60 * 1000 : 30 * 60 * 1000;
 
-    let currentTime = debut;
+    const now = new Date();
+    
+    // Générer les créneaux pour les 8 prochaines semaines (au lieu d'un pattern récurrent)
+    for (let semaine = 0; semaine < 8; semaine++) {
+      // Calculer la date du jour cible pour cette semaine
+      const dateTarget = new Date(now);
+      const dayDiff = jour - dateTarget.getDay();
+      dateTarget.setDate(dateTarget.getDate() + dayDiff + (semaine > 0 ? (semaine - 1) * 7 + 7 : 0));
+      dateTarget.setHours(0, 0, 0, 0); // Réinitialiser l'heure
 
-    while (currentTime < fin) {
-      const endTime = new Date(currentTime.getTime() + dureeMs);
+      let currentTime = debut;
+      while (currentTime < fin) {
+        const endTime = new Date(currentTime.getTime() + dureeMs);
 
-      if (endTime <= fin) {
-        // Créer des dates complètes pour vérifier si le client a un RDV
-        const now = new Date();
-        const creneauStartFull = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          currentTime.getHours(),
-          currentTime.getMinutes()
-        );
-        const creneauEndFull = new Date(
-          now.getFullYear(),
-          now.getMonth(),
-          now.getDate(),
-          endTime.getHours(),
-          endTime.getMinutes()
-        );
+        if (endTime <= fin) {
+          // Créer des dates complètes et absolues
+          const creneauStartFull = new Date(dateTarget);
+          creneauStartFull.setHours(currentTime.getHours(), currentTime.getMinutes(), 0, 0);
+          
+          const creneauEndFull = new Date(dateTarget);
+          creneauEndFull.setHours(endTime.getHours(), endTime.getMinutes(), 0, 0);
 
-        // Ne pas ajouter le créneau si le client a déjà un RDV à ce moment
-        if (!isCrenauOccupyByClient(creneauStartFull, creneauEndFull)) {
-          creneaux.push({
-            title: "Créneau disponible",
-            startTime: formatTime(currentTime),
-            endTime: formatTime(endTime),
-            daysOfWeek: [jour],
-            backgroundColor: "transparent",
-            borderColor: "#d1d5db",
-            textColor: "#6b7280",
-            classNames: ["creneau-disponible"],
-            extendedProps: {
-              type: "creneau",
-              statut: "disponible",
-            },
-          });
+          // Ne pas ajouter les créneaux passés
+          if (creneauStartFull > now) {
+            // Ne pas ajouter le créneau si le client a déjà un RDV à ce moment
+            if (!isCrenauOccupyByClient(creneauStartFull, creneauEndFull)) {
+              creneaux.push({
+                title: "Créneau disponible",
+                start: creneauStartFull.toISOString(),
+                end: creneauEndFull.toISOString(),
+                backgroundColor: "transparent",
+                borderColor: "#d1d5db",
+                textColor: "#6b7280",
+                classNames: ["creneau-disponible"],
+                extendedProps: {
+                  type: "creneau",
+                  statut: "disponible",
+                },
+              });
+            }
+          }
         }
-      }
 
-      currentTime = endTime;
+        currentTime = endTime;
+      }
     }
 
     return creneaux;
@@ -255,18 +257,12 @@ const ModalHoraires = ({ medecin, onClose }) => {
       return;
     }
 
-    // Vérifier si le créneau est passé
-    if (event.start && new Date(event.start) < new Date()) {
-      toast.error("Ce créneau est passé.");
-      return;
-    }
-
-    if (roles === "Non authentifié") {
-      toast.error("Veuillez vous connecter pour prendre un rendez-vous.");
-      return;
-    }
-
     if (extendedProps.type === "creneau" && extendedProps.statut === "disponible") {
+      if (roles === "Non authentifié") {
+        toast.error("Veuillez vous connecter pour prendre un rendez-vous.");
+        return;
+      }
+
       setSelectedCreneau({
         start: event.start,
         end: event.end,
@@ -363,14 +359,6 @@ const ModalHoraires = ({ medecin, onClose }) => {
                   eventClick={handleEventClick}
                   eventDidMount={(eventInfo) => {
                     const type = eventInfo.event.extendedProps.type;
-                    const isPassé =
-                      eventInfo.event.start && new Date(eventInfo.event.start) < new Date();
-
-                    // Supprimer les créneaux passés
-                    if (type === "creneau" && isPassé) {
-                      eventInfo.event.remove();
-                      return;
-                    }
 
                     // Masquer et désactiver les créneaux qui chevauchent un RDV (client ou autres)
                     if (type === "creneau") {

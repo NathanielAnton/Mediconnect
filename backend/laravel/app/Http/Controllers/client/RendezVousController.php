@@ -64,7 +64,7 @@ class RendezVousController extends Controller
                     'notes' => $rdv->notes,
                     'medecin' => $rdv->medecin ? [
                         'id' => $rdv->medecin->id,
-                        'name' => $rdv->medecin->name
+                        'name' => $rdv->medecin->user->name,
                     ] : null
                 ];
             });
@@ -80,7 +80,7 @@ class RendezVousController extends Controller
     public function show(Request $request, $id)
     {
         $rendezVous = RendezVous::findOrFail($id);
-        
+
         // Charger les relations
         $rendezVous->load(['medecin']);
 

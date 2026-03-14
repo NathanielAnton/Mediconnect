@@ -19,6 +19,8 @@ import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretair
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
 import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
 import GestionnaireRequests from "./pages/admin/gestionnaire-requests/GestionnaireRequests";
+import DashboardUser from "./pages/user/dashboard/DashboardUser";
+import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -49,6 +51,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/demandes-gestionnaires" element={<GestionnaireRequests />} />
+        <Route path="/user/dashboard" element={<DashboardUser />} />
+        <Route path="/user/mes-rdv" element={<MesRendezVous />} />
       </Routes>
     </BrowserRouter>
   </AuthProvider>

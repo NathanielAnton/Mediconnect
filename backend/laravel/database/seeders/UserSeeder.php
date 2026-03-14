@@ -83,7 +83,7 @@ class UserSeeder extends Seeder
             $medecin1 = User::firstOrCreate(
                 ['email' => 'medecin1@mediconnect.com'],
                 [
-                    'name' => 'Dr. Jean Dupont',
+                    'name' => 'Jean Dupont',
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                 ]
@@ -107,7 +107,7 @@ class UserSeeder extends Seeder
             $medecin2 = User::firstOrCreate(
                 ['email' => 'medecin2@mediconnect.com'],
                 [
-                    'name' => 'Dr. Marie Martin',
+                    'name' => 'Marie Martin',
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                 ]
@@ -131,7 +131,7 @@ class UserSeeder extends Seeder
             $medecin3 = User::firstOrCreate(
                 ['email' => 'medecin3@mediconnect.com'],
                 [
-                    'name' => 'Dr. Pierre Dubois',
+                    'name' => 'Pierre Dubois',
                     'password' => Hash::make('password'),
                     'email_verified_at' => now(),
                 ]

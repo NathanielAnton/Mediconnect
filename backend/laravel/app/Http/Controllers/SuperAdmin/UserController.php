@@ -48,7 +48,41 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone ?? null,
+                'address' => $user->address ?? null,
                 'created_at' => $user->created_at,
+                'roles' => $user->roles->map(fn ($role) => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ]),
+            ]
+        ]);
+    }
+
+    /**
+     * SuperAdmin met à jour les informations d'un utilisateur
+     */
+    public function update(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|unique:users,email,' . $id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:255',
+        ]);
+
+        $user->update($request->only(['name', 'email', 'phone', 'address']));
+
+        return response()->json([
+            'message' => 'Utilisateur mis à jour avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'address' => $user->address,
                 'roles' => $user->roles->map(fn ($role) => [
                     'id' => $role->id,
                     'name' => $role->name,

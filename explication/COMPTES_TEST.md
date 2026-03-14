@@ -11,7 +11,7 @@ php artisan migrate:fresh --seed
 
 ### 🔐 Super Admin
 
-- **Email**: `admin@mediconnect.com`
+- **Email**: `superadmin@mediconnect.com`
 - **Mot de passe**: `password`
 - **Rôle**: super-admin
 - **Accès**: Gestion complète du système, assignation des rôles
@@ -87,7 +87,7 @@ php artisan migrate:fresh --seed
 
 ### Test 1: Connexion Super Admin
 
-1. Connectez-vous avec `admin@mediconnect.com`
+1. Connectez-vous avec `superadmin@mediconnect.com`
 2. Accédez au dashboard super admin
 3. Testez l'assignation de rôles
 
@@ -174,7 +174,7 @@ php artisan tinker
 
 ```bash
 php artisan tinker
->>> $user = User::where('email', 'admin@mediconnect.com')->first();
+>>> $user = User::where('email', 'superadmin@mediconnect.com')->first();
 >>> $user->password = bcrypt('nouveau_password');
 >>> $user->save();
 ```

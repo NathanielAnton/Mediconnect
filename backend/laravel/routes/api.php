@@ -203,6 +203,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('users')->name('users.')->group(function () {
             Route::get('/', [SuperAdminUserController::class, 'getAll']);
             Route::get('/{id}', [SuperAdminUserController::class, 'show']);
+            Route::put('/{id}', [SuperAdminUserController::class, 'update']);
             Route::post('/assign-role', [SuperAdminUserController::class, 'assignRole']);
             Route::post('/remove-role', [SuperAdminUserController::class, 'removeRole']);
         });

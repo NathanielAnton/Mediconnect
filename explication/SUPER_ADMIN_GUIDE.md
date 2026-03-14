@@ -32,14 +32,14 @@ Vous devriez voir :
 === RÔLES EXISTANTS ===
 
 📌 Rôle: super-admin (ID: 4)
-   ✓ Super Admin (admin@mediconnect.com)
+   ✓ Super Admin (superadmin@mediconnect.com)
 ```
 
 ### 3. Connexion Super Admin
 
 **Identifiants par défaut :**
 
-- 📧 Email : `admin@mediconnect.com`
+- 📧 Email : `superadmin@mediconnect.com`
 - 🔑 Mot de passe : `password`
 
 ⚠️ **IMPORTANT** : Changez ce mot de passe en production !
@@ -51,7 +51,7 @@ Vous devriez voir :
 1. Démarrez le frontend et backend
 2. Allez sur `/login`
 3. Connectez-vous avec :
-   - Email : `admin@mediconnect.com`
+   - Email : `superadmin@mediconnect.com`
    - Password : `password`
 4. Vous devriez être redirigé vers `/super-admin/dashboard`
 
@@ -226,7 +226,7 @@ php artisan migrate:fresh --seed
 
 **Pour se connecter :**
 
-- Email : `admin@mediconnect.com`
+- Email : `superadmin@mediconnect.com`
 - Password : `password`
 
 C'est tout ! Le super admin est maintenant prêt à l'emploi. 🚀

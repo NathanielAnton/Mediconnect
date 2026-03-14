@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
     {
         // 1. Super Admin (ID 1)
         $superAdmin = User::firstOrCreate(
-            ['email' => 'admin@mediconnect.com'],
+            ['email' => 'superadmin@mediconnect.com'],
             [
                 'id' => 1,
                 'name' => 'Super Admin',
@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         if (!$superAdmin->hasRole('super-admin')) {
             $superAdmin->assignRole('super-admin');
         }
-        $this->command->info('✓ Super Admin: admin@mediconnect.com');
+        $this->command->info('✓ Super Admin: superadmin@mediconnect.com');
 
         // 2. Admin
         $admin = User::firstOrCreate(
@@ -202,7 +202,7 @@ class UserSeeder extends Seeder
         $this->command->table(
             ['Rôle', 'Email', 'Mot de passe'],
             [
-                ['Super Admin', 'admin@mediconnect.com', 'password'],
+                ['Super Admin', 'superadmin@mediconnect.com', 'password'],
                 ['Admin', 'admin.principal@mediconnect.com', 'password'],
                 ['Gestionnaire', 'gestionnaire@mediconnect.com', 'password'],
                 ['Secrétaire', 'secretaire@mediconnect.com', 'password'],

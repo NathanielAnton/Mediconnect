@@ -21,6 +21,7 @@ import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
 import GestionnaireRequests from "./pages/admin/gestionnaire-requests/GestionnaireRequests";
 import DashboardUser from "./pages/user/dashboard/DashboardUser";
 import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
+import ClientProfile from "./pages/user/profile/ClientProfile";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -53,6 +54,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/admin/demandes-gestionnaires" element={<GestionnaireRequests />} />
         <Route path="/user/dashboard" element={<DashboardUser />} />
         <Route path="/user/mes-rdv" element={<MesRendezVous />} />
+        <Route path="/user/profile" element={<ClientProfile />} />
       </Routes>
     </BrowserRouter>
   </AuthProvider>

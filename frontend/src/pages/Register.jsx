@@ -1,13 +1,25 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Stethoscope, UserCheck } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Stethoscope, UserCheck, Phone } from "lucide-react";
 
 export default function Register() {
   const { register } = useContext(AuthContext);
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "client" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    role: "client",
+  });
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({ name: "", email: "", password: "", general: "" });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    password: "",
+    phone: "",
+    general: "",
+  });
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
@@ -31,21 +43,28 @@ export default function Register() {
     return "";
   };
 
+  const validatePhone = (phone) => {
+    if (phone && phone.length > 15) return "Le téléphone ne peut pas dépasser 15 caractères";
+    return "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrors({ name: "", email: "", password: "", general: "" });
+    setErrors({ name: "", email: "", password: "", phone: "", general: "" });
 
     // Validation frontend
     const nameError = validateName(form.name);
     const emailError = validateEmail(form.email);
     const passwordError = validatePassword(form.password);
+    const phoneError = validatePhone(form.phone);
 
-    if (nameError || emailError || passwordError) {
+    if (nameError || emailError || passwordError || phoneError) {
       setErrors({
         name: nameError,
         email: emailError,
         password: passwordError,
+        phone: phoneError,
         general: "",
       });
       setLoading(false);
@@ -53,7 +72,7 @@ export default function Register() {
     }
 
     try {
-      await register(form.name, form.email, form.password, form.role);
+      await register(form.name, form.email, form.password, form.phone, form.role);
       setSuccess(true);
       setTimeout(() => {
         navigate("/login");
@@ -68,6 +87,7 @@ export default function Register() {
           name: backendErrors.name?.[0] || "",
           email: backendErrors.email?.[0] || "",
           password: backendErrors.password?.[0] || "",
+          phone: backendErrors.phone?.[0] || "",
           general: "",
         });
       } else if (err.response?.status >= 500) {
@@ -76,6 +96,7 @@ export default function Register() {
           name: "",
           email: "",
           password: "",
+          phone: "",
           general:
             "Problème de l'application, veuillez réessayer plus tard ou contactez le support",
         });
@@ -85,6 +106,7 @@ export default function Register() {
           name: "",
           email: "",
           password: "",
+          phone: "",
           general: "Une erreur est survenue lors de l'inscription",
         });
       }
@@ -224,6 +246,35 @@ export default function Register() {
               {errors.email && (
                 <p className="mt-1 text-sm text-red-600 flex items-center">
                   <span className="mr-1">⚠</span> {errors.email}
+                </p>
+              )}
+            </div>
+
+            {/* Phone Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Numéro de téléphone (optionnel)
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="tel"
+                  placeholder="+33 6 12 34 56 78"
+                  value={form.phone}
+                  onChange={(e) => {
+                    setForm({ ...form, phone: e.target.value });
+                    if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.phone ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.phone ? "focus:ring-red-500" : "focus:ring-blue-500"
+                  } focus:border-transparent transition`}
+                />
+              </div>
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.phone}
                 </p>
               )}
             </div>

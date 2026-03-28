@@ -34,8 +34,8 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
-  const register = async (name, email, password, role) => {
-    const response = await api.post("/register", { name, email, password, role });
+  const register = async (name, email, password, phone, role) => {
+    const response = await api.post("/register", { name, email, password, phone, role });
     setUser(response.data.user);
     // Récupérer les données complètes de l'utilisateur (avec rôles)
     await checkAuth();

@@ -17,6 +17,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+            'phone' => 'nullable|string|max:15',
             'role' => 'required|string|in:client,medecin,admin',
         ], [
             'name.required' => 'Le nom est requis',
@@ -26,6 +27,7 @@ class AuthController extends Controller
             'email.unique' => 'Il existe déjà un compte avec cette adresse email',
             'password.required' => 'Le mot de passe est requis',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
+            'phone.max' => 'Le téléphone ne peut pas dépasser 15 caractères',
             'role.required' => 'Le rôle est requis',
             'role.in' => 'Le rôle sélectionné n\'est pas valide'
         ]);
@@ -34,6 +36,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'phone' => $request->input('phone') ?: null,
         ]);
 
         // Assigner le rôle avec spatie/laravel-permission
@@ -46,6 +49,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
+                'phone' => $user->phone,
+                'client_id' => $user->client_id,
                 'role' => $user->getMainRoleAttribute(),
             ],
             'token' => 'session-based',
@@ -57,26 +62,39 @@ class AuthController extends Controller
     {
         // Validation des champs requis
         $request->validate([
-            'email' => 'required|email',
+            'email' => 'required|string',
             'password' => 'required|min:6',
         ], [
-            'email.required' => 'L\'adresse email est requise',
-            'email.email' => 'L\'adresse email n\'est pas valide',
+            'email.required' => 'L\'email ou numéro client est requis',
             'password.required' => 'Le mot de passe est requis',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères'
         ]);
 
-        // Tentative de connexion
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $request->session()->regenerate();
+        $identifier = $request->input('email');
 
-            $user = Auth::user();
+        // Déterminer si c'est un email ou un client_id
+        $isEmail = filter_var($identifier, FILTER_VALIDATE_EMAIL);
+
+        // Chercher l'utilisateur
+        if ($isEmail) {
+            $user = \App\Models\User::where('email', $identifier)->first();
+        } else {
+            // C'est un client_id
+            $user = \App\Models\User::where('client_id', strtoupper($identifier))->first();
+        }
+
+        // Vérifier le mot de passe si l'utilisateur existe
+        if ($user && Hash::check($request->input('password'), $user->password)) {
+            Auth::login($user);
+            $request->session()->regenerate();
 
             return response()->json([
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
+                    'phone' => $user->phone,
+                    'client_id' => $user->client_id,
                     'role' => $user->getMainRoleAttribute(),
                 ],
                 'token' => 'session-based',
@@ -86,7 +104,7 @@ class AuthController extends Controller
 
         // Message générique pour ne pas révéler d'informations
         return response()->json([
-            'message' => 'Email ou mot de passe incorrect'
+            'message' => 'Identifiant ou mot de passe incorrect'
         ], 401);
     }
 
@@ -115,6 +133,8 @@ class AuthController extends Controller
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
+                        'phone' => $user->phone,
+                        'client_id' => $user->client_id,
                         'role' => $user->getMainRoleAttribute(),
                     ],
                     'roles' => $user->getRoleNames()->toArray()

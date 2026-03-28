@@ -17,6 +17,8 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone',
+        'client_id',
     ];
 
     protected $hidden = [
@@ -73,5 +75,31 @@ class User extends Authenticatable
     public function gestionnaire()
     {
         return $this->hasOne(Gestionnaire::class);
+    }
+
+    /**
+     * Boot the model with creating event to auto-generate client_id.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->client_id) {
+                $model->client_id = self::generateUniqueClientId();
+            }
+        });
+    }
+
+    /**
+     * Generate a unique 10-character alphanumeric client ID.
+     */
+    public static function generateUniqueClientId()
+    {
+        do {
+            $clientId = strtoupper(substr(bin2hex(random_bytes(5)), 0, 10));
+        } while (self::where('client_id', $clientId)->exists());
+
+        return $clientId;
     }
 }

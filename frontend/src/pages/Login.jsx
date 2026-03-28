@@ -12,10 +12,15 @@ export default function Login() {
   const navigate = useNavigate();
 
   // Validation côté frontend
-  const validateEmail = (email) => {
-    if (!email) return "L'adresse email est requise";
+  const validateIdentifier = (identifier) => {
+    if (!identifier) return "L'email ou numéro client est requis";
+    // Accepter soit un email valide soit un numéro client (10 caractères)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) return "L'adresse email n'est pas valide";
+    const isEmail = emailRegex.test(identifier);
+    const isClientId = /^[A-Z0-9]{10}$/.test(identifier);
+    if (!isEmail && !isClientId) {
+      return "Entrez un email valide ou votre numéro client (10 caractères)";
+    }
     return "";
   };
 
@@ -25,8 +30,8 @@ export default function Login() {
     return "";
   };
 
-  const handleEmailBlur = () => {
-    setErrors((prev) => ({ ...prev, email: validateEmail(email) }));
+  const handleIdentifierBlur = () => {
+    setErrors((prev) => ({ ...prev, email: validateIdentifier(email) }));
   };
 
   const handlePasswordBlur = () => {
@@ -38,11 +43,11 @@ export default function Login() {
     setErrors({ email: "", password: "" });
 
     // Validation frontend
-    const emailError = validateEmail(email);
+    const identifierError = validateIdentifier(email);
     const passwordError = validatePassword(password);
 
-    if (emailError || passwordError) {
-      setErrors({ email: emailError, password: passwordError });
+    if (identifierError || passwordError) {
+      setErrors({ email: identifierError, password: passwordError });
       return;
     }
 
@@ -63,7 +68,7 @@ export default function Login() {
         // Message générique pour erreur de connexion
         setErrors({
           email: "",
-          password: error.response?.data?.message || "Email ou mot de passe incorrect",
+          password: error.response?.data?.message || "Identifiant ou mot de passe incorrect",
         });
       } else {
         setErrors({
@@ -141,20 +146,22 @@ export default function Login() {
           <p className="text-gray-600 mb-8">Connectez-vous à votre compte</p>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            {/* Email Input */}
+            {/* Email or Client ID Input */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Adresse email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email ou Numéro Client
+              </label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
-                  type="email"
-                  placeholder="exemple@email.com"
+                  type="text"
+                  placeholder="exemple@email.com ou ABC12XY89Z"
                   value={email}
                   onChange={(e) => {
-                    setEmail(e.target.value);
+                    setEmail(e.target.value.toUpperCase());
                     if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
                   }}
-                  onBlur={handleEmailBlur}
+                  onBlur={handleIdentifierBlur}
                   className={`w-full pl-12 pr-4 py-3 border ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   } rounded-lg focus:outline-none focus:ring-2 ${

@@ -94,7 +94,14 @@ const DashboardUser = () => {
               <a href="#documents" className={styles.navLink} onClick={handleDevelopment}>
                 Mes Documents
               </a>
-              <a href="#profil" className={styles.navLink} onClick={handleDevelopment}>
+              <a
+                href="#profil"
+                className={styles.navLink}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/user/profile");
+                }}
+              >
                 Mon Profil
               </a>
             </div>

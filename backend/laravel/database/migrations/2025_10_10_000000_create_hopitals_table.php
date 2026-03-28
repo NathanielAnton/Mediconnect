@@ -10,11 +10,12 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('gestionnaires', function (Blueprint $table) {
+        Schema::create('hopitals', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('hopital_id')->nullable()->constrained()->onDelete('set null');
             $table->string('name');
+            $table->string('adresse');
+            $table->string('telephone');
+            $table->string('ville');
             $table->timestamps();
         });
     }
@@ -24,6 +25,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('gestionnaires');
+        Schema::dropIfExists('hopitals');
     }
 };

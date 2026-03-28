@@ -43,8 +43,8 @@ const Navbar = () => {
 
           {/* Navigation links */}
           <div className={styles.navLinks}>
-            <Link to="/admin/demandes-gestionnaires" className={styles.navLink}>
-              Demandes Gestionnaires
+            <Link to="/admin/demandes-directeurs" className={styles.navLink}>
+              Demandes Directeurs
             </Link>
             <a href="#utilisateurs" className={styles.navLink}>
               Utilisateurs

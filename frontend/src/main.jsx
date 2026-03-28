@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import GestionnaireRequest from "./pages/GestionnaireRequest";
+import DirectorRequest from "./pages/DirectorRequest";
 import Dashboard from "./pages/Dashboard";
 import MedecinProfile from "./pages/medecin/profile/MedecinProfile";
 import PlanningMedecin from "./pages/medecin/planning/PlanningMedecin";
@@ -15,10 +16,11 @@ import DashboardMedecin from "./pages/medecin/dashboard/DashboardMedecin";
 import SearchMedecin from "./pages/rdv/SearchMedecin";
 import Home from "./pages/Home";
 import DashboardGestionnaire from "./pages/gestionnaire/dashboard/DashboardGestionnaire";
+import DashboardDirecteur from "./pages/directeur/dashboard/DashboardDirecteur";
 import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretaire";
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
 import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
-import GestionnaireRequests from "./pages/admin/gestionnaire-requests/GestionnaireRequests";
+import DirectorRequests from "./pages/admin/directeur-requests/DirectorRequests";
 import DashboardUser from "./pages/user/dashboard/DashboardUser";
 import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
 import ClientProfile from "./pages/user/profile/ClientProfile";
@@ -45,15 +47,17 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/register" element={<Register />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
         <Route path="/demande-gestionnaire" element={<GestionnaireRequest />} />
+        <Route path="/demande-directeur" element={<DirectorRequest />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/medecin/profile" element={<MedecinProfile />} />
         <Route path="/medecin/planning" element={<PlanningMedecin />} />
         <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
         <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
+        <Route path="/directeur/dashboard" element={<DashboardDirecteur />} />
         <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
         <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-        <Route path="/admin/demandes-gestionnaires" element={<GestionnaireRequests />} />
+        <Route path="/admin/demandes-directeurs" element={<DirectorRequests />} />
         <Route path="/user/dashboard" element={<DashboardUser />} />
         <Route path="/user/mes-rdv" element={<MesRendezVous />} />
         <Route path="/user/profile" element={<ClientProfile />} />

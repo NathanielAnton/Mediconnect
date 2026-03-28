@@ -11,13 +11,17 @@ return new class () extends Migration {
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            // Only add client_id if it doesn't exist
+            // Add phone column if it doesn't exist
+            if (!Schema::hasColumn('users', 'phone')) {
+                $table->string('phone')->nullable();
+            }
+            // Add client_id if it doesn't exist
             if (!Schema::hasColumn('users', 'client_id')) {
-                $table->string('client_id', 10)->unique()->after('phone');
+                $table->string('client_id', 10)->nullable();
             }
             // Add isVerified column (default 1 - verified)
             if (!Schema::hasColumn('users', 'isVerified')) {
-                $table->boolean('isVerified')->default(1)->after('client_id');
+                $table->boolean('isVerified')->default(1);
             }
         });
     }

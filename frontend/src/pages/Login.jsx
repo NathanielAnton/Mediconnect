@@ -180,7 +180,7 @@ export default function Login() {
                   placeholder="exemple@email.com ou ABC12XY89Z"
                   value={email}
                   onChange={(e) => {
-                    setEmail(e.target.value.toUpperCase());
+                    setEmail(e.target.value);
                     if (errors.email) setErrors((prev) => ({ ...prev, email: "" }));
                   }}
                   onBlur={handleIdentifierBlur}
@@ -269,11 +269,11 @@ export default function Login() {
             </a>
           </p>
 
-          {/* Gestionnaire Request Link */}
+          {/* Director Request Link */}
           <p className="text-center text-gray-600 text-sm mt-4">
-            Vous voulez faire la demande d'un compte de gestionnaire ?{" "}
+            Vous voulez faire la demande d'un compte de directeur ?{" "}
             <a
-              href="/demande-gestionnaire"
+              href="/demande-directeur"
               className="text-blue-600 hover:text-blue-700 font-semibold"
             >
               Faire une demande

@@ -7,7 +7,10 @@ use App\Http\Controllers\MedecinProfileController;
 use App\Http\Controllers\SpecialiteController;
 use App\Http\Controllers\MedecinPlanningController;
 use App\Http\Controllers\SearchMedecinController;
-use App\Http\Controllers\GestionnaireRequestController;
+// Directeur Controllers
+use App\Http\Controllers\Directeur\DirecteurRequestController;
+use App\Http\Controllers\Directeur\DirecteurController;
+use App\Http\Controllers\Directeur\HopitalController;
 // Controllers par rôle
 use App\Http\Controllers\Client\RendezVousController as ClientRendezVousController;
 use App\Http\Controllers\Client\SearchController as ClientSearchController;
@@ -53,9 +56,8 @@ Route::get('/search/medecins', [SearchMedecinController::class, 'search']);
 Route::get('/specialites', [ClientSearchController::class, 'getSpecialites']);
 Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
 
-
-// Routes pour les demandes de gestionnaire
-Route::post('/demande-gestionnaire', [GestionnaireRequestController::class, 'store']);
+// Routes pour les demandes de directeur
+Route::post('/demande-directeur', [DirecteurRequestController::class, 'store']);
 
 // ============================================
 // AUTHENTICATED ROUTES
@@ -187,8 +189,18 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/{id}', [GestionnaireLiaisonController::class, 'cancel']);
         });
 
-        // Demandes de gestionnaire
-        Route::post('/demande-gestionnaire', [GestionnaireRequestController::class, 'store']);
+
+    });
+
+    // ============================================
+    // DIRECTEUR ROUTES
+    // ============================================
+    Route::middleware('role:directeur')->prefix('directeur')->name('directeur.')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [DirecteurController::class, 'dashboard']);
+        Route::get('/stats', [DirecteurController::class, 'getStats']);
+        Route::get('/users', [DirecteurController::class, 'getUsers']);
+        Route::get('/hopital', [DirecteurController::class, 'getHopital']);
     });
 
     // ============================================
@@ -221,8 +233,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // ADMIN ROUTES - Protected
     // ============================================
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/demande-gestionnaire', [GestionnaireRequestController::class, 'index']);
-        Route::get('/demande-gestionnaire/{id}', [GestionnaireRequestController::class, 'show']);
-        Route::put('/demande-gestionnaire/{id}/statut', [GestionnaireRequestController::class, 'updateStatut']);
+        // Directeur Requests Management
+        Route::get('/demande-directeur', [DirecteurRequestController::class, 'index']);
+        Route::get('/demande-directeur/{id}', [DirecteurRequestController::class, 'show']);
+        Route::put('/demande-directeur/{id}/statut', [DirecteurRequestController::class, 'updateStatut']);
+        Route::patch('/demande-directeur/{id}/approve', [DirecteurRequestController::class, 'approve']);
+        Route::patch('/demande-directeur/{id}/reject', [DirecteurRequestController::class, 'reject']);
     });
 });

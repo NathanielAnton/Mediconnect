@@ -1,25 +1,29 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Directeur;
 
-use App\Models\DemandeGestionnaire;
+use App\Http\Controllers\Controller;
+use App\Models\DemandeDirecteur;
 use App\Models\User;
-use App\Models\Gestionnaire;
+use App\Models\Directeur;
+use App\Models\Hopital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
-class GestionnaireRequestController extends Controller
+class DirecteurRequestController extends Controller
 {
     public function store(Request $request)
     {
         // Validation avec messages en français
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:demandes_gestionnaire,email',
+            'email' => 'required|string|email|max:255|unique:demandes_directeur,email',
             'password' => 'required|string|min:6',
-            'telephone' => 'required|string|max:20',
-            'etablissement' => 'required|string|max:255',
+            'hopital_name' => 'required|string|max:255',
+            'hopital_adresse' => 'required|string|max:255',
+            'hopital_telephone' => 'required|string|max:20',
+            'hopital_ville' => 'required|string|max:255',
         ], [
             'name.required' => 'Le nom est requis',
             'name.max' => 'Le nom ne peut pas dépasser 255 caractères',
@@ -28,18 +32,24 @@ class GestionnaireRequestController extends Controller
             'email.unique' => 'Une demande avec cette adresse email existe déjà',
             'password.required' => 'Le mot de passe est requis',
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
-            'telephone.required' => 'Le numéro de téléphone est requis',
-            'telephone.max' => 'Le numéro de téléphone ne peut pas dépasser 20 caractères',
-            'etablissement.required' => 'Le nom de l\'établissement est requis',
-            'etablissement.max' => 'Le nom de l\'établissement ne peut pas dépasser 255 caractères',
+            'hopital_name.required' => 'Le nom de l\'hôpital est requis',
+            'hopital_name.max' => 'Le nom de l\'hôpital ne peut pas dépasser 255 caractères',
+            'hopital_adresse.required' => 'L\'adresse de l\'hôpital est requise',
+            'hopital_adresse.max' => 'L\'adresse ne peut pas dépasser 255 caractères',
+            'hopital_telephone.required' => 'Le numéro de téléphone de l\'hôpital est requis',
+            'hopital_telephone.max' => 'Le numéro de téléphone ne peut pas dépasser 20 caractères',
+            'hopital_ville.required' => 'La ville de l\'hôpital est requise',
+            'hopital_ville.max' => 'La ville ne peut pas dépasser 255 caractères',
         ]);
 
-        $demande = DemandeGestionnaire::create([
+        $demande = DemandeDirecteur::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'telephone' => $request->telephone,
-            'etablissement' => $request->etablissement,
+            'hopital_name' => $request->hopital_name,
+            'hopital_adresse' => $request->hopital_adresse,
+            'hopital_telephone' => $request->hopital_telephone,
+            'hopital_ville' => $request->hopital_ville,
             'statut' => 'en_attente',
         ]);
 
@@ -56,13 +66,13 @@ class GestionnaireRequestController extends Controller
 
     public function index()
     {
-        $demandes = DemandeGestionnaire::orderBy('created_at', 'desc')->get();
+        $demandes = DemandeDirecteur::orderBy('created_at', 'desc')->get();
         return response()->json($demandes);
     }
 
     public function show($id)
     {
-        $demande = DemandeGestionnaire::findOrFail($id);
+        $demande = DemandeDirecteur::findOrFail($id);
         return response()->json($demande);
     }
 
@@ -73,9 +83,9 @@ class GestionnaireRequestController extends Controller
             'commentaire_admin' => 'nullable|string',
         ]);
 
-        $demande = DemandeGestionnaire::findOrFail($id);
+        $demande = DemandeDirecteur::findOrFail($id);
 
-        // Si la demande est approuvée, créer le user et le gestionnaire
+        // Si la demande est approuvée, créer le user, l'hôpital et le directeur
         if ($request->statut === 'approuvee' && $demande->statut !== 'approuvee') {
             DB::beginTransaction();
             try {
@@ -89,6 +99,20 @@ class GestionnaireRequestController extends Controller
                     ], 422);
                 }
 
+                // Créer ou récupérer l'hôpital
+                $hopital = Hopital::where('name', $demande->hopital_name)
+                    ->where('ville', $demande->hopital_ville)
+                    ->first();
+
+                if (!$hopital) {
+                    $hopital = Hopital::create([
+                        'name' => $demande->hopital_name,
+                        'adresse' => $demande->hopital_adresse,
+                        'telephone' => $demande->hopital_telephone,
+                        'ville' => $demande->hopital_ville,
+                    ]);
+                }
+
                 // Créer l'utilisateur
                 $user = User::create([
                     'name' => $demande->name,
@@ -96,51 +120,51 @@ class GestionnaireRequestController extends Controller
                     'password' => $demande->password, // Déjà hashé
                 ]);
 
-                // Assigner le rôle gestionnaire
-                $user->assignRole('gestionnaire');
+                // Assigner le rôle directeur
+                $user->assignRole('directeur');
 
-                // Créer l'entrée gestionnaire avec les infos supplémentaires
-                Gestionnaire::create([
+                // Créer le profil directeur
+                Directeur::create([
                     'user_id' => $user->id,
-                    'telephone' => $demande->telephone,
-                    'etablissement' => $demande->etablissement,
+                    'hopital_id' => $hopital->id,
+                    'name' => $demande->name,
                 ]);
 
-                // Mettre à jour le statut de la demande
+                // Mettre à jour la demande
                 $demande->update([
-                    'statut' => $request->statut,
+                    'statut' => 'approuvee',
                     'commentaire_admin' => $request->commentaire_admin,
                 ]);
 
                 DB::commit();
 
                 return response()->json([
-                    'message' => 'Demande approuvée et compte gestionnaire créé avec succès',
-                    'demande' => $demande,
+                    'message' => 'La demande a été approuvée. Un nouvel utilisateur et directeur ont été créés.',
                     'user' => [
                         'id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
+                        'hopital' => $hopital->name,
                     ]
-                ]);
+                ], 200);
             } catch (\Exception $e) {
                 DB::rollBack();
                 return response()->json([
-                    'message' => 'Erreur lors de la création du compte gestionnaire',
+                    'message' => 'Une erreur est survenue lors de l\'approbation de la demande',
                     'error' => $e->getMessage()
                 ], 500);
             }
         } else {
-            // Si refusée ou autre statut, juste mettre à jour
+            // Si la demande n'est pas approuvée, mettre à jour le statut et le commentaire
             $demande->update([
                 'statut' => $request->statut,
                 'commentaire_admin' => $request->commentaire_admin,
             ]);
 
             return response()->json([
-                'message' => 'Statut mis à jour avec succès',
+                'message' => 'Le statut de la demande a été mis à jour.',
                 'demande' => $demande
-            ]);
+            ], 200);
         }
     }
 }

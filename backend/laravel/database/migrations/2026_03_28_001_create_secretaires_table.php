@@ -5,24 +5,25 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::create('medecin_profiles', function (Blueprint $table) {
+        Schema::create('secretaires', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('hopital_id')->nullable()->constrained()->onDelete('set null');
-            $table->string('specialite');
-            $table->text('description')->nullable();
-            $table->string('adresse')->nullable();
-            $table->string('ville')->nullable();
-            $table->string('telephone')->nullable();
-            $table->json('horaires')->nullable();
+            $table->string('name');
             $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::dropIfExists('medecin_profiles');
+        Schema::dropIfExists('secretaires');
     }
 };

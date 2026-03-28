@@ -7,8 +7,10 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\MedecinProfile;
 use App\Models\Specialite;
-use App\Models\SecretaireMedecin;
-use App\Models\GestionnaireMedecin;
+use App\Models\Directeur;
+use App\Models\Hopital;
+use App\Models\DemandeDirecteur;
+use App\Models\Secretaire;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -47,7 +49,18 @@ class UserSeeder extends Seeder
         }
         $this->command->info('✓ Admin: admin.principal@mediconnect.com');
 
-        // 3. Gestionnaire
+        // 3. Créer l'hôpital central d'abord
+        $hopital = Hopital::firstOrCreate(
+            ['name' => 'Hôpital Central de Paris'],
+            [
+                'adresse' => '1 Avenue du Docteur Fleming',
+                'telephone' => '0142344321',
+                'ville' => 'Paris',
+            ]
+        );
+        $this->command->info('✓ Hôpital: Hôpital Central de Paris');
+
+        // 3.5 Gestionnaire
         $gestionnaire = User::firstOrCreate(
             ['email' => 'gestionnaire@mediconnect.com'],
             [
@@ -59,7 +72,58 @@ class UserSeeder extends Seeder
         if (!$gestionnaire->hasRole('gestionnaire')) {
             $gestionnaire->assignRole('gestionnaire');
         }
+
+        // Créer le profil gestionnaire lié à l'hôpital
+        \App\Models\Gestionnaire::firstOrCreate(
+            ['user_id' => $gestionnaire->id],
+            [
+                'hopital_id' => $hopital->id,
+                'name' => 'Gestionnaire Test',
+            ]
+        );
         $this->command->info('✓ Gestionnaire: gestionnaire@mediconnect.com');
+
+        // 4. Directeur
+
+        $directeur = User::firstOrCreate(
+            ['email' => 'directeur@mediconnect.com'],
+            [
+                'name' => 'Directeur Test',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$directeur->hasRole('directeur')) {
+            $directeur->assignRole('directeur');
+        }
+
+        // Créer le profil directeur
+        Directeur::firstOrCreate(
+            [
+                'user_id' => $directeur->id,
+                'hopital_id' => $hopital->id,
+            ],
+            [
+                'name' => 'Directeur Test',
+            ]
+        );
+        $this->command->info('✓ Directeur: directeur@mediconnect.com');
+
+        // Créer une entrée de demande directeur approuvée
+        DemandeDirecteur::firstOrCreate(
+            ['email' => 'demande.directeur@mediconnect.com'],
+            [
+                'name' => 'Directeur Demande',
+                'password' => Hash::make('password'),
+                'hopital_name' => 'Hôpital Clément Hospital',
+                'hopital_adresse' => '12 Rue de la Santé',
+                'hopital_telephone' => '0142113456',
+                'hopital_ville' => 'Lyon',
+                'statut' => 'approuvee',
+                'commentaire_admin' => 'Demande approuvée et traitée',
+            ]
+        );
+        $this->command->info('✓ Demande Directeur créée: demande.directeur@mediconnect.com');
 
         // 4. Secrétaire
         $secretaire = User::firstOrCreate(
@@ -73,6 +137,15 @@ class UserSeeder extends Seeder
         if (!$secretaire->hasRole('secretaire')) {
             $secretaire->assignRole('secretaire');
         }
+
+        // Créer le profil secrétaire lié à l'hôpital
+        Secretaire::firstOrCreate(
+            ['user_id' => $secretaire->id],
+            [
+                'hopital_id' => $hopital->id,
+                'name' => 'Secrétaire Médicale',
+            ]
+        );
         $this->command->info('✓ Secrétaire: secretaire@mediconnect.com');
 
         // 5. Médecins (3 exemples avec différentes spécialités)
@@ -94,6 +167,7 @@ class UserSeeder extends Seeder
             MedecinProfile::firstOrCreate(
                 ['user_id' => $medecin1->id],
                 [
+                    'hopital_id' => $hopital->id ?? null,
                     'specialite_id' => $specialites->where('nom', 'Cardiologie')->first()->id ?? 1,
                     'telephone' => '0612345678',
                     'adresse' => '123 Rue de la Santé',
@@ -118,6 +192,7 @@ class UserSeeder extends Seeder
             MedecinProfile::firstOrCreate(
                 ['user_id' => $medecin2->id],
                 [
+                    'hopital_id' => $hopital->id ?? null,
                     'specialite_id' => $specialites->where('nom', 'Dermatologie')->first()->id ?? 2,
                     'telephone' => '0623456789',
                     'adresse' => '456 Avenue des Médecins',
@@ -142,6 +217,7 @@ class UserSeeder extends Seeder
             MedecinProfile::firstOrCreate(
                 ['user_id' => $medecin3->id],
                 [
+                    'hopital_id' => $hopital->id ?? null,
                     'specialite_id' => $specialites->where('nom', 'Médecine générale')->first()->id ?? 3,
                     'telephone' => '0634567890',
                     'adresse' => '789 Boulevard de la Médecine',
@@ -168,35 +244,6 @@ class UserSeeder extends Seeder
         }
         $this->command->info('✓ 5 Clients: client1@mediconnect.com à client5@mediconnect.com');
 
-        // 7. Créer les liaisons validées entre Médecin 1 et Gestionnaire/Secrétaire
-        if (isset($medecin1) && isset($gestionnaire)) {
-            GestionnaireMedecin::firstOrCreate(
-                [
-                    'gestionnaire_id' => $gestionnaire->id,
-                    'medecin_id' => $medecin1->id,
-                ],
-                [
-                    'statut' => 'accepte',
-                    'message' => 'Demande de liaison pour gestion administrative',
-                ]
-            );
-            $this->command->info('✓ Liaison validée: Médecin 1 ↔ Gestionnaire');
-        }
-
-        if (isset($medecin1) && isset($secretaire)) {
-            SecretaireMedecin::firstOrCreate(
-                [
-                    'secretaire_id' => $secretaire->id,
-                    'medecin_id' => $medecin1->id,
-                ],
-                [
-                    'statut' => 'accepte',
-                    'message' => 'Demande de liaison pour gestion des rendez-vous',
-                ]
-            );
-            $this->command->info('✓ Liaison validée: Médecin 1 ↔ Secrétaire');
-        }
-
         $this->command->newLine();
         $this->command->info('=== RÉSUMÉ DES COMPTES CRÉÉS ===');
         $this->command->table(
@@ -205,6 +252,7 @@ class UserSeeder extends Seeder
                 ['Super Admin', 'superadmin@mediconnect.com', 'password'],
                 ['Admin', 'admin.principal@mediconnect.com', 'password'],
                 ['Gestionnaire', 'gestionnaire@mediconnect.com', 'password'],
+                ['Directeur', 'directeur@mediconnect.com', 'password'],
                 ['Secrétaire', 'secretaire@mediconnect.com', 'password'],
                 ['Médecin 1', 'medecin1@mediconnect.com', 'password'],
                 ['Médecin 2', 'medecin2@mediconnect.com', 'password'],
@@ -212,6 +260,12 @@ class UserSeeder extends Seeder
                 ['Client 1-5', 'client1-5@mediconnect.com', 'password'],
             ]
         );
+        $this->command->newLine();
+        $this->command->info('=== HÔPITAL CRÉÉ ===');
+        $this->command->line('✓ Hôpital Central de Paris (Directeur Test)');
+        $this->command->newLine();
+        $this->command->info('=== DEMANDES DIRECTEUR CRÉÉES ===');
+        $this->command->line('✓ Demande approuvée: demande.directeur@mediconnect.com');
         $this->command->newLine();
         $this->command->info('=== LIAISONS CRÉÉES ===');
         $this->command->line('✓ Dr. Jean Dupont (Médecin 1) ↔ Gestionnaire Test (accepté)');

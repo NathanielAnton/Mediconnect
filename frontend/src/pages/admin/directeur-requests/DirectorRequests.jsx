@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import axios from "../../../api/axios";
-import styles from "./GestionnaireRequests.module.css";
+import styles from "./DirectorRequests.module.css";
 
-const GestionnaireRequests = () => {
+const DirectorRequests = () => {
   const [demandes, setDemandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("tous");
@@ -25,7 +25,7 @@ const GestionnaireRequests = () => {
 
   const fetchDemandes = async () => {
     try {
-      const response = await axios.get("/admin/demande-gestionnaire");
+      const response = await axios.get("/admin/demande-directeur");
       setDemandes(response.data);
       setLoading(false);
     } catch (error) {
@@ -37,7 +37,7 @@ const GestionnaireRequests = () => {
   const handleUpdateStatut = async (id, statut) => {
     setActionLoading(true);
     try {
-      await axios.put(`/admin/demande-gestionnaire/${id}/statut`, {
+      await axios.put(`/admin/demande-directeur/${id}/statut`, {
         statut,
         commentaire_admin: commentaire || null,
       });
@@ -130,8 +130,10 @@ const GestionnaireRequests = () => {
 
       <main className={styles.main}>
         <div className={styles.header}>
-          <h1 className={styles.title}>Demandes de Compte Gestionnaire</h1>
-          <p className={styles.subtitle}>Gérez les demandes de création de comptes gestionnaires</p>
+          <h1 className={styles.title}>Demandes de Compte Directeur</h1>
+          <p className={styles.subtitle}>
+            Gérez les demandes de création de comptes directeur d'hôpital
+          </p>
         </div>
 
         {/* Filtres */}
@@ -192,12 +194,20 @@ const GestionnaireRequests = () => {
                     <span className={styles.infoValue}>{demande.email}</span>
                   </div>
                   <div className={styles.info}>
-                    <span className={styles.infoLabel}>Téléphone:</span>
-                    <span className={styles.infoValue}>{demande.telephone}</span>
+                    <span className={styles.infoLabel}>Hôpital:</span>
+                    <span className={styles.infoValue}>{demande.hopital_name}</span>
                   </div>
                   <div className={styles.info}>
-                    <span className={styles.infoLabel}>Établissement:</span>
-                    <span className={styles.infoValue}>{demande.etablissement}</span>
+                    <span className={styles.infoLabel}>Adresse:</span>
+                    <span className={styles.infoValue}>{demande.hopital_adresse}</span>
+                  </div>
+                  <div className={styles.info}>
+                    <span className={styles.infoLabel}>Ville:</span>
+                    <span className={styles.infoValue}>{demande.hopital_ville}</span>
+                  </div>
+                  <div className={styles.info}>
+                    <span className={styles.infoLabel}>Téléphone hôpital:</span>
+                    <span className={styles.infoValue}>{demande.hopital_telephone}</span>
                   </div>
                   <div className={styles.info}>
                     <span className={styles.infoLabel}>Date de demande:</span>
@@ -247,10 +257,16 @@ const GestionnaireRequests = () => {
                     <strong>Email:</strong> {selectedDemande.email}
                   </p>
                   <p>
-                    <strong>Téléphone:</strong> {selectedDemande.telephone}
+                    <strong>Hôpital:</strong> {selectedDemande.hopital_name}
                   </p>
                   <p>
-                    <strong>Établissement:</strong> {selectedDemande.etablissement}
+                    <strong>Adresse:</strong> {selectedDemande.hopital_adresse}
+                  </p>
+                  <p>
+                    <strong>Ville:</strong> {selectedDemande.hopital_ville}
+                  </p>
+                  <p>
+                    <strong>Téléphone:</strong> {selectedDemande.hopital_telephone}
                   </p>
                   <p>
                     <strong>Date:</strong>{" "}
@@ -301,4 +317,4 @@ const GestionnaireRequests = () => {
   );
 };
 
-export default GestionnaireRequests;
+export default DirectorRequests;

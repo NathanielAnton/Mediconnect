@@ -7,6 +7,8 @@ import DashboardAdmin from "./admin/dashboard/DashboardAdmin";
 import DashboardGestionnaire from "./gestionnaire/dashboard/DashboardGestionnaire";
 import DashboardSecretaire from "./secretaire/dashboard/DashboardSecretaire";
 import DashboardSuperAdmin from "./superadmin/dashboard/DashboardSuperAdmin";
+import DashboardDirecteur from "./directeur/dashboard/DashboardDirecteur";
+
 const Dashboard = () => {
   const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -39,6 +41,8 @@ const Dashboard = () => {
         return <DashboardMedecin />;
       case "gestionnaire":
         return <DashboardGestionnaire />;
+      case "directeur":
+        return <DashboardDirecteur />;
       case "secretaire":
         return <DashboardSecretaire />;
       case "client":

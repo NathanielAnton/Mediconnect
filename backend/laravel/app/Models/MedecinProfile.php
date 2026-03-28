@@ -11,6 +11,7 @@ class MedecinProfile extends Model
 
     protected $fillable = [
         'user_id',
+        'hopital_id',
         'specialite_id',
         'description',
         'adresse',
@@ -22,6 +23,12 @@ class MedecinProfile extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    // Relation avec l'hôpital
+    public function hopital()
+    {
+        return $this->belongsTo(Hopital::class);
     }
 
     // Relation avec la spécialité

@@ -96,19 +96,19 @@
 }
 
 .filterButton:hover {
-  border-color: #dc2626;
-  color: #dc2626;
+  border-color: #6b7280;
+  color: #4b5563;
 }
 
 .filterActive {
-  background-color: #dc2626;
-  border-color: #dc2626;
+  background-color: #6b7280;
+  border-color: #6b7280;
   color: white;
 }
 
 .filterActive:hover {
-  background-color: #b91c1c;
-  border-color: #b91c1c;
+  background-color: #4b5563;
+  border-color: #4b5563;
   color: white;
 }
 
@@ -243,7 +243,7 @@
 .btnDetails {
   width: 100%;
   padding: 0.5rem 1rem;
-  background-color: #dc2626;
+  background-color: #6b7280;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -253,7 +253,7 @@
 }
 
 .btnDetails:hover {
-  background-color: #b91c1c;
+  background-color: #4b5563;
 }
 
 /* Modale */
@@ -365,9 +365,8 @@
 
 .textarea:focus {
   outline: none;
-  border-color: #dc2626;
-  ring: 2px;
-  ring-color: rgba(220, 38, 38, 0.2);
+  border-color: #6b7280;
+  box-shadow: 0 0 0 2px rgba(107, 114, 128, 0.2);
 }
 
 .modalFooter {

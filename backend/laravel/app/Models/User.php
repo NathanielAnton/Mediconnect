@@ -78,6 +78,16 @@ class User extends Authenticatable
         return $this->hasOne(Gestionnaire::class);
     }
 
+    public function directeur()
+    {
+        return $this->hasOne(Directeur::class);
+    }
+
+    public function isDirecteur()
+    {
+        return $this->hasRole('directeur');
+    }
+
     /**
      * Boot the model with creating event to auto-generate client_id.
      */

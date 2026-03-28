@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Gestionnaire extends Model
+class Secretaire extends Model
 {
     use HasFactory;
 
@@ -15,6 +15,13 @@ class Gestionnaire extends Model
         'name',
     ];
 
+    /**
+     * Relation avec le modèle User
+     */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     /**
      * Relation avec l'hôpital
@@ -22,12 +29,5 @@ class Gestionnaire extends Model
     public function hopital()
     {
         return $this->belongsTo(Hopital::class);
-    }
-    /**
-     * Relation avec le modèle User
-     */
-    public function user()
-    {
-        return $this->belongsTo(User::class);
     }
 }

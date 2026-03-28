@@ -1,23 +1,27 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Mail, Lock, User, Stethoscope, UserCheck, Building, Phone } from "lucide-react";
+import { Mail, Lock, User, Building, UserCheck, MapPin, Phone } from "lucide-react";
 import axios from "../api/axios";
 
-export default function GestionnaireRequest() {
+export default function DirectorRequest() {
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    telephone: "",
-    etablissement: "",
+    hopital_name: "",
+    hopital_adresse: "",
+    hopital_telephone: "",
+    hopital_ville: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({
     name: "",
     email: "",
     password: "",
-    telephone: "",
-    etablissement: "",
+    hopital_name: "",
+    hopital_adresse: "",
+    hopital_telephone: "",
+    hopital_ville: "",
     general: "",
   });
   const [success, setSuccess] = useState(false);
@@ -43,35 +47,51 @@ export default function GestionnaireRequest() {
     return "";
   };
 
-  const validateTelephone = (telephone) => {
-    if (!telephone.trim()) return "Le numéro de téléphone est requis";
-    return "";
-  };
-
-  const validateEtablissement = (etablissement) => {
-    if (!etablissement.trim()) return "Le nom de l'établissement est requis";
+  const validateField = (fieldName, value) => {
+    if (!value.trim()) return `Ce champ est requis`;
     return "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setErrors({ name: "", email: "", password: "", telephone: "", etablissement: "", general: "" });
+    setErrors({
+      name: "",
+      email: "",
+      password: "",
+      hopital_name: "",
+      hopital_adresse: "",
+      hopital_telephone: "",
+      hopital_ville: "",
+      general: "",
+    });
 
     // Validation frontend
     const nameError = validateName(form.name);
     const emailError = validateEmail(form.email);
     const passwordError = validatePassword(form.password);
-    const telephoneError = validateTelephone(form.telephone);
-    const etablissementError = validateEtablissement(form.etablissement);
+    const hopitalNameError = validateField("hopital_name", form.hopital_name);
+    const hopitalAdresseError = validateField("hopital_adresse", form.hopital_adresse);
+    const hopitalTelephoneError = validateField("hopital_telephone", form.hopital_telephone);
+    const hopitalVilleError = validateField("hopital_ville", form.hopital_ville);
 
-    if (nameError || emailError || passwordError || telephoneError || etablissementError) {
+    if (
+      nameError ||
+      emailError ||
+      passwordError ||
+      hopitalNameError ||
+      hopitalAdresseError ||
+      hopitalTelephoneError ||
+      hopitalVilleError
+    ) {
       setErrors({
         name: nameError,
         email: emailError,
         password: passwordError,
-        telephone: telephoneError,
-        etablissement: etablissementError,
+        hopital_name: hopitalNameError,
+        hopital_adresse: hopitalAdresseError,
+        hopital_telephone: hopitalTelephoneError,
+        hopital_ville: hopitalVilleError,
         general: "",
       });
       setLoading(false);
@@ -79,7 +99,7 @@ export default function GestionnaireRequest() {
     }
 
     try {
-      await axios.post("/demande-gestionnaire", form);
+      await axios.post("/demande-directeur", form);
       setSuccess(true);
       setTimeout(() => {
         navigate("/login");
@@ -94,8 +114,10 @@ export default function GestionnaireRequest() {
           name: backendErrors.name?.[0] || "",
           email: backendErrors.email?.[0] || "",
           password: backendErrors.password?.[0] || "",
-          telephone: backendErrors.telephone?.[0] || "",
-          etablissement: backendErrors.etablissement?.[0] || "",
+          hopital_name: backendErrors.hopital_name?.[0] || "",
+          hopital_adresse: backendErrors.hopital_adresse?.[0] || "",
+          hopital_telephone: backendErrors.hopital_telephone?.[0] || "",
+          hopital_ville: backendErrors.hopital_ville?.[0] || "",
           general: "",
         });
       } else if (err.response?.status >= 500) {
@@ -103,8 +125,10 @@ export default function GestionnaireRequest() {
           name: "",
           email: "",
           password: "",
-          telephone: "",
-          etablissement: "",
+          hopital_name: "",
+          hopital_adresse: "",
+          hopital_telephone: "",
+          hopital_ville: "",
           general:
             "Problème de l'application, veuillez réessayer plus tard ou contactez le support",
         });
@@ -113,8 +137,10 @@ export default function GestionnaireRequest() {
           name: "",
           email: "",
           password: "",
-          telephone: "",
-          etablissement: "",
+          hopital_name: "",
+          hopital_adresse: "",
+          hopital_telephone: "",
+          hopital_ville: "",
           general: "Une erreur est survenue lors de l'envoi de votre demande",
         });
       }
@@ -122,36 +148,36 @@ export default function GestionnaireRequest() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 flex items-center justify-center p-4">
       {/* Left Section - Branding */}
       <div className="hidden lg:flex w-1/2 flex-col justify-center items-center pr-12">
         <div className="mb-8">
-          <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
+          <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full shadow-lg">
             <Building className="w-10 h-10 text-white" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Demande Gestionnaire</h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">Demande Directeur</h1>
         <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
-          Demandez un compte gestionnaire pour gérer votre établissement médical
+          Demandez un compte directeur pour gérer votre hôpital et ses ressources médicales
         </p>
 
         {/* Benefits */}
         <div className="space-y-6 w-full max-w-md">
           <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 font-bold">1</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-gray-600 font-bold">1</span>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800">Remplissez le formulaire</h3>
               <p className="text-gray-600 text-sm">
-                Fournissez vos informations et celles de votre établissement
+                Fournissez vos informations et celles de votre hôpital
               </p>
             </div>
           </div>
 
           <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 font-bold">2</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-gray-600 font-bold">2</span>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800">Validation par l'admin</h3>
@@ -160,8 +186,8 @@ export default function GestionnaireRequest() {
           </div>
 
           <div className="flex items-start space-x-4">
-            <div className="flex-shrink-0 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-              <span className="text-blue-600 font-bold">3</span>
+            <div className="flex-shrink-0 w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <span className="text-gray-600 font-bold">3</span>
             </div>
             <div>
               <h3 className="font-semibold text-gray-800">Compte activé</h3>
@@ -177,14 +203,14 @@ export default function GestionnaireRequest() {
           {/* Mobile Logo */}
           <div className="lg:hidden mb-8">
             <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
+              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full shadow-lg">
                 <Building className="w-8 h-8 text-white" />
               </div>
             </div>
             <h1 className="text-2xl font-bold text-gray-800 text-center">MediConnect</h1>
           </div>
 
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Demande de compte gestionnaire</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Demande de compte directeur</h2>
           <p className="text-gray-600 mb-8">Votre demande sera examinée par notre équipe</p>
 
           {/* General Error Message */}
@@ -221,7 +247,7 @@ export default function GestionnaireRequest() {
                   className={`w-full pl-12 pr-4 py-3 border ${
                     errors.name ? "border-red-500" : "border-gray-300"
                   } rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.name ? "focus:ring-red-500" : "focus:ring-blue-500"
+                    errors.name ? "focus:ring-red-500" : "focus:ring-gray-500"
                   } focus:border-transparent transition`}
                 />
               </div>
@@ -241,7 +267,7 @@ export default function GestionnaireRequest() {
                 <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="email"
-                  placeholder="gestionnaire@hopital.com"
+                  placeholder="directeur@hopital.com"
                   value={form.email}
                   onChange={(e) => {
                     setForm({ ...form, email: e.target.value });
@@ -250,7 +276,7 @@ export default function GestionnaireRequest() {
                   className={`w-full pl-12 pr-4 py-3 border ${
                     errors.email ? "border-red-500" : "border-gray-300"
                   } rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.email ? "focus:ring-red-500" : "focus:ring-blue-500"
+                    errors.email ? "focus:ring-red-500" : "focus:ring-gray-500"
                   } focus:border-transparent transition`}
                 />
               </div>
@@ -261,60 +287,118 @@ export default function GestionnaireRequest() {
               )}
             </div>
 
-            {/* Telephone Input */}
+            {/* Hopital Name Input */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Numéro de téléphone
-              </label>
-              <div className="relative">
-                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="tel"
-                  placeholder="06 12 34 56 78"
-                  value={form.telephone}
-                  onChange={(e) => {
-                    setForm({ ...form, telephone: e.target.value });
-                    if (errors.telephone) setErrors((prev) => ({ ...prev, telephone: "" }));
-                  }}
-                  className={`w-full pl-12 pr-4 py-3 border ${
-                    errors.telephone ? "border-red-500" : "border-gray-300"
-                  } rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.telephone ? "focus:ring-red-500" : "focus:ring-blue-500"
-                  } focus:border-transparent transition`}
-                />
-              </div>
-              {errors.telephone && (
-                <p className="mt-1 text-sm text-red-600 flex items-center">
-                  <span className="mr-1">⚠</span> {errors.telephone}
-                </p>
-              )}
-            </div>
-
-            {/* Etablissement Input */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Nom de l'établissement
+                Nom de l'hôpital
               </label>
               <div className="relative">
                 <Building className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <input
                   type="text"
                   placeholder="Hôpital Central"
-                  value={form.etablissement}
+                  value={form.hopital_name}
                   onChange={(e) => {
-                    setForm({ ...form, etablissement: e.target.value });
-                    if (errors.etablissement) setErrors((prev) => ({ ...prev, etablissement: "" }));
+                    setForm({ ...form, hopital_name: e.target.value });
+                    if (errors.hopital_name) setErrors((prev) => ({ ...prev, hopital_name: "" }));
                   }}
                   className={`w-full pl-12 pr-4 py-3 border ${
-                    errors.etablissement ? "border-red-500" : "border-gray-300"
+                    errors.hopital_name ? "border-red-500" : "border-gray-300"
                   } rounded-lg focus:outline-none focus:ring-2 ${
-                    errors.etablissement ? "focus:ring-red-500" : "focus:ring-blue-500"
+                    errors.hopital_name ? "focus:ring-red-500" : "focus:ring-gray-500"
                   } focus:border-transparent transition`}
                 />
               </div>
-              {errors.etablissement && (
+              {errors.hopital_name && (
                 <p className="mt-1 text-sm text-red-600 flex items-center">
-                  <span className="mr-1">⚠</span> {errors.etablissement}
+                  <span className="mr-1">⚠</span> {errors.hopital_name}
+                </p>
+              )}
+            </div>
+
+            {/* Hopital Address Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Adresse de l'hôpital
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="123 Rue de la Santé"
+                  value={form.hopital_adresse}
+                  onChange={(e) => {
+                    setForm({ ...form, hopital_adresse: e.target.value });
+                    if (errors.hopital_adresse)
+                      setErrors((prev) => ({ ...prev, hopital_adresse: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.hopital_adresse ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.hopital_adresse ? "focus:ring-red-500" : "focus:ring-gray-500"
+                  } focus:border-transparent transition`}
+                />
+              </div>
+              {errors.hopital_adresse && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.hopital_adresse}
+                </p>
+              )}
+            </div>
+
+            {/* Hopital City Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Paris"
+                  value={form.hopital_ville}
+                  onChange={(e) => {
+                    setForm({ ...form, hopital_ville: e.target.value });
+                    if (errors.hopital_ville) setErrors((prev) => ({ ...prev, hopital_ville: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.hopital_ville ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.hopital_ville ? "focus:ring-red-500" : "focus:ring-gray-500"
+                  } focus:border-transparent transition`}
+                />
+              </div>
+              {errors.hopital_ville && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.hopital_ville}
+                </p>
+              )}
+            </div>
+
+            {/* Hopital Telephone Input */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Téléphone de l'hôpital
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="tel"
+                  placeholder="01 23 45 67 89"
+                  value={form.hopital_telephone}
+                  onChange={(e) => {
+                    setForm({ ...form, hopital_telephone: e.target.value });
+                    if (errors.hopital_telephone)
+                      setErrors((prev) => ({ ...prev, hopital_telephone: "" }));
+                  }}
+                  className={`w-full pl-12 pr-4 py-3 border ${
+                    errors.hopital_telephone ? "border-red-500" : "border-gray-300"
+                  } rounded-lg focus:outline-none focus:ring-2 ${
+                    errors.hopital_telephone ? "focus:ring-red-500" : "focus:ring-gray-500"
+                  } focus:border-transparent transition`}
+                />
+              </div>
+              {errors.hopital_telephone && (
+                <p className="mt-1 text-sm text-red-600 flex items-center">
+                  <span className="mr-1">⚠</span> {errors.hopital_telephone}
                 </p>
               )}
             </div>
@@ -332,7 +416,7 @@ export default function GestionnaireRequest() {
                     setForm({ ...form, password: e.target.value });
                     if (errors.password) setErrors((prev) => ({ ...prev, password: "" }));
                   }}
-                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-500 focus:border-transparent transition"
                 />
               </div>
               {errors.password ? (
@@ -349,7 +433,7 @@ export default function GestionnaireRequest() {
             <button
               type="submit"
               disabled={loading || success}
-              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-semibold py-3 rounded-lg transition duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? (
                 <>
@@ -379,13 +463,13 @@ export default function GestionnaireRequest() {
           <div className="space-y-2 text-center text-sm">
             <p className="text-gray-600">
               Vous avez déjà un compte ?{" "}
-              <a href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <a href="/login" className="text-gray-700 hover:text-gray-800 font-semibold">
                 Se connecter
               </a>
             </p>
             <p className="text-gray-600">
               Vous êtes un patient ou médecin ?{" "}
-              <a href="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
+              <a href="/register" className="text-gray-700 hover:text-gray-800 font-semibold">
                 S'inscrire
               </a>
             </p>
@@ -396,7 +480,7 @@ export default function GestionnaireRequest() {
         <div className="mt-8 text-center text-gray-600 text-sm">
           <p>
             Besoin d'aide ?{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="#" className="text-gray-700 hover:underline">
               Contactez le support
             </a>
           </p>

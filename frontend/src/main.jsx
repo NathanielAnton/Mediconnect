@@ -17,6 +17,8 @@ import SearchMedecin from "./pages/rdv/SearchMedecin";
 import Home from "./pages/Home";
 import DashboardGestionnaire from "./pages/gestionnaire/dashboard/DashboardGestionnaire";
 import DashboardDirecteur from "./pages/directeur/dashboard/DashboardDirecteur";
+import CreateUsers from "./pages/directeur/create-users";
+import HopitalInfo from "./pages/directeur/hopital/HopitalInfo";
 import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretaire";
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
 import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
@@ -54,6 +56,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
         <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
         <Route path="/directeur/dashboard" element={<DashboardDirecteur />} />
+        <Route path="/directeur/create-users" element={<CreateUsers />} />
+        <Route path="/directeur/hopital" element={<HopitalInfo />} />
         <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
         <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />

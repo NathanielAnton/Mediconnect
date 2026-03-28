@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Directeur;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Directeur;
 use App\Models\Hopital;
@@ -178,6 +179,147 @@ class DirecteurController extends Controller
     }
 
     /**
+     * Créer un médecin lié à l'hôpital
+     */
+    public function createMedecin(Request $request)
+    {
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+
+        if (!$directeur) {
+            return response()->json([
+                'message' => 'Profil directeur non trouvé'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'specialite_id' => 'required|integer|exists:specialites,id',
+            'telephone' => 'required|string',
+            'adresse' => 'nullable|string',
+            'ville' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'email_verified_at' => now(),
+        ]);
+
+        $user->assignRole('medecin');
+
+        MedecinProfile::create([
+            'user_id' => $user->id,
+            'hopital_id' => $directeur->hopital_id,
+            'specialite_id' => $validated['specialite_id'],
+            'telephone' => $validated['telephone'],
+            'adresse' => $validated['adresse'],
+            'ville' => $validated['ville'],
+            'description' => $validated['description'],
+        ]);
+
+        return response()->json([
+            'message' => 'Médecin créé avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ], 201);
+    }
+
+    /**
+     * Créer un gestionnaire lié à l'hôpital
+     */
+    public function createGestionnaire(Request $request)
+    {
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+
+        if (!$directeur) {
+            return response()->json([
+                'message' => 'Profil directeur non trouvé'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'email_verified_at' => now(),
+        ]);
+
+        $user->assignRole('gestionnaire');
+
+        Gestionnaire::create([
+            'user_id' => $user->id,
+            'hopital_id' => $directeur->hopital_id,
+            'name' => $validated['name'],
+        ]);
+
+        return response()->json([
+            'message' => 'Gestionnaire créé avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ], 201);
+    }
+
+    /**
+     * Créer un secrétaire lié à l'hôpital
+     */
+    public function createSecretaire(Request $request)
+    {
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+
+        if (!$directeur) {
+            return response()->json([
+                'message' => 'Profil directeur non trouvé'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'email_verified_at' => now(),
+        ]);
+
+        $user->assignRole('secretaire');
+
+        Secretaire::create([
+            'user_id' => $user->id,
+            'hopital_id' => $directeur->hopital_id,
+            'name' => $validated['name'],
+        ]);
+
+        return response()->json([
+            'message' => 'Secrétaire créé avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ], 201);
+    }
+
+    /**
      * Récupérer l'hôpital du directeur
      */
     public function getHopital(Request $request)
@@ -199,7 +341,244 @@ class DirecteurController extends Controller
                 'adresse' => $hopital->adresse,
                 'telephone' => $hopital->telephone,
                 'ville' => $hopital->ville,
+                'email' => $hopital->email,
+                'description' => $hopital->description,
                 'created_at' => $hopital->created_at,
+            ]
+        ]);
+    }
+
+    /**
+     * Mettre à jour les informations de l'hôpital
+     */
+    public function updateHopital(Request $request)
+    {
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+
+        if (!$directeur) {
+            return response()->json([
+                'message' => 'Profil directeur non trouvé'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'adresse' => 'sometimes|nullable|string',
+            'telephone' => 'sometimes|nullable|string',
+            'ville' => 'sometimes|nullable|string',
+            'email' => 'sometimes|nullable|email',
+            'description' => 'sometimes|nullable|string',
+        ]);
+
+        $hopital = $directeur->hopital;
+        $hopital->update($validated);
+
+        return response()->json([
+            'message' => 'Informations de l\'hôpital mises à jour avec succès',
+            'hopital' => [
+                'id' => $hopital->id,
+                'name' => $hopital->name,
+                'adresse' => $hopital->adresse,
+                'telephone' => $hopital->telephone,
+                'ville' => $hopital->ville,
+                'email' => $hopital->email,
+                'description' => $hopital->description,
+            ]
+        ]);
+    }
+
+    /**
+     * Récupérer les données d'un médecin spécifique
+     */
+    public function showMedecin(Request $request, $id)
+    {
+        $user = User::with(['roles', 'medecinProfile'])->findOrFail($id);
+
+        // Vérifier que l'utilisateur est bien un médecin de l'hôpital du directeur
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+        if (!$user->hasRole('medecin') || $user->medecinProfile->hopital_id !== $directeur->hopital_id) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'specialite_id' => $user->medecinProfile->specialite_id,
+                'telephone' => $user->medecinProfile->telephone,
+                'adresse' => $user->medecinProfile->adresse,
+                'ville' => $user->medecinProfile->ville,
+                'description' => $user->medecinProfile->description,
+                'roles' => $user->roles->pluck('name'),
+                'created_at' => $user->created_at,
+            ]
+        ]);
+    }
+
+    /**
+     * Récupérer les données d'un gestionnaire spécifique
+     */
+    public function showGestionnaire(Request $request, $id)
+    {
+        $user = User::with(['roles', 'gestionnaire'])->findOrFail($id);
+
+        // Vérifier que l'utilisateur est bien un gestionnaire de l'hôpital du directeur
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+        if (!$user->hasRole('gestionnaire') || $user->gestionnaire->hopital_id !== $directeur->hopital_id) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles->pluck('name'),
+                'created_at' => $user->created_at,
+            ]
+        ]);
+    }
+
+    /**
+     * Récupérer les données d'un secrétaire spécifique
+     */
+    public function showSecretaire(Request $request, $id)
+    {
+        $user = User::with(['roles', 'secretaire'])->findOrFail($id);
+
+        // Vérifier que l'utilisateur est bien un secrétaire de l'hôpital du directeur
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+        if (!$user->hasRole('secretaire') || $user->secretaire->hopital_id !== $directeur->hopital_id) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        return response()->json([
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'roles' => $user->roles->pluck('name'),
+                'created_at' => $user->created_at,
+            ]
+        ]);
+    }
+
+    /**
+     * Mettre à jour un médecin
+     */
+    public function updateMedecin(Request $request, $id)
+    {
+        $user = User::with('medecinProfile')->findOrFail($id);
+
+        // Vérifier l'accès
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+        if (!$user->hasRole('medecin') || $user->medecinProfile->hopital_id !== $directeur->hopital_id) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+            'specialite_id' => 'sometimes|exists:specialites,id',
+            'telephone' => 'sometimes|nullable|string',
+            'adresse' => 'sometimes|nullable|string',
+            'ville' => 'sometimes|nullable|string',
+            'description' => 'sometimes|nullable|string',
+        ]);
+
+        // Mettre à jour l'utilisateur
+        $user->update($validated);
+
+        // Mettre à jour le profil médecin
+        $user->medecinProfile->update($validated);
+
+        return response()->json([
+            'message' => 'Médecin modifié avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ]);
+    }
+
+    /**
+     * Mettre à jour un gestionnaire
+     */
+    public function updateGestionnaire(Request $request, $id)
+    {
+        $user = User::with('gestionnaire')->findOrFail($id);
+
+        // Vérifier l'accès
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+        if (!$user->hasRole('gestionnaire') || $user->gestionnaire->hopital_id !== $directeur->hopital_id) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+        ]);
+
+        // Mettre à jour l'utilisateur
+        $user->update($validated);
+
+        // Mettre à jour le gestionnaire
+        $user->gestionnaire->update($validated);
+
+        return response()->json([
+            'message' => 'Gestionnaire modifié avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ]);
+    }
+
+    /**
+     * Mettre à jour un secrétaire
+     */
+    public function updateSecretaire(Request $request, $id)
+    {
+        $user = User::with('secretaire')->findOrFail($id);
+
+        // Vérifier l'accès
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+        if (!$user->hasRole('secretaire') || $user->secretaire->hopital_id !== $directeur->hopital_id) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'email' => 'sometimes|email|unique:users,email,' . $user->id,
+        ]);
+
+        // Mettre à jour l'utilisateur
+        $user->update($validated);
+
+        // Mettre à jour le secrétaire
+        $user->secretaire->update($validated);
+
+        return response()->json([
+            'message' => 'Secrétaire modifiée avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
             ]
         ]);
     }

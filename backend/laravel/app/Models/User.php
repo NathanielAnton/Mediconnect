@@ -78,6 +78,11 @@ class User extends Authenticatable
         return $this->hasOne(Gestionnaire::class);
     }
 
+    public function secretaire()
+    {
+        return $this->hasOne(Secretaire::class);
+    }
+
     public function directeur()
     {
         return $this->hasOne(Directeur::class);

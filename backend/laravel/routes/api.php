@@ -201,6 +201,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/stats', [DirecteurController::class, 'getStats']);
         Route::get('/users', [DirecteurController::class, 'getUsers']);
         Route::get('/hopital', [DirecteurController::class, 'getHopital']);
+        Route::put('/hopital', [DirecteurController::class, 'updateHopital']);
+
+        // Création d'utilisateurs
+        Route::post('/create-medecin', [DirecteurController::class, 'createMedecin']);
+        Route::post('/create-gestionnaire', [DirecteurController::class, 'createGestionnaire']);
+        Route::post('/create-secretaire', [DirecteurController::class, 'createSecretaire']);
+
+        // Récupération des données individuelles (GET)
+        Route::get('/medecins/{id}', [DirecteurController::class, 'showMedecin']);
+        Route::get('/gestionnaires/{id}', [DirecteurController::class, 'showGestionnaire']);
+        Route::get('/secretaires/{id}', [DirecteurController::class, 'showSecretaire']);
+
+        // Modification des utilisateurs (PUT)
+        Route::put('/medecins/{id}', [DirecteurController::class, 'updateMedecin']);
+        Route::put('/gestionnaires/{id}', [DirecteurController::class, 'updateGestionnaire']);
+        Route::put('/secretaires/{id}', [DirecteurController::class, 'updateSecretaire']);
     });
 
     // ============================================

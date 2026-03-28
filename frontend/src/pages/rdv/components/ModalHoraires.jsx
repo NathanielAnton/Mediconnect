@@ -3,7 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import { AuthContext } from "../../../context/AuthContext";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import frLocale from "@fullcalendar/core/locales/fr";
-import { X, Clock, Loader } from "lucide-react";
+import { X, Clock, Loader, Phone } from "lucide-react";
 import api from "../../../api/axios";
 import styles from "./ModalHoraires.module.css";
 import ModalRendezVous from "../../user/planning/ModalRendezVous";
@@ -290,6 +290,12 @@ const ModalHoraires = ({ medecin, onClose }) => {
             {medecin?.ville && (
               <p className={styles.modalLocation}>
                 📍 {medecin.ville} {medecin.adresse && `- ${medecin.adresse}`}
+              </p>
+            )}
+            {medecin?.telephone && (
+              <p className={styles.modalLocation}>
+                <Phone size={16} style={{ display: "inline", marginRight: "0.5rem" }} />
+                {medecin.telephone}
               </p>
             )}
           </div>

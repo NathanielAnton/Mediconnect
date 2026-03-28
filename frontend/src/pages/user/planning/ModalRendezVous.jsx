@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../../../context/AuthContext";
-import { X, Calendar, Clock, User, Stethoscope, MessageSquare } from "lucide-react";
+import { X, Calendar, Clock, User, Stethoscope, MessageSquare, Phone } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../../../api/axios";
 import styles from "./ModalRendezVous.module.css";
@@ -120,6 +120,12 @@ const ModalRendezVous = ({ medecin, creneau, onClose, onSuccess }) => {
                 <p>Dr. {medecin.name}</p>
                 {medecin.specialite && (
                   <span className={styles.specialite}>{medecin.specialite}</span>
+                )}
+                {medecin.telephone && (
+                  <p style={{ fontSize: "0.875rem", color: "#6b7280", marginTop: "0.25rem" }}>
+                    <Phone size={14} style={{ display: "inline", marginRight: "0.25rem" }} />
+                    {medecin.telephone}
+                  </p>
                 )}
               </div>
             </div>

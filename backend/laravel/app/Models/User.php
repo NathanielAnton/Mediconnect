@@ -19,6 +19,7 @@ class User extends Authenticatable
         'password',
         'phone',
         'client_id',
+        'isVerified',
     ];
 
     protected $hidden = [

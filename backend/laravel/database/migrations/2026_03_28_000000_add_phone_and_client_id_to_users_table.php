@@ -15,6 +15,10 @@ return new class () extends Migration {
             if (!Schema::hasColumn('users', 'client_id')) {
                 $table->string('client_id', 10)->unique()->after('phone');
             }
+            // Add isVerified column (default 1 - verified)
+            if (!Schema::hasColumn('users', 'isVerified')) {
+                $table->boolean('isVerified')->default(1)->after('client_id');
+            }
         });
     }
 
@@ -24,7 +28,7 @@ return new class () extends Migration {
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('client_id');
+            $table->dropColumn(['client_id', 'isVerified']);
         });
     }
 };

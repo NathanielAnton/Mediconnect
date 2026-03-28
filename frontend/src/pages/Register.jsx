@@ -21,6 +21,7 @@ export default function Register() {
     general: "",
   });
   const [success, setSuccess] = useState(false);
+  const [medecinValidation, setMedecinValidation] = useState(false);
   const navigate = useNavigate();
 
   // Validation côté frontend
@@ -59,6 +60,19 @@ export default function Register() {
     const passwordError = validatePassword(form.password);
     const phoneError = validatePhone(form.phone);
 
+    // Validation checkbox pour médecins
+    if (form.role === "medecin" && !medecinValidation) {
+      setErrors({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        general: "Vous devez valider que vous êtes un médecin indépendant",
+      });
+      setLoading(false);
+      return;
+    }
+
     if (nameError || emailError || passwordError || phoneError) {
       setErrors({
         name: nameError,
@@ -74,9 +88,18 @@ export default function Register() {
     try {
       await register(form.name, form.email, form.password, form.phone, form.role);
       setSuccess(true);
-      setTimeout(() => {
-        navigate("/login");
-      }, 2000);
+
+      // Si médecin, rediriger vers la page de vérification
+      if (form.role === "medecin") {
+        setTimeout(() => {
+          navigate("/pending-approval");
+        }, 1500);
+      } else {
+        // Sinon rediriger vers login
+        setTimeout(() => {
+          navigate("/login");
+        }, 2000);
+      }
     } catch (err) {
       setLoading(false);
 
@@ -319,7 +342,10 @@ export default function Register() {
                     name="role"
                     value="client"
                     checked={form.role === "client"}
-                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    onChange={(e) => {
+                      setForm({ ...form, role: e.target.value });
+                      setMedecinValidation(false);
+                    }}
                     className="w-4 h-4"
                   />
                   <div className="ml-3">
@@ -340,11 +366,29 @@ export default function Register() {
                     className="w-4 h-4"
                   />
                   <div className="ml-3">
-                    <p className="font-semibold text-gray-800 text-sm">Médecin</p>
+                    <p className="font-semibold text-gray-800 text-sm">Médecin indépendant</p>
                     <p className="text-gray-500 text-xs">Gérer mes patients</p>
                   </div>
                 </label>
               </div>
+
+              {/* Médecin Validation Message */}
+              {form.role === "medecin" && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <label className="flex items-start space-x-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={medecinValidation}
+                      onChange={(e) => setMedecinValidation(e.target.checked)}
+                      className="w-4 h-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-blue-700">
+                      Je valide être un médecin indépendant. Mon compte sera vérifié par un
+                      administrateur avant activation.
+                    </span>
+                  </label>
+                </div>
+              )}
             </div>
 
             {/* Terms Checkbox */}

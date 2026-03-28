@@ -37,6 +37,7 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->input('phone') ?: null,
+            'isVerified' => $request->role === 'medecin' ? 0 : 1,
         ]);
 
         // Assigner le rôle avec spatie/laravel-permission
@@ -52,6 +53,7 @@ class AuthController extends Controller
                 'phone' => $user->phone,
                 'client_id' => $user->client_id,
                 'role' => $user->getMainRoleAttribute(),
+                'isVerified' => $user->isVerified,
             ],
             'token' => 'session-based',
             'roles' => $user->getRoleNames()->toArray()
@@ -83,8 +85,16 @@ class AuthController extends Controller
             $user = \App\Models\User::where('client_id', strtoupper($identifier))->first();
         }
 
-        // Vérifier le mot de passe si l'utilisateur existe
+        // Vérifier le mot de passe et isVerified si l'utilisateur existe
         if ($user && Hash::check($request->input('password'), $user->password)) {
+            // Vérifier que l'utilisateur est vérifié
+            if (!$user->isVerified) {
+                return response()->json([
+                    'message' => 'Votre compte est en attente de vérification par un administrateur',
+                    'isPending' => true
+                ], 403);
+            }
+
             Auth::login($user);
             $request->session()->regenerate();
 
@@ -136,6 +146,7 @@ class AuthController extends Controller
                         'phone' => $user->phone,
                         'client_id' => $user->client_id,
                         'role' => $user->getMainRoleAttribute(),
+                        'isVerified' => $user->isVerified,
                     ],
                     'roles' => $user->getRoleNames()->toArray()
                 ]);

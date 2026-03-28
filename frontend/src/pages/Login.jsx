@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Stethoscope } from "lucide-react";
+import { toast } from "react-toastify";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -57,6 +58,27 @@ export default function Login() {
       navigate("/dashboard");
     } catch (error) {
       setLoading(false);
+
+      // Gérer le cas du compte en attente de vérification
+      if (error.response?.status === 403) {
+        toast.warning(
+          "🕐 Votre compte est en cours de vérification\n\nVotre inscription en tant que médecin indépendant est en attente de validation par un administrateur. Veuillez patienter quelques heures.",
+          {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+          }
+        );
+        setErrors({
+          email: "",
+          password: "Compte en attente de vérification",
+        });
+        return;
+      }
+
       // Gérer les erreurs du backend
       if (error.response?.data?.errors) {
         const backendErrors = error.response.data.errors;

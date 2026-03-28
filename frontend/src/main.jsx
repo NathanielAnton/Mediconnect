@@ -22,6 +22,7 @@ import GestionnaireRequests from "./pages/admin/gestionnaire-requests/Gestionnai
 import DashboardUser from "./pages/user/dashboard/DashboardUser";
 import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
 import ClientProfile from "./pages/user/profile/ClientProfile";
+import PendingApproval from "./pages/PendingApproval";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -42,6 +43,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/home" element={<SearchMedecin />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/pending-approval" element={<PendingApproval />} />
         <Route path="/demande-gestionnaire" element={<GestionnaireRequest />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/medecin/profile" element={<MedecinProfile />} />

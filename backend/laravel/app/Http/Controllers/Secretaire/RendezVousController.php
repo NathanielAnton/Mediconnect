@@ -371,4 +371,31 @@ class RendezVousController extends Controller
             'rendez_vous' => $rendezVous
         ], 200);
     }
+
+    /**
+     * Secrétaire supprime un rendez-vous
+     * Vérifie que la secrétaire a accès au rendez-vous
+     */
+    public function destroy(Request $request, $id)
+    {
+        $secretaire = $request->user();
+        $secretaireProfile = Secretaire::where('user_id', $secretaire->id)->first();
+
+        if (!$secretaireProfile) {
+            return response()->json(['message' => 'Profil secrétaire non trouvé'], 404);
+        }
+
+        $rendezVous = RendezVous::findOrFail($id);
+
+        // Vérifier l'accès au rendez-vous
+        if (!$this->canAccessRendezVous($secretaireProfile, $rendezVous)) {
+            return response()->json(['message' => 'Accès non autorisé à ce rendez-vous'], 403);
+        }
+
+        $rendezVous->delete();
+
+        return response()->json([
+            'message' => 'Rendez-vous supprimé avec succès'
+        ], 200);
+    }
 }

@@ -1,7 +1,7 @@
 /* Container principal */
 .container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
   padding: 2rem;
 }
 
@@ -11,10 +11,10 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  background: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  background: linear-gradient(135deg, #8b5cf6 0%, #6f42c1 100%);
   padding: 1.5rem;
   border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(236, 72, 153, 0.3);
+  box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
 }
 
 .header h1 {
@@ -92,36 +92,36 @@
 }
 
 .cardPink1 {
-  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-  border-color: #f9a8d4;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border-color: #ddd6fe;
 }
 
 .cardPink2 {
-  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
-  border-color: #f472b6;
+  background: linear-gradient(135deg, #f3e8ff 0%, #ede9fe 100%);
+  border-color: #c4b5fd;
 }
 
 .cardPink3 {
-  background: linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%);
-  border-color: #ec4899;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  border-color: #8b5cf6;
 }
 
 .cardPink4 {
-  background: linear-gradient(135deg, #f9a8d4 0%, #f472b6 100%);
-  border-color: #db2777;
+  background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+  border-color: #6f42c1;
 }
 
 .statCardTitle {
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #831843;
+  color: #5a3a9f;
   font-size: 0.875rem;
 }
 
 .statValue {
   font-size: 2.25rem;
   font-weight: bold;
-  color: #be185d;
+  color: #7c3aed;
   margin: 0;
 }
 
@@ -150,11 +150,11 @@
 }
 
 .tab:hover {
-  background: #fce7f3;
+  background: #f3e8ff;
 }
 
 .tabActive {
-  background: #ec4899;
+  background: #8b5cf6;
   color: white;
 }
 
@@ -209,7 +209,7 @@
 }
 
 .summaryValue {
-  color: #ec4899;
+  color: #8b5cf6;
   font-size: 1.25rem;
   font-weight: bold;
 }
@@ -223,7 +223,7 @@
 
 .actionBtn {
   padding: 0.75rem;
-  background: #ec4899;
+  background: #8b5cf6;
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -234,7 +234,7 @@
 }
 
 .actionBtn:hover {
-  background: #db2777;
+  background: #7c3aed;
   transform: translateY(-1px);
 }
 
@@ -275,17 +275,17 @@
 }
 
 .table tbody tr:hover {
-  background: #fdf2f8;
+  background: #faf5ff;
 }
 
 .roleBadge {
   padding: 0.25rem 0.75rem;
-  background: #fce7f3;
-  color: #be185d;
+  background: #f3e8ff;
+  color: #6b21a8;
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 600;
-  border: 1px solid #f9a8d4;
+  border: 1px solid #ddd6fe;
 }
 
 /* Stats detail grid */
@@ -296,8 +296,8 @@
 }
 
 .statsDetailCard {
-  background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-  border: 2px solid #f9a8d4;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  border: 2px solid #ddd6fe;
   border-radius: 0.5rem;
   padding: 1.5rem;
   text-align: center;
@@ -306,11 +306,11 @@
 
 .statsDetailCard:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.2);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 .statsDetailCard h4 {
-  color: #831843;
+  color: #5a3a9f;
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
   font-weight: 600;
@@ -320,14 +320,243 @@
 .statsBigNumber {
   font-size: 3rem;
   font-weight: bold;
-  color: #ec4899;
+  color: #8b5cf6;
   margin: 0.5rem 0;
 }
 
 .statsLabel {
-  color: #9d174d;
+  color: #6b21a8;
   font-size: 0.875rem;
   margin: 0;
+}
+
+/* Appointments list */
+.appointmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.appointmentItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.appointmentItem:hover {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.appointmentItem > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1;
+}
+
+.appointmentMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.appointmentTime {
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.875rem;
+}
+
+.appointmentDoctor {
+  color: #8b5cf6;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.appointmentDetail {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.motif {
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+.contactInfo {
+  color: #059669;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badgeConfirmed {
+  background-color: #ddd6fe;
+  color: #5a3a9f;
+  border: 1px solid #c4b5fd;
+}
+
+.badgePending {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fbbf24;
+}
+
+.badgeCancelled {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #f87171;
+}
+
+/* Medecins list */
+.medecinsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.medecinItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.specialite {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.contact {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+}
+
+.btnSmall {
+  padding: 0.375rem 1rem;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.3s ease;
+}
+
+.btnSmall:hover {
+  background: #7c3aed;
+}
+
+/* Medecins grid */
+.medecinsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.medecinCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  transition: all 0.3s ease;
+}
+
+.medecinCard:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.medecinCard h4 {
+  margin: 0 0 0.5rem 0;
+  color: #1f2937;
+  font-size: 1.125rem;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 0.75rem;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 1rem;
+  transition: background 0.3s ease;
+  flex: 1;
+}
+
+.btnPrimary:hover {
+  background: #7c3aed;
+}
+
+.btnSecondary {
+  padding: 0.75rem;
+  background: #6b7280;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 1rem;
+  transition: background 0.3s ease;
+  flex: 1;
+}
+
+.btnSecondary:hover {
+  background: #4b5563;
+}
+
+.btnManage {
+  width: 100%;
+  padding: 1rem;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+}
+
+.btnManage:hover {
+  background: #7c3aed;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
+}
+
+.btnManage:active {
+  transform: translateY(0);
 }
 
 /* Responsive */
@@ -355,5 +584,19 @@
 
   .statsDetailGrid {
     grid-template-columns: 1fr;
+  }
+
+  .medecinsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .appointmentItem {
+    flex-direction: column;
+  }
+
+  .appointmentMeta {
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 }

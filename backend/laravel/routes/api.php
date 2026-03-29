@@ -156,6 +156,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/{id}', [SecretaireRendezVousController::class, 'show']);
             Route::post('/', [SecretaireRendezVousController::class, 'store']);
             Route::put('/{id}', [SecretaireRendezVousController::class, 'update']);
+            Route::delete('/{id}', [SecretaireRendezVousController::class, 'destroy']);
             Route::get('/medecin/{medecinId}', [SecretaireRendezVousController::class, 'getMedecinRendezVous']);
             Route::patch('/{id}/cancel', [SecretaireRendezVousController::class, 'cancel']);
         });
@@ -184,15 +185,28 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:gestionnaire')->prefix('gestionnaire')->name('gestionnaire.')->group(function () {
         // Dashboard
         Route::get('/dashboard', [GestionnaireDashboardController::class, 'show']);
-        Route::get('/stats', [GestionnaireDashboardController::class, 'getStats']);
-        Route::get('/users', [GestionnaireDashboardController::class, 'getUsers']);
+        Route::get('/profile', [GestionnaireDashboardController::class, 'getProfile']);
+        Route::get('/medecins/all', [GestionnaireDashboardController::class, 'getAllMedecins']);
+        Route::get('/patients', [GestionnaireDashboardController::class, 'getPatients']);
 
         // Rendez-vous Management
         Route::prefix('rendez-vous')->name('rendez-vous.')->group(function () {
-            Route::get('/', [GestionnaireRendezVousController::class, 'getAll']);
+            Route::get('/today', [GestionnaireRendezVousController::class, 'getTodayRendezVous']);
             Route::get('/{id}', [GestionnaireRendezVousController::class, 'show']);
+            Route::post('/', [GestionnaireRendezVousController::class, 'store']);
             Route::put('/{id}', [GestionnaireRendezVousController::class, 'update']);
-            Route::delete('/{id}', [GestionnaireRendezVousController::class, 'delete']);
+            Route::delete('/{id}', [GestionnaireRendezVousController::class, 'destroy']);
+            Route::get('/medecin/{medecinId}', [GestionnaireRendezVousController::class, 'getMedecinRendezVous']);
+            Route::patch('/{id}/cancel', [GestionnaireRendezVousController::class, 'cancel']);
+        });
+
+        // Médecins Management
+        Route::prefix('medecins')->name('medecins.')->group(function () {
+            Route::get('/{medecinId}/planning', [GestionnaireDashboardController::class, 'getMedecinPlanning']);
+            Route::get('/{medecinId}/profile', [GestionnaireDashboardController::class, 'getMedecinProfile']);
+            Route::post('/{medecinId}/horaires', [GestionnaireDashboardController::class, 'addHoraire']);
+            Route::put('/{medecinId}/horaires', [GestionnaireDashboardController::class, 'updateHoraires']);
+            Route::post('/{medecinId}/indisponibilites', [GestionnaireDashboardController::class, 'addIndisponibilite']);
         });
 
         // Liaisons with Médecins
@@ -202,8 +216,6 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/medecins', [GestionnaireLiaisonController::class, 'getLinked']);
             Route::delete('/{id}', [GestionnaireLiaisonController::class, 'cancel']);
         });
-
-
     });
 
     // ============================================

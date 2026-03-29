@@ -20,6 +20,7 @@ return new class () extends Migration {
             $table->text('notes')->nullable();
             $table->string('name')->nullable();
             $table->string('email')->nullable();
+            $table->string('phone')->nullable();
             $table->timestamps();
 
             // Index pour les recherches

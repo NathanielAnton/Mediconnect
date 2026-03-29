@@ -22,7 +22,8 @@ class RendezVous extends Model
         'motif',
         'notes',
         'name',
-        'email'
+        'email',
+        'phone'
     ];
 
     protected $casts = [

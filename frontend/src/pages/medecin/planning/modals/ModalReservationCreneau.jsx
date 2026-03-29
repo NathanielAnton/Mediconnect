@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
-import { X, Calendar, Clock, User, Stethoscope, MessageSquare } from "lucide-react";
+import { X, Calendar, Clock, User, Stethoscope, MessageSquare, Phone } from "lucide-react";
 import { toast } from "react-toastify";
 import api from "../../../../api/axios";
 import styles from "./ModalReservationCreneau.module.css";
@@ -11,6 +11,7 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     email: "",
     name: "",
+    phone: "",
     motif: "",
     notes: "",
     statut: "en_attente",
@@ -65,6 +66,7 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
       const payload = {
         email: formData.email,
         name: formData.name,
+        phone: formData.phone || null,
         medecin_id: medecin.medecin_id,
         date_debut: creneau.start.toISOString(),
         date_fin: creneau.end.toISOString(),
@@ -171,6 +173,21 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
               onChange={handleInputChange}
               placeholder="Nom de la personne"
               required
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>
+              <Phone className={styles.labelIcon} />
+              Téléphone (optionnel)
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="+33 6 12 34 56 78"
               className={styles.input}
             />
           </div>

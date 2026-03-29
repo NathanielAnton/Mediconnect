@@ -1,6 +1,15 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../../../../context/AuthContext";
-import { X, Calendar, Clock, User, Stethoscope, MessageSquare, Trash2 } from "lucide-react";
+import {
+  X,
+  Calendar,
+  Clock,
+  User,
+  Stethoscope,
+  MessageSquare,
+  Trash2,
+  Phone as PhoneIcon,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import api from "../../../../api/axios";
@@ -9,13 +18,45 @@ import styles from "./ModalUpdateRendezVous.module.css";
 const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
   const { user } = useContext(AuthContext);
   const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
   const [formData, setFormData] = useState({
     email: rendezVous?.email || "",
     name: rendezVous?.name || "",
+    phone: rendezVous?.phone || "",
     motif: rendezVous?.motif || "",
     notes: rendezVous?.notes || "",
     statut: rendezVous?.statut || "en_attente",
   });
+
+  // Charger les données du rendez-vous au montage du modal
+  useEffect(() => {
+    const fetchRendezVousDetails = async () => {
+      if (!rendezVous?.id) {
+        setDataLoading(false);
+        return;
+      }
+
+      try {
+        const response = await api.get(`/medecin/rendez-vous/${rendezVous.id}`);
+        const data = response.data.rendez_vous || response.data.rendezVous;
+        setFormData({
+          email: data.email || "",
+          name: data.name || "",
+          phone: data.phone || "",
+          motif: data.motif || "",
+          notes: data.notes || "",
+          statut: data.statut || "en_attente",
+        });
+      } catch (error) {
+        console.error("Erreur lors de la récupération des détails:", error);
+        toast.error("Erreur lors du chargement des informations");
+      } finally {
+        setDataLoading(false);
+      }
+    };
+
+    fetchRendezVousDetails();
+  }, [rendezVous?.id]);
 
   const showToast = (message, type = "info") => {
     if (type === "error") {
@@ -68,6 +109,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
       const payload = {
         email: formData.email,
         name: formData.name,
+        phone: formData.phone || null,
         motif: formData.motif,
         notes: formData.notes || null,
         statut: formData.statut,
@@ -199,6 +241,18 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
               onChange={handleInputChange}
               placeholder="email@example.com"
               required
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Numéro de téléphone</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="+33 6 12 34 56 78"
               className={styles.input}
             />
           </div>

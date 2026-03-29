@@ -23,15 +23,36 @@ class RendezVousController extends Controller
             'notes' => 'nullable|string|max:1000',
             'statut' => 'required',
             'client_id' => 'nullable|integer|exists:users,id',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'name' => 'nullable|string|max:255',
         ]);
 
-        // Chercher l'utilisateur par email
+        // Chercher l'utilisateur par contexte d'authentification
         $user = auth()->user();
-        if (is_null($user)) {
-            return response()->json(['message' => 'Utilisateur non trouvé'], 404);
+
+        // Si connecté, utiliser ses infos
+        if ($user) {
+            $validated['client_id'] = $user->id;
+            $validated['email'] = $user->email;
+            $validated['name'] = $user->name;
+            $validated['author_id'] = $user->id;
+        } else {
+            // Si non connecté, au moins email ou phone est requis
+            if (!$validated['email'] && !$validated['phone']) {
+                return response()->json([
+                    'message' => 'Vous devez fournir soit un email, soit un numéro de téléphone'
+                ], 422);
+            }
+            // Si non connecté, le name est requis
+            if (!$validated['name']) {
+                return response()->json([
+                    'message' => 'Vous devez fournir votre nom'
+                ], 422);
+            }
+            $validated['author_id'] = null;
+            $validated['client_id'] = null;
         }
-        $validated['email'] = $user->email;
-        $validated['author_id'] = $user->id;
 
         $rendezVous = RendezVous::create($validated);
         return response()->json([

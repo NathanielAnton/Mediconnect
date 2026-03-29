@@ -229,6 +229,11 @@ const ModalHoraires = ({ medecin, onClose }) => {
 
     // Gestion des clics sur les rendez-vous
     if (extendedProps.type === "rendezvous") {
+      // Ne pas afficher les détails si l'utilisateur n'est pas connecté
+      if (!user) {
+        return;
+      }
+
       const rdvId = extendedProps.rdvId;
 
       // Faire un appel API pour récupérer les détails complets du RDV
@@ -260,10 +265,10 @@ const ModalHoraires = ({ medecin, onClose }) => {
     }
 
     if (extendedProps.type === "creneau" && extendedProps.statut === "disponible") {
-      if (roles === "Non authentifié") {
-        toast.error("Veuillez vous connecter pour prendre un rendez-vous.");
-        return;
-      }
+      // if (roles === "Non authentifié") {
+      //   toast.error("Veuillez vous connecter pour prendre un rendez-vous.");
+      //   return;
+      // }
 
       setSelectedCreneau({
         start: event.start,

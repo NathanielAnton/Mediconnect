@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import NavbarMedecin from "../components/NavbarMedecin";
 import styles from "./DashboardMedecin.module.css";
 import MedecinLiaisons from "../liaisons/MedecinLiaisons";
-import MedecinGestionnaireLiaisons from "../liaisons/MedecinGestionnaireLiaisons";
 import ModalNouveauRendezVous from "./modals/ModalNouveauRendezVous";
 import api from "../../../api/axios";
 
@@ -18,6 +17,7 @@ const DashboardMedecin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showNewRdvModal, setShowNewRdvModal] = useState(false);
+  const [medecinInfo, setMedecinInfo] = useState(null);
 
   // Charger les données des rendez-vous au montage du composant
   useEffect(() => {
@@ -38,6 +38,11 @@ const DashboardMedecin = () => {
         const monthData = monthResponse.data;
 
         setMonthCount(monthData.count || 0);
+
+        // Récupérer les infos du médecin
+        const medecinResponse = await api.get("/medecin/profile");
+        console.log("Medecin profile response:", medecinResponse.data);
+        setMedecinInfo(medecinResponse.data);
       } catch (err) {
         console.error("Erreur lors du chargement des rendez-vous:", err);
         setError("Impossible de charger les rendez-vous");
@@ -73,18 +78,14 @@ const DashboardMedecin = () => {
             >
               Tableau de bord
             </button>
-            <button
-              className={`${styles.tab} ${activeTab === "secretaires" ? styles.active : ""}`}
-              onClick={() => setActiveTab("secretaires")}
-            >
-              Liaisons Secrétaires
-            </button>
-            <button
-              className={`${styles.tab} ${activeTab === "gestionnaires" ? styles.active : ""}`}
-              onClick={() => setActiveTab("gestionnaires")}
-            >
-              Liaisons Gestionnaires
-            </button>
+            {medecinInfo && !medecinInfo?.hopital_id && (
+              <button
+                className={`${styles.tab} ${activeTab === "secretaires" ? styles.active : ""}`}
+                onClick={() => setActiveTab("secretaires")}
+              >
+                Liaisons Secrétaires
+              </button>
+            )}
           </div>
         </div>
 
@@ -200,7 +201,6 @@ const DashboardMedecin = () => {
             </div>
           )}
           {activeTab === "secretaires" && <MedecinLiaisons />}
-          {activeTab === "gestionnaires" && <MedecinGestionnaireLiaisons />}
         </div>
       </main>
 

@@ -122,7 +122,7 @@ class RendezVousController extends Controller
     }
 
     /**
-     * Médecin met à jour un rendez-vous (statut, notes, etc)
+     * Médecin met à jour un rendez-vous (statut, notes, email, name, phone, etc)
      */
     public function update(Request $request, $id)
     {
@@ -142,7 +142,10 @@ class RendezVousController extends Controller
 
         $validated = $request->validate([
             'statut' => 'sometimes|string',
-            'notes' => 'sometimes|nullable|string|max:1000'
+            'notes' => 'sometimes|nullable|string|max:1000',
+            'email' => 'sometimes|email|max:255',
+            'name' => 'sometimes|string|max:255',
+            'phone' => 'sometimes|nullable|string|max:20'
         ]);
 
         // Si le statut passe à "confirmé", ajouter l'ID du médecin qui confirme
@@ -161,15 +164,25 @@ class RendezVousController extends Controller
     /**
      * Médecin récupère un rendez-vous spécifique
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
+        $user = $request->user();
         $rendezVous = RendezVous::findOrFail($id);
+
+        // Vérifier que le rendez-vous appartient au médecin (optionnel mais recommandé)
+        if ($user && $user->hasRole('medecin')) {
+            $medecinProfile = $user->medecinProfile;
+            if ($rendezVous->medecin_id !== $medecinProfile->id) {
+                return response()->json(['message' => 'Non autorisé'], 403);
+            }
+        }
 
         return response()->json([
             'rendez_vous' => [
                 'id' => $rendezVous->id,
                 'name' => $rendezVous->name,
                 'email' => $rendezVous->email,
+                'phone' => $rendezVous->phone,
                 'date_debut' => $rendezVous->date_debut,
                 'date_fin' => $rendezVous->date_fin,
                 'motif' => $rendezVous->motif,
@@ -189,6 +202,7 @@ class RendezVousController extends Controller
             'motif' => 'nullable|string|max:500',
             'notes' => 'nullable|string|max:1000',
             'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
             'statut' => 'required'
         ]);
 

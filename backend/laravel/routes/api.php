@@ -59,6 +59,9 @@ Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'get
 // Routes pour les demandes de directeur
 Route::post('/demande-directeur', [DirecteurRequestController::class, 'store']);
 
+// Route pour créer un rendez-vous (accessible à tous: connectés ou non)
+Route::post('/rendezvous', [ClientRendezVousController::class, 'store']);
+
 // ============================================
 // AUTHENTICATED ROUTES
 // ============================================
@@ -74,7 +77,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/medecin/horaires', [MedecinPlanningController::class, 'deleteHoraire']);
     Route::post('/medecin/indisponibilites', [MedecinPlanningController::class, 'addIndisponibilite']);
     Route::delete('/medecin/indisponibilites/{id}', [MedecinPlanningController::class, 'deleteIndisponibilite']);
-    Route::post('/rendezvous', [ClientRendezVousController::class, 'store']);
 
 
     // ============================================

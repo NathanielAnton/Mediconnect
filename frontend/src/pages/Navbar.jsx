@@ -1,12 +1,14 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { LogOut, LayoutDashboard, User } from "lucide-react";
 import styles from "./rdv/SearchMedecin.module.css";
 
 const Navbar = () => {
   const { user, logout, loading } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   const handleLogout = async () => {
     try {
@@ -41,10 +43,12 @@ const Navbar = () => {
                 <LayoutDashboard className={styles.dashboardIcon} />
                 <span>Espace personnel</span>
               </Link>
-              <Link to="/user/profile" className={styles.dashboardButton}>
-                <User className={styles.dashboardIcon} />
-                <span>Mon Profil</span>
-              </Link>
+              {!isHome && (
+                <Link to="/user/profile" className={styles.dashboardButton}>
+                  <User className={styles.dashboardIcon} />
+                  <span>Mon Profil</span>
+                </Link>
+              )}
               <button onClick={handleLogout} className={styles.logoutButton}>
                 <LogOut className={styles.logoutIcon} />
                 <span>Déconnexion</span>

@@ -27,6 +27,8 @@ use App\Http\Controllers\Gestionnaire\DashboardController as GestionnaireDashboa
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SuperAdmin\RoleController as SuperAdminRoleController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+// Admin Controllers
+use App\Http\Controllers\Admin\AdminUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -264,5 +266,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/demande-directeur/{id}/statut', [DirecteurRequestController::class, 'updateStatut']);
         Route::patch('/demande-directeur/{id}/approve', [DirecteurRequestController::class, 'approve']);
         Route::patch('/demande-directeur/{id}/reject', [DirecteurRequestController::class, 'reject']);
+
+        // User Verification Management
+        Route::get('/utilisateurs-non-verifies', [AdminUserController::class, 'getUnverifiedUsers']);
+        Route::get('/utilisateurs-non-verifies-list', [AdminUserController::class, 'getUnverifiedUsersList']);
+        Route::put('/utilisateurs/{id}/verify', [AdminUserController::class, 'verifyUser']);
+        Route::put('/utilisateurs/{id}/reject', [AdminUserController::class, 'rejectUser']);
     });
 });

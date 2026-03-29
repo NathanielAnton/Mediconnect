@@ -46,21 +46,9 @@ const Navbar = () => {
             <Link to="/admin/demandes-directeurs" className={styles.navLink}>
               Demandes Directeurs
             </Link>
-            <a href="#utilisateurs" className={styles.navLink}>
-              Utilisateurs
-            </a>
-            <a href="#statistiques" className={styles.navLink}>
-              Statistiques
-            </a>
-            <a href="#parametres" className={styles.navLink}>
-              Paramètres
-            </a>
-            <a href="#rapports" className={styles.navLink}>
-              Rapports
-            </a>
-            <a href="#systeme" className={styles.navLink}>
-              Système
-            </a>
+            <Link to="/admin/utilisateurs-verification" className={styles.navLink}>
+              Vérification Utilisateurs
+            </Link>
           </div>
 
           {/* User info et déconnexion */}

@@ -23,6 +23,7 @@ import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretair
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
 import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
 import DirectorRequests from "./pages/admin/directeur-requests/DirectorRequests";
+import UserVerification from "./pages/admin/user-verification/UserVerification";
 import DashboardUser from "./pages/user/dashboard/DashboardUser";
 import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
 import ClientProfile from "./pages/user/profile/ClientProfile";
@@ -62,6 +63,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/demandes-directeurs" element={<DirectorRequests />} />
+        <Route path="/admin/utilisateurs-verification" element={<UserVerification />} />
         <Route path="/user/dashboard" element={<DashboardUser />} />
         <Route path="/user/mes-rdv" element={<MesRendezVous />} />
         <Route path="/user/profile" element={<ClientProfile />} />

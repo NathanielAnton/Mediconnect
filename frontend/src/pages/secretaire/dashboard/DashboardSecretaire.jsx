@@ -6,6 +6,7 @@ import styles from "./DashboardSecretaire.module.css";
 import SecretaireLiaisons from "../liaisons/SecretaireLiaisons";
 import ModalPlanningMedecin from "./modals/ModalPlanningMedecin";
 import ModalUpdateRendezVous from "./modals/ModalUpdateRendezVous";
+import ModalMedecinManage from "./modals/ModalMedecinManage";
 
 const DashboardSecretaire = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const DashboardSecretaire = () => {
   const [secretaireInfo, setSecretaireInfo] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedRendezVousForEdit, setSelectedRendezVousForEdit] = useState(null);
+  const [showMedecinManageModal, setShowMedecinManageModal] = useState(false);
+  const [selectedMedecinForManagement, setSelectedMedecinForManagement] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -247,21 +250,34 @@ const DashboardSecretaire = () => {
                   <p className={styles.specialite}>{medecin.specialite}</p>
                   <p className={styles.contact}>{medecin.telephone}</p>
                   <p className={styles.contact}>{medecin.adresse}</p>
-                  <div style={{ display: "flex", gap: "10px" }}>
+                  <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <button
+                        className={styles.btnPrimary}
+                        onClick={() => fetchMedecinRendezVous(medecin.id)}
+                        style={{ flex: 1 }}
+                      >
+                        Voir les rendez-vous
+                      </button>
+                      <button
+                        className={styles.btnSecondary}
+                        onClick={() => {
+                          setSelectedMedecinForPlanning(medecin);
+                          setShowPlanningModal(true);
+                        }}
+                        style={{ flex: 1 }}
+                      >
+                        Voir Planning Complet
+                      </button>
+                    </div>
                     <button
-                      className={styles.btnPrimary}
-                      onClick={() => fetchMedecinRendezVous(medecin.id)}
-                    >
-                      Voir les rendez-vous
-                    </button>
-                    <button
-                      className={styles.btnSecondary}
+                      className={styles.btnManage}
                       onClick={() => {
-                        setSelectedMedecinForPlanning(medecin);
-                        setShowPlanningModal(true);
+                        setSelectedMedecinForManagement(medecin);
+                        setShowMedecinManageModal(true);
                       }}
                     >
-                      Voir Planning Complet
+                      Gérer
                     </button>
                   </div>
                 </div>
@@ -394,6 +410,22 @@ const DashboardSecretaire = () => {
             if (selectedMedecin) {
               fetchMedecinRendezVous(selectedMedecin.id);
             }
+          }}
+        />
+      )}
+
+      {/* Modal Manage Medecin */}
+      {showMedecinManageModal && selectedMedecinForManagement && (
+        <ModalMedecinManage
+          medecin={selectedMedecinForManagement}
+          onClose={() => {
+            setShowMedecinManageModal(false);
+            setSelectedMedecinForManagement(null);
+          }}
+          onSuccess={() => {
+            setShowMedecinManageModal(false);
+            setSelectedMedecinForManagement(null);
+            fetchDashboardData();
           }}
         />
       )}

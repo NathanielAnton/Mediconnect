@@ -162,6 +162,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // Médecins Management
         Route::prefix('medecins')->name('medecins.')->group(function () {
             Route::get('/{medecinId}/planning', [SecretaireDashboardController::class, 'getMedecinPlanning']);
+            Route::get('/{medecinId}/profile', [SecretaireDashboardController::class, 'getMedecinProfile']);
+            Route::post('/{medecinId}/horaires', [SecretaireDashboardController::class, 'addHoraire']);
+            Route::put('/{medecinId}/horaires', [SecretaireDashboardController::class, 'updateHoraires']);
+            Route::post('/{medecinId}/indisponibilites', [SecretaireDashboardController::class, 'addIndisponibilite']);
         });
 
         // Liaisons with Médecins

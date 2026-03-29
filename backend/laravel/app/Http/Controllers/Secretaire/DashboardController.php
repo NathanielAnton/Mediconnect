@@ -203,4 +203,212 @@ class DashboardController extends Controller
             'rendez_vous' => $rendezVous,
         ]);
     }
+
+    /**
+     * Récupérer le profil complet d'un médecin lié
+     */
+    public function getMedecinProfile(Request $request, $medecinId)
+    {
+        $secretaire = $request->user();
+        $secretaireProfile = Secretaire::where('user_id', $secretaire->id)->first();
+        $medecin = User::findOrFail($medecinId);
+        $profile = $medecin->medecinProfile;
+
+        if (!$profile) {
+            return response()->json(['message' => 'Profil médecin non trouvé'], 404);
+        }
+
+        // Vérifier l'accès
+        if ($secretaireProfile->hopital_id) {
+            // Si la secrétaire est liée à un hôpital, vérifier que le médecin est aussi du même hôpital
+            if ($profile->hopital_id !== $secretaireProfile->hopital_id) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        } else {
+            // Sinon, vérifier la liaison via secretaire_medecin
+            $liaison = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+                ->where('medecin_id', $medecinId)
+                ->where('statut', 'accepte')
+                ->first();
+
+            if (!$liaison) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        }
+
+        return response()->json([
+            'id' => $medecin->id,
+            'name' => $medecin->name,
+            'email' => $medecin->email,
+            'specialite' => $profile->specialite?->nom ?? 'Non spécifié',
+            'telephone' => $profile->telephone ?? '',
+            'adresse' => $profile->adresse ?? '',
+            'ville' => $profile->ville ?? '',
+            'description' => $profile->description ?? '',
+        ]);
+    }
+
+    /**
+     * Ajouter un horaire pour un médecin
+     */
+    public function addHoraire(Request $request, $medecinId)
+    {
+        $secretaire = $request->user();
+        $secretaireProfile = Secretaire::where('user_id', $secretaire->id)->first();
+        $medecin = User::findOrFail($medecinId);
+        $profile = $medecin->medecinProfile;
+
+        if (!$profile) {
+            return response()->json(['message' => 'Profil médecin non trouvé'], 404);
+        }
+
+        // Vérifier l'accès
+        if ($secretaireProfile->hopital_id) {
+            if ($profile->hopital_id !== $secretaireProfile->hopital_id) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        } else {
+            $liaison = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+                ->where('medecin_id', $medecinId)
+                ->where('statut', 'accepte')
+                ->first();
+
+            if (!$liaison) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        }
+
+        $validated = $request->validate([
+            'jour' => 'required|string|in:lundi,mardi,mercredi,jeudi,vendredi,samedi,dimanche',
+            'heure_debut' => 'required|date_format:H:i',
+            'heure_fin' => 'required|date_format:H:i|after:heure_debut',
+        ]);
+
+        $horaire = \App\Models\HoraireMedecin::create([
+            'medecin_id' => $profile->id,
+            'jour' => $validated['jour'],
+            'heure_debut' => $validated['heure_debut'],
+            'heure_fin' => $validated['heure_fin'],
+            'actif' => true,
+        ]);
+
+        return response()->json([
+            'message' => 'Disponibilité ajoutée avec succès',
+            'horaire' => $horaire,
+        ], 201);
+    }
+
+    /**
+     * Ajouter une indisponibilité pour un médecin
+     */
+    public function addIndisponibilite(Request $request, $medecinId)
+    {
+        $secretaire = $request->user();
+        $secretaireProfile = Secretaire::where('user_id', $secretaire->id)->first();
+        $medecin = User::findOrFail($medecinId);
+        $profile = $medecin->medecinProfile;
+
+        if (!$profile) {
+            return response()->json(['message' => 'Profil médecin non trouvé'], 404);
+        }
+
+        // Vérifier l'accès
+        if ($secretaireProfile->hopital_id) {
+            if ($profile->hopital_id !== $secretaireProfile->hopital_id) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        } else {
+            $liaison = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+                ->where('medecin_id', $medecinId)
+                ->where('statut', 'accepte')
+                ->first();
+
+            if (!$liaison) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        }
+
+        $validated = $request->validate([
+            'date_debut' => 'required|date|after_or_equal:today',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
+            'motif' => 'nullable|string|max:255',
+        ]);
+
+        $indisponibilite = \App\Models\IndisponibiliteMedecin::create([
+            'medecin_id' => $profile->id,
+            'date_debut' => $validated['date_debut'],
+            'date_fin' => $validated['date_fin'],
+            'motif' => $validated['motif'] ?? null,
+        ]);
+
+        return response()->json([
+            'message' => 'Indisponibilité ajoutée avec succès',
+            'indisponibilite' => $indisponibilite,
+        ], 201);
+    }
+
+    /**
+     * Mettre à jour les horaires d'un médecin (pour les secrétaires)
+     */
+    public function updateHoraires(Request $request, $medecinId)
+    {
+        $secretaire = $request->user();
+        $secretaireProfile = Secretaire::where('user_id', $secretaire->id)->first();
+        $medecin = User::findOrFail($medecinId);
+        $profile = $medecin->medecinProfile;
+
+        if (!$profile) {
+            return response()->json(['message' => 'Profil médecin non trouvé'], 404);
+        }
+
+        // Vérifier l'accès
+        if ($secretaireProfile->hopital_id) {
+            if ($profile->hopital_id !== $secretaireProfile->hopital_id) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        } else {
+            $liaison = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+                ->where('medecin_id', $medecinId)
+                ->where('statut', 'accepte')
+                ->first();
+
+            if (!$liaison) {
+                return response()->json(['message' => 'Accès non autorisé'], 403);
+            }
+        }
+
+        $validated = $request->validate([
+            'horaires' => 'required|array',
+            'horaires.*.jour' => 'required|string|in:lundi,mardi,mercredi,jeudi,vendredi,samedi,dimanche',
+            'horaires.*.creneau' => 'required|string|in:matin,apres_midi',
+            'horaires.*.heure_debut' => 'required|date_format:H:i',
+            'horaires.*.heure_fin' => 'required|date_format:H:i|after:horaires.*.heure_debut',
+            'horaires.*.actif' => 'sometimes|boolean',
+        ]);
+
+        $horairesMisAJour = [];
+
+        foreach ($validated['horaires'] as $horaireData) {
+            $horaire = \App\Models\HoraireMedecin::updateOrCreate(
+                [
+                    'medecin_id' => $profile->id,
+                    'jour' => $horaireData['jour'],
+                    'creneau' => $horaireData['creneau'],
+                ],
+                [
+                    'heure_debut' => $horaireData['heure_debut'],
+                    'heure_fin' => $horaireData['heure_fin'],
+                    'actif' => $horaireData['actif'] ?? true,
+                ]
+            );
+
+            $horairesMisAJour[] = $horaire;
+        }
+
+        return response()->json([
+            'message' => 'Horaires mis à jour avec succès',
+            'count' => count($horairesMisAJour),
+            'horaires' => $horairesMisAJour
+        ]);
+    }
 }

@@ -36,7 +36,8 @@ const PasswordChangeModal = ({ userId, userName, onClose, onSuccess }) => {
       onSuccess();
     } catch (error) {
       console.error("Erreur:", error);
-      const errorMsg = error.response?.data?.message || "Erreur lors de la modification du mot de passe";
+      const errorMsg =
+        error.response?.data?.message || "Erreur lors de la modification du mot de passe";
       toast.error(errorMsg);
     } finally {
       setLoading(false);
@@ -54,7 +55,9 @@ const PasswordChangeModal = ({ userId, userName, onClose, onSuccess }) => {
         </div>
 
         <div className={styles.modalBody}>
-          <p className={styles.userInfo}>Utilisateur: <strong>{userName}</strong></p>
+          <p className={styles.userInfo}>
+            Utilisateur: <strong>{userName}</strong>
+          </p>
 
           <form onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
@@ -90,11 +93,7 @@ const PasswordChangeModal = ({ userId, userName, onClose, onSuccess }) => {
               >
                 Annuler
               </button>
-              <button
-                type="submit"
-                className={styles.btnSubmit}
-                disabled={loading}
-              >
+              <button type="submit" className={styles.btnSubmit} disabled={loading}>
                 {loading ? "Modification en cours..." : "Changer le mot de passe"}
               </button>
             </div>

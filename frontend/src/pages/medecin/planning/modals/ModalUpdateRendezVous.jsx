@@ -89,8 +89,8 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!formData.email.trim()) {
-      showToast("Veuillez indiquer l'email", "error");
+    if (!formData.email.trim() && !formData.phone.trim()) {
+      showToast("Veuillez indiquer au moins un email ou un téléphone", "error");
       return;
     }
 
@@ -240,13 +240,16 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="email@example.com"
-              required
               className={styles.input}
             />
+            <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>ou téléphone ci-dessous</small>
           </div>
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Numéro de téléphone</label>
+            <label className={styles.label}>
+              <Phone className={styles.labelIcon} />
+              Téléphone *
+            </label>
             <input
               type="tel"
               name="phone"
@@ -255,6 +258,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
               placeholder="+33 6 12 34 56 78"
               className={styles.input}
             />
+            <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>ou email ci-dessus</small>
           </div>
 
           <div className={styles.formGroup}>

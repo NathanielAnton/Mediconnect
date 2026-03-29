@@ -148,9 +148,28 @@ class RendezVousController extends Controller
             'phone' => 'sometimes|nullable|string|max:20'
         ]);
 
+        // Vérifier qu'au moins l'email ou le téléphone est fourni
+        $email = $validated['email'] ?? $rendezVous->email;
+        $phone = $validated['phone'] ?? $rendezVous->phone;
+
+        if (empty($email) && empty($phone)) {
+            return response()->json(
+                ['message' => 'Vous devez fournir au moins un email ou un téléphone'],
+                422
+            );
+        }
+
         // Si le statut passe à "confirmé", ajouter l'ID du médecin qui confirme
         if (isset($validated['statut']) && $validated['statut'] === 'confirmé' && $rendezVous->statut !== 'confirmé') {
             $validated['confirmed_by'] = $user->id;
+        }
+
+        // Si email est fourni et différent, chercher le nouvel utilisateur
+        if (isset($validated['email']) && $validated['email'] !== $rendezVous->email && !empty($validated['email'])) {
+            $user = User::where('email', $validated['email'])->first();
+            if ($user) {
+                $validated['client_id'] = $user->id;
+            }
         }
 
         $rendezVous->update($validated);
@@ -195,7 +214,7 @@ class RendezVousController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|email',
+            'email' => 'nullable|email',
             'medecin_id' => 'required|integer|exists:users,id',
             'date_debut' => 'required|date',
             'date_fin' => 'required|date',
@@ -206,11 +225,21 @@ class RendezVousController extends Controller
             'statut' => 'required'
         ]);
 
-        // Chercher l'utilisateur par email
-        $user = User::where('email', $validated['email'])->first();
+        // Vérifier qu'au moins l'email ou le téléphone est fourni
+        if (empty($validated['email']) && empty($validated['phone'])) {
+            return response()->json(
+                ['message' => 'Vous devez fournir au moins un email ou un téléphone'],
+                422
+            );
+        }
 
-        if ($user) {
-            $validated['client_id'] = $user->id;
+        // Chercher l'utilisateur par email
+        if (!empty($validated['email'])) {
+            $user = User::where('email', $validated['email'])->first();
+
+            if ($user) {
+                $validated['client_id'] = $user->id;
+            }
         }
 
         // Ajouter automatiquement l'author_id (l'utilisateur connecté)

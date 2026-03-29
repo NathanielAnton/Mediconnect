@@ -222,9 +222,9 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="email@example.com"
-                  required
                   className={styles.input}
                 />
+                <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>ou téléphone ci-dessous</small>
               </div>
 
               <div className={styles.formGroup}>
@@ -243,7 +243,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
               <div className={styles.formGroup}>
                 <label className={styles.label}>
                   <Phone className={styles.labelIcon} />
-                  Téléphone (optionnel)
+                  Téléphone *
                 </label>
                 <input
                   type="tel"
@@ -253,6 +253,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
                   placeholder="+33 6 12 34 56 78"
                   className={styles.input}
                 />
+                <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>ou email ci-dessus</small>
               </div>
 
               <div className={styles.formGroup}>

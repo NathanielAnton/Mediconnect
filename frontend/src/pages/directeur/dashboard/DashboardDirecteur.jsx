@@ -160,9 +160,12 @@ const DashboardDirecteur = () => {
                   >
                     + Ajouter du Personnel
                   </button>
-                  <button className={styles.actionBtn}>Voir les rapports</button>
-                  <button className={styles.actionBtn}>Configuration hôpital</button>
-                  <button className={styles.actionBtn}>Gestion des rôles</button>
+                  <button 
+                    onClick={() => navigate("/directeur/hopital")}
+                    className={styles.actionBtn}
+                  >
+                    Configuration hôpital
+                  </button>
                 </div>
               </div>
             </div>

@@ -33,6 +33,7 @@ class DirecteurController extends Controller
 
         // Compter les médecins de l'hôpital
         $medecinUserIds = MedecinProfile::where('hopital_id', $hopitalId)->pluck('user_id');
+        $medecinProfileIds = MedecinProfile::where('hopital_id', $hopitalId)->pluck('id');
         $totalMedecins = $medecinUserIds->count();
 
         // Compter les gestionnaires de l'hôpital
@@ -53,7 +54,7 @@ class DirecteurController extends Controller
 
         $totalUsers = $hopitalUserIds->count() + 1; // +1 pour le directeur
         $totalClients = User::role('client')->count();
-        $totalRdv = RendezVous::whereIn('medecin_id', $medecinUserIds)->count();
+        $totalRdv = RendezVous::whereIn('medecin_id', $medecinProfileIds)->count();
 
         return response()->json([
             'message' => 'Dashboard Directeur',
@@ -95,6 +96,7 @@ class DirecteurController extends Controller
 
         // Récupérer les statistiques de l'hôpital
         $medecinUserIds = MedecinProfile::where('hopital_id', $hopitalId)->pluck('user_id');
+        $medecinProfileIds = MedecinProfile::where('hopital_id', $hopitalId)->pluck('id');
         $gestionnaireUserIds = Gestionnaire::where('hopital_id', $hopitalId)->pluck('user_id');
         $secretaireUserIds = Secretaire::where('hopital_id', $hopitalId)->pluck('user_id');
         $directeurUserIds = Directeur::where('hopital_id', $hopitalId)->pluck('user_id');
@@ -113,7 +115,7 @@ class DirecteurController extends Controller
         $totalSecretaires = $secretaireUserIds->count();
         $totalGestionnaires = $gestionnaireUserIds->count();
         $totalDirecteurs = $directeurUserIds->count();
-        $totalRdv = RendezVous::whereIn('medecin_id', $medecinUserIds)->count();
+        $totalRdv = RendezVous::whereIn('medecin_id', $medecinProfileIds)->count();
 
         return response()->json([
             'stats' => [

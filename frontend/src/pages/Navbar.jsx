@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
-import { Stethoscope, LogOut, LayoutDashboard, User } from "lucide-react";
+import { LogOut, LayoutDashboard, User } from "lucide-react";
 import styles from "./rdv/SearchMedecin.module.css";
 
 const Navbar = () => {
@@ -20,10 +20,12 @@ const Navbar = () => {
   return (
     <header className={styles.header}>
       <div className={styles.headerContent}>
-        <div className={styles.logo}>
-          <div className={styles.logoIcon}>
-            <Stethoscope className={styles.logoIconSvg} />
-          </div>
+        <div className={styles.logo} onClick={() => navigate("/")} style={{ cursor: "pointer" }}>
+          <img
+            src="/logo/fulllogo_transparent_nobuffer.png"
+            alt="MediConnect Logo"
+            style={{ height: "50px", objectFit: "contain" }}
+          />
           <h1 className={styles.logoTitle}>MediConnect</h1>
         </div>
 

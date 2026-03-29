@@ -105,10 +105,12 @@ export default function Login() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
       {/* Left Section - Branding */}
       <div className="hidden lg:flex w-1/2 flex-col justify-center items-center pr-12">
-        <div className="mb-8">
-          <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
-            <Stethoscope className="w-10 h-10 text-white" />
-          </div>
+        <div className="mb-8 cursor-pointer" onClick={() => navigate("/")}>
+          <img
+            src="/logo/fulllogo_transparent_nobuffer.png"
+            alt="MediConnect Logo"
+            className="h-24 object-contain"
+          />
         </div>
         <h1 className="text-4xl font-bold text-gray-800 mb-4">MediConnect</h1>
         <p className="text-xl text-gray-600 mb-8 text-center max-w-md">
@@ -156,10 +158,15 @@ export default function Login() {
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Mobile Logo */}
           <div className="lg:hidden mb-8">
-            <div className="flex items-center justify-center mb-4">
-              <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-lg">
-                <Stethoscope className="w-8 h-8 text-white" />
-              </div>
+            <div
+              className="flex items-center justify-center mb-4 cursor-pointer"
+              onClick={() => navigate("/")}
+            >
+              <img
+                src="/logo/fulllogo_transparent_nobuffer.png"
+                alt="MediConnect Logo"
+                className="h-16 object-contain"
+              />
             </div>
             <h1 className="text-2xl font-bold text-gray-800 text-center">MediConnect</h1>
           </div>

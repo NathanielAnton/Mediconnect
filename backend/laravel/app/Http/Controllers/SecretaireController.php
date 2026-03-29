@@ -136,13 +136,17 @@ class SecretaireController extends Controller
             ->map(function ($rdv) {
                 return [
                     'id' => $rdv->id,
-                    'date_heure' => $rdv->date_debut,
+                    'date_debut' => $rdv->date_debut,
+                    'date_fin' => $rdv->date_fin,
                     'motif' => $rdv->motif,
                     'statut' => $rdv->statut,
+                    'name' => $rdv->name ?? ($rdv->client?->name ?? null),
+                    'email' => $rdv->email ?? ($rdv->client?->email ?? null),
+                    'phone' => $rdv->phone,
                     'patient' => [
-                        'id' => $rdv->client->id ?? null,
-                        'name' => $rdv->client->name ?? null,
-                        'email' => $rdv->client->email ?? null,
+                        'id' => $rdv->client?->id ?? null,
+                        'name' => $rdv->client?->name ?? $rdv->name,
+                        'email' => $rdv->client?->email ?? $rdv->email,
                     ],
                 ];
             });

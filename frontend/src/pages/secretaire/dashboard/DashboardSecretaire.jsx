@@ -5,6 +5,7 @@ import axiosInstance from "../../../api/axios";
 import styles from "./DashboardSecretaire.module.css";
 import SecretaireLiaisons from "../liaisons/SecretaireLiaisons";
 import ModalPlanningMedecin from "./modals/ModalPlanningMedecin";
+import ModalUpdateRendezVous from "./modals/ModalUpdateRendezVous";
 
 const DashboardSecretaire = () => {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ const DashboardSecretaire = () => {
   const [showPlanningModal, setShowPlanningModal] = useState(false);
   const [selectedMedecinForPlanning, setSelectedMedecinForPlanning] = useState(null);
   const [secretaireInfo, setSecretaireInfo] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedRendezVousForEdit, setSelectedRendezVousForEdit] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
@@ -169,7 +172,15 @@ const DashboardSecretaire = () => {
               ) : (
                 <ul className={styles.appointmentsList}>
                   {rdvAujourdhui.slice(0, 5).map((rdv) => (
-                    <li key={rdv.id} className={styles.appointmentItem}>
+                    <li
+                      key={rdv.id}
+                      className={styles.appointmentItem}
+                      onClick={() => {
+                        setSelectedRendezVousForEdit(rdv);
+                        setShowEditModal(true);
+                      }}
+                      style={{ cursor: "pointer" }}
+                    >
                       <span className={styles.appointmentTime}>
                         {new Date(rdv.date_debut).toLocaleTimeString("fr-FR", {
                           hour: "2-digit",
@@ -181,6 +192,8 @@ const DashboardSecretaire = () => {
                         <span className={styles.appointmentDoctor}>
                           Dr. {rdv.medecin?.name || "Inconnu"}
                         </span>
+                        {rdv.email && <span className={styles.contactInfo}>{rdv.email}</span>}
+                        {rdv.phone && <span className={styles.contactInfo}>{rdv.phone}</span>}
                         <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
                           {rdv.statut === "confirmé"
                             ? "Confirmé"
@@ -263,11 +276,19 @@ const DashboardSecretaire = () => {
                 ) : (
                   <ul className={styles.appointmentsList}>
                     {rendezVous.map((rdv) => (
-                      <li key={rdv.id} className={styles.appointmentItem}>
+                      <li
+                        key={rdv.id}
+                        className={styles.appointmentItem}
+                        onClick={() => {
+                          setSelectedRendezVousForEdit(rdv);
+                          setShowEditModal(true);
+                        }}
+                        style={{ cursor: "pointer" }}
+                      >
                         <div>
                           <span className={styles.appointmentTime}>
-                            {new Date(rdv.date_heure).toLocaleDateString("fr-FR")} -{" "}
-                            {new Date(rdv.date_heure).toLocaleTimeString("fr-FR", {
+                            {new Date(rdv.date_debut).toLocaleDateString("fr-FR")} -{" "}
+                            {new Date(rdv.date_debut).toLocaleTimeString("fr-FR", {
                               hour: "2-digit",
                               minute: "2-digit",
                             })}
@@ -275,6 +296,8 @@ const DashboardSecretaire = () => {
                           <span className={styles.appointmentDetail}>
                             {rdv.patient.name} - {rdv.motif}
                           </span>
+                          {rdv.email && <span className={styles.contactInfo}>{rdv.email}</span>}
+                          {rdv.phone && <span className={styles.contactInfo}>{rdv.phone}</span>}
                         </div>
                         <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
                           {rdv.statut}
@@ -297,7 +320,15 @@ const DashboardSecretaire = () => {
             ) : (
               <ul className={styles.appointmentsList}>
                 {rdvAujourdhui.map((rdv) => (
-                  <li key={rdv.id} className={styles.appointmentItem}>
+                  <li
+                    key={rdv.id}
+                    className={styles.appointmentItem}
+                    onClick={() => {
+                      setSelectedRendezVousForEdit(rdv);
+                      setShowEditModal(true);
+                    }}
+                    style={{ cursor: "pointer" }}
+                  >
                     <span className={styles.appointmentTime}>
                       {new Date(rdv.date_debut).toLocaleTimeString("fr-FR", {
                         hour: "2-digit",
@@ -310,6 +341,8 @@ const DashboardSecretaire = () => {
                         Dr. {rdv.medecin?.name || "Inconnu"}
                       </span>
                       <span className={styles.motif}>{rdv.motif}</span>
+                      {rdv.email && <span className={styles.contactInfo}>{rdv.email}</span>}
+                      {rdv.phone && <span className={styles.contactInfo}>{rdv.phone}</span>}
                       <span className={`${styles.badge} ${getStatutBadgeClass(rdv.statut)}`}>
                         {rdv.statut === "confirmé"
                           ? "Confirmé"
@@ -342,6 +375,25 @@ const DashboardSecretaire = () => {
           onSuccess={() => {
             fetchDashboardData();
             fetchRdvAujourdhui();
+          }}
+        />
+      )}
+
+      {/* Modal Edit Rendez-vous */}
+      {showEditModal && selectedRendezVousForEdit && (
+        <ModalUpdateRendezVous
+          rendezVous={selectedRendezVousForEdit}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedRendezVousForEdit(null);
+          }}
+          onSuccess={() => {
+            setShowEditModal(false);
+            setSelectedRendezVousForEdit(null);
+            fetchRdvAujourdhui();
+            if (selectedMedecin) {
+              fetchMedecinRendezVous(selectedMedecin.id);
+            }
           }}
         />
       )}

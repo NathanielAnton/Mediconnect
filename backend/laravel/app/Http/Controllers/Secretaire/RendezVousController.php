@@ -13,24 +13,23 @@ use Carbon\Carbon;
 class RendezVousController extends Controller
 {
     /**
-     * Vérifie si la secrétaire peut accéder à un médecin
+     * Vérifie si la secrétaire peut accéder à un médecin (via MedecinProfile ID)
      * Si hopital_id: tous les médecins de l'hôpital sont accessibles
      * Sinon: seulement les médecins liés via secretaire_medecin
      */
-    private function canAccessMedecin(Secretaire $secretaireProfile, $medecinId)
+    private function canAccessMedecin(Secretaire $secretaireProfile, $medecinProfileId)
     {
+        $medecinProfile = \App\Models\MedecinProfile::findOrFail($medecinProfileId);
+
         if ($secretaireProfile->hopital_id) {
             // Vérifier que le médecin est du même hôpital
-            $medecin = User::findOrFail($medecinId);
-            $medecinProfile = $medecin->medecinProfile;
-
-            if (!$medecinProfile || $medecinProfile->hopital_id !== $secretaireProfile->hopital_id) {
+            if ($medecinProfile->hopital_id !== $secretaireProfile->hopital_id) {
                 return false;
             }
         } else {
             // Vérifier la liaison via secretaire_medecin
             $liaison = SecretaireMedecin::where('secretaire_id', $secretaireProfile->user_id)
-                ->where('medecin_id', $medecinId)
+                ->where('medecin_id', $medecinProfile->user_id)
                 ->where('statut', 'accepte')
                 ->first();
 
@@ -116,7 +115,7 @@ class RendezVousController extends Controller
 
         $validated = $request->validate([
             'email' => 'nullable|email',
-            'medecin_id' => 'required|integer|exists:users,id',
+            'medecin_id' => 'required|integer|exists:medecin_profiles,id',
             'date_debut' => 'required|date',
             'date_fin' => 'required|date',
             'motif' => 'nullable|string|max:500',
@@ -254,13 +253,17 @@ class RendezVousController extends Controller
             ->map(function ($rdv) {
                 return [
                     'id' => $rdv->id,
-                    'date_heure' => $rdv->date_debut,
+                    'date_debut' => $rdv->date_debut,
+                    'date_fin' => $rdv->date_fin,
                     'motif' => $rdv->motif,
                     'statut' => $rdv->statut,
+                    'name' => $rdv->name ?? ($rdv->client?->name ?? null),
+                    'email' => $rdv->email ?? ($rdv->client?->email ?? null),
+                    'phone' => $rdv->phone,
                     'patient' => [
-                        'id' => $rdv->client->id ?? null,
-                        'name' => $rdv->client->name ?? $rdv->name,
-                        'email' => $rdv->client->email ?? $rdv->email,
+                        'id' => $rdv->client?->id ?? null,
+                        'name' => $rdv->client?->name ?? $rdv->name,
+                        'email' => $rdv->client?->email ?? $rdv->email,
                     ],
                 ];
             });
@@ -330,6 +333,7 @@ class RendezVousController extends Controller
                     'motif' => $rdv->motif,
                     'statut' => $rdv->statut,
                     'email' => $rdv->email,
+                    'phone' => $rdv->phone,
                     'medecin' => [
                         'id' => $rdv->medecin?->user_id ?? null,
                         'name' => $rdv->medecin?->user?->name ?? 'Inconnu',

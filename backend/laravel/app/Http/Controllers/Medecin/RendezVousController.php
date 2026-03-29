@@ -215,7 +215,7 @@ class RendezVousController extends Controller
     {
         $validated = $request->validate([
             'email' => 'nullable|email',
-            'medecin_id' => 'required|integer|exists:users,id',
+            'medecin_id' => 'required|integer|exists:medecin_profiles,id',
             'date_debut' => 'required|date',
             'date_fin' => 'required|date',
             'motif' => 'nullable|string|max:500',

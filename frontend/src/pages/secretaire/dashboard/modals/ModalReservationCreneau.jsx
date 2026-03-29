@@ -159,7 +159,9 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
               placeholder="email@example.com"
               className={styles.input}
             />
-            <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>ou téléphone ci-dessous</small>
+            <small style={{ color: "#666", marginTop: "4px", display: "block" }}>
+              ou téléphone ci-dessous
+            </small>
           </div>
 
           <div className={styles.formGroup}>
@@ -188,7 +190,9 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
               placeholder="+33 6 12 34 56 78"
               className={styles.input}
             />
-            <small style={{ color: '#666', marginTop: '4px', display: 'block' }}>ou email ci-dessus</small>
+            <small style={{ color: "#666", marginTop: "4px", display: "block" }}>
+              ou email ci-dessus
+            </small>
           </div>
 
           <div className={styles.formGroup}>

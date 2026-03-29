@@ -27,6 +27,7 @@ use App\Http\Controllers\Gestionnaire\DashboardController as GestionnaireDashboa
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SuperAdmin\RoleController as SuperAdminRoleController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdminController;
 // Admin Controllers
 use App\Http\Controllers\Admin\AdminUserController;
 
@@ -250,8 +251,14 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/', [SuperAdminUserController::class, 'getAll']);
             Route::get('/{id}', [SuperAdminUserController::class, 'show']);
             Route::put('/{id}', [SuperAdminUserController::class, 'update']);
+            Route::put('/{id}/change-password', [SuperAdminController::class, 'changeUserPassword']);
             Route::post('/assign-role', [SuperAdminUserController::class, 'assignRole']);
             Route::post('/remove-role', [SuperAdminUserController::class, 'removeRole']);
+        });
+
+        // Director Management
+        Route::prefix('directors')->name('directors.')->group(function () {
+            Route::post('/create', [SuperAdminController::class, 'createDirector']);
         });
 
         // Role Management

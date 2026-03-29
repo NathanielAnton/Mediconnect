@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../../api/axios";
 import { toast } from "react-toastify";
 import UserDataTable from "./tables/UserDataTable";
+import CreateDirectorModal from "./modals/CreateDirectorModal";
 import styles from "./DashboardSuperAdmin.module.css";
 
 const DashboardSuperAdmin = () => {
@@ -13,6 +14,7 @@ const DashboardSuperAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
+  const [showCreateDirectorModal, setShowCreateDirectorModal] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -125,7 +127,34 @@ const DashboardSuperAdmin = () => {
 
       {/* Liste des utilisateurs */}
       <div className={styles.section}>
-        <h2>Tous les utilisateurs</h2>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            marginBottom: "15px",
+          }}
+        >
+          <h2 style={{ margin: 0 }}>Tous les utilisateurs</h2>
+          <button
+            onClick={() => setShowCreateDirectorModal(true)}
+            style={{
+              padding: "10px 20px",
+              backgroundColor: "#1976d2",
+              color: "white",
+              border: "none",
+              borderRadius: "6px",
+              fontWeight: "600",
+              cursor: "pointer",
+              fontSize: "0.95rem",
+              transition: "background-color 0.2s",
+            }}
+            onMouseEnter={(e) => (e.target.style.backgroundColor = "#1565c0")}
+            onMouseLeave={(e) => (e.target.style.backgroundColor = "#1976d2")}
+          >
+            + Créer un Directeur
+          </button>
+        </div>
         <UserDataTable users={users} />
       </div>
 
@@ -141,6 +170,14 @@ const DashboardSuperAdmin = () => {
           ))}
         </div>
       </div>
+
+      {/* Modal Créer Directeur */}
+      {showCreateDirectorModal && (
+        <CreateDirectorModal
+          onClose={() => setShowCreateDirectorModal(false)}
+          onSuccess={() => fetchDashboardData()}
+        />
+      )}
     </div>
   );
 };

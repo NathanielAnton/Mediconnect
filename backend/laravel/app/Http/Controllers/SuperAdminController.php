@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Hopital;
+use App\Models\Directeur;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class SuperAdminController extends Controller
 {
@@ -15,7 +19,7 @@ class SuperAdminController extends Controller
     {
         $roles = Role::all();
         $usersByRole = [];
-        
+
         foreach ($roles as $role) {
             $usersByRole[] = [
                 'id' => $role->id,
@@ -104,5 +108,96 @@ class SuperAdminController extends Controller
         return response()->json([
             'roles' => $roles
         ]);
+    }
+
+    /**
+     * Changer le mot de passe d'un utilisateur
+     */
+    public function changeUserPassword(Request $request, $userId)
+    {
+        $request->validate([
+            'password' => 'required|string|min:6'
+        ]);
+
+        $user = User::findOrFail($userId);
+        $user->update(['password' => Hash::make($request->password)]);
+
+        return response()->json([
+            'message' => 'Mot de passe changé avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ]);
+    }
+
+    /**
+     * Créer un directeur avec son hôpital
+     */
+    public function createDirector(Request $request)
+    {
+        $request->validate([
+            // Infos User
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'phone' => 'required|string',
+            // Infos Hopital
+            'hopital_name' => 'required|string|max:255',
+            'hopital_adresse' => 'required|string',
+            'hopital_telephone' => 'required|string',
+            'hopital_ville' => 'required|string|max:255',
+            'hopital_email' => 'nullable|email',
+            'hopital_description' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Créer l'hôpital
+            $hopital = Hopital::create([
+                'name' => $request->hopital_name,
+                'adresse' => $request->hopital_adresse,
+                'telephone' => $request->hopital_telephone,
+                'ville' => $request->hopital_ville,
+                'email' => $request->hopital_email,
+                'description' => $request->hopital_description,
+            ]);
+
+            // Créer l'utilisateur
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'phone' => $request->phone,
+                'email_verified_at' => now(),
+            ]);
+
+            // Assigner le rôle directeur
+            $user->assignRole('directeur');
+
+            // Créer le profil directeur
+            Directeur::create([
+                'user_id' => $user->id,
+                'hopital_id' => $hopital->id,
+                'name' => $request->name,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Directeur et hôpital créés avec succès',
+                'user' => $user->load('roles'),
+                'hopital' => $hopital,
+            ], 201);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error creating director: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erreur lors de la création du directeur',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }

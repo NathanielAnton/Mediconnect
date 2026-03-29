@@ -7,10 +7,13 @@ use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\MedecinProfile;
 use App\Models\Specialite;
+use App\Models\Gestionnaire;
 use App\Models\Directeur;
 use App\Models\Hopital;
 use App\Models\DemandeDirecteur;
 use App\Models\Secretaire;
+use App\Models\SecretaireMedecin;
+use App\Models\HoraireMedecin;
 use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
@@ -74,7 +77,7 @@ class UserSeeder extends Seeder
         }
 
         // Créer le profil gestionnaire lié à l'hôpital
-        \App\Models\Gestionnaire::firstOrCreate(
+        Gestionnaire::firstOrCreate(
             ['user_id' => $gestionnaire->id],
             [
                 'hopital_id' => $hopital->id,
@@ -228,6 +231,120 @@ class UserSeeder extends Seeder
             $this->command->info('✓ Médecin 3 (Généraliste): medecin3@mediconnect.com');
         }
 
+        // 5.5 Médecin Indépendant (sans hôpital)
+        $medecinIndependant = User::firstOrCreate(
+            ['email' => 'medecin.independant@mediconnect.com'],
+            [
+                'name' => 'Dr. Sophie Laurent',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$medecinIndependant->hasRole('medecin')) {
+            $medecinIndependant->assignRole('medecin');
+        }
+        $medecinIndependantProfile = MedecinProfile::firstOrCreate(
+            ['user_id' => $medecinIndependant->id],
+            [
+                'hopital_id' => null,  // Médecin indépendant
+                'specialite_id' => $specialites->first()->id ?? 1,
+                'telephone' => '0645678901',
+                'adresse' => '999 Rue de l\'Indépendance',
+                'ville' => 'Toulouse',
+                'description' => 'Cabinet médical privé - consultation sur rendez-vous.',
+            ]
+        );
+        $this->command->info('✓ Médecin Indépendant: medecin.independant@mediconnect.com');
+
+        // Secrétaire du médecin indépendant
+        $secretaireIndependante = User::firstOrCreate(
+            ['email' => 'secretaire.independante@mediconnect.com'],
+            [
+                'name' => 'Assistante Cabinet Laurent',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$secretaireIndependante->hasRole('secretaire')) {
+            $secretaireIndependante->assignRole('secretaire');
+        }
+        Secretaire::firstOrCreate(
+            ['user_id' => $secretaireIndependante->id],
+            [
+                'hopital_id' => null,  // Secrétaire indépendante
+                'name' => 'Assistante Cabinet Laurent',
+            ]
+        );
+        // Création de la liaison entre secrétaire et médecin indépendant
+        SecretaireMedecin::firstOrCreate(
+            [
+                'secretaire_id' => \App\Models\Secretaire::where('user_id', $secretaireIndependante->id)->first()->id,
+                'medecin_id' => $medecinIndependantProfile->id,
+            ],
+            [
+                'statut' => 'acceptee',
+            ]
+        );
+        $this->command->info('✓ Secrétaire Indépendante: secretaire.independante@mediconnect.com (liée à Dr. Sophie Laurent)');
+
+        // 5.6 Configurer les horaires des médecins
+        $jours = ['lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi'];
+
+        // Horaires standards pour les médecins de l'hôpital (08:00-12:00 et 14:00-18:00)
+        foreach ($jours as $jour) {
+            // Médecin 1
+            $medecin1Profile = MedecinProfile::where('user_id', $medecin1->id)->first();
+            if ($medecin1Profile) {
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecin1Profile->id, 'jour' => $jour, 'creneau' => 'matin'],
+                    ['heure_debut' => '08:00:00', 'heure_fin' => '12:00:00', 'actif' => true]
+                );
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecin1Profile->id, 'jour' => $jour, 'creneau' => 'apres_midi'],
+                    ['heure_debut' => '14:00:00', 'heure_fin' => '18:00:00', 'actif' => true]
+                );
+            }
+
+            // Médecin 2
+            $medecin2Profile = MedecinProfile::where('user_id', $medecin2->id)->first();
+            if ($medecin2Profile) {
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecin2Profile->id, 'jour' => $jour, 'creneau' => 'matin'],
+                    ['heure_debut' => '08:00:00', 'heure_fin' => '12:00:00', 'actif' => true]
+                );
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecin2Profile->id, 'jour' => $jour, 'creneau' => 'apres_midi'],
+                    ['heure_debut' => '14:00:00', 'heure_fin' => '18:00:00', 'actif' => true]
+                );
+            }
+
+            // Médecin 3
+            $medecin3Profile = MedecinProfile::where('user_id', $medecin3->id)->first();
+            if ($medecin3Profile) {
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecin3Profile->id, 'jour' => $jour, 'creneau' => 'matin'],
+                    ['heure_debut' => '08:00:00', 'heure_fin' => '12:00:00', 'actif' => true]
+                );
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecin3Profile->id, 'jour' => $jour, 'creneau' => 'apres_midi'],
+                    ['heure_debut' => '14:00:00', 'heure_fin' => '18:00:00', 'actif' => true]
+                );
+            }
+
+            // Médecin Indépendant (décalage +1 heure: 09:00-13:00 et 15:00-19:00)
+            if ($medecinIndependantProfile) {
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecinIndependantProfile->id, 'jour' => $jour, 'creneau' => 'matin'],
+                    ['heure_debut' => '09:00:00', 'heure_fin' => '13:00:00', 'actif' => true]
+                );
+                HoraireMedecin::firstOrCreate(
+                    ['medecin_id' => $medecinIndependantProfile->id, 'jour' => $jour, 'creneau' => 'apres_midi'],
+                    ['heure_debut' => '15:00:00', 'heure_fin' => '19:00:00', 'actif' => true]
+                );
+            }
+        }
+        $this->command->info('✓ Horaires configurés pour tous les médecins');
+
         // 6. Clients (5 exemples)
         for ($i = 1; $i <= 5; $i++) {
             $client = User::firstOrCreate(
@@ -257,6 +374,8 @@ class UserSeeder extends Seeder
                 ['Médecin 1', 'medecin1@mediconnect.com', 'password'],
                 ['Médecin 2', 'medecin2@mediconnect.com', 'password'],
                 ['Médecin 3', 'medecin3@mediconnect.com', 'password'],
+                ['Médecin Indépendant', 'medecin.independant@mediconnect.com', 'password'],
+                ['Secrétaire Indépendante', 'secretaire.independante@mediconnect.com', 'password'],
                 ['Client 1-5', 'client1-5@mediconnect.com', 'password'],
             ]
         );
@@ -270,6 +389,7 @@ class UserSeeder extends Seeder
         $this->command->info('=== LIAISONS CRÉÉES ===');
         $this->command->line('✓ Dr. Jean Dupont (Médecin 1) ↔ Gestionnaire Test (accepté)');
         $this->command->line('✓ Dr. Jean Dupont (Médecin 1) ↔ Secrétaire Médicale (accepté)');
+        $this->command->line('✓ Dr. Sophie Laurent (Médecin Indépendant) ↔ Assistante Cabinet Laurent (accepté)');
         $this->command->warn('⚠️  Changez ces mots de passe en production !');
     }
 }

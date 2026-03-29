@@ -110,3 +110,95 @@ export const buttonSaveStyle = {
   fontWeight: "500",
   transition: "background-color 0.2s",
 };
+
+// Styles pour modals plus larges
+export const largeModalStyle = {
+  backgroundColor: "white",
+  borderRadius: "8px",
+  maxWidth: "700px",
+  width: "95%",
+  maxHeight: "90vh",
+  display: "flex",
+  flexDirection: "column",
+  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
+  overflow: "hidden",
+};
+
+// Styles pour les sections/fieldsets
+export const sectionStyle = {
+  marginBottom: "20px",
+  padding: "15px",
+  border: "1px solid #e0e0e0",
+  borderRadius: "6px",
+  backgroundColor: "#fafafa",
+};
+
+export const sectionTitleStyle = {
+  fontSize: "1rem",
+  fontWeight: "700",
+  color: "#333",
+  marginBottom: "15px",
+  marginTop: "0",
+};
+
+// Styles pour grille de deux colonnes
+export const formRowStyle = {
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "15px",
+  marginBottom: "15px",
+};
+
+// Styles pour form group
+export const formGroupStyle = {
+  display: "flex",
+  flexDirection: "column",
+  gap: "5px",
+};
+
+// Style pour textarea
+export const textareaStyle = {
+  width: "100%",
+  padding: "10px 12px",
+  border: "1px solid #ddd",
+  borderRadius: "4px",
+  fontSize: "14px",
+  fontFamily: "inherit",
+  boxSizing: "border-box",
+  transition: "border-color 0.2s",
+  minHeight: "80px",
+  resize: "vertical",
+};
+
+// Styles pour boutons d'action
+export const buttonPrimaryStyle = {
+  padding: "10px 20px",
+  backgroundColor: "#1976d2",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
+  fontWeight: "600",
+  transition: "background-color 0.2s",
+};
+
+export const buttonWarningStyle = {
+  padding: "10px 20px",
+  backgroundColor: "#ff9800",
+  color: "white",
+  border: "none",
+  borderRadius: "4px",
+  cursor: "pointer",
+  fontWeight: "600",
+  transition: "background-color 0.2s",
+};
+
+export const infoBoxStyle = {
+  padding: "10px",
+  margin: "10px 0",
+  backgroundColor: "#e3f2fd",
+  border: "1px solid #90caf9",
+  borderRadius: "4px",
+  color: "#1976d2",
+  fontSize: "0.9rem",
+};

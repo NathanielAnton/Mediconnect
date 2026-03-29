@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { Eye, Pencil } from "react-bootstrap-icons";
+import { Eye, Pencil, Key } from "react-bootstrap-icons";
 import axiosInstance from "../../../../api/axios";
 import { toast } from "react-toastify";
 import ShowUserModal from "../modals/ShowUserModal";
 import EditUserModal from "../modals/EditUserModal";
+import ChangePasswordModal from "../modals/ChangePasswordModal";
 
 const UserDataTable = ({ users }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -11,6 +12,7 @@ const UserDataTable = ({ users }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
+  const [changePasswordModal, setChangePasswordModal] = useState(false);
   const [selectedUserData, setSelectedUserData] = useState(null);
   const [editFormData, setEditFormData] = useState(null);
   const [loadingModal, setLoadingModal] = useState(false);
@@ -50,6 +52,14 @@ const UserDataTable = ({ users }) => {
         address: userData.address || "",
       });
       setEditModal(true);
+    }
+  };
+
+  const handleChangePasswordUser = async (userId) => {
+    const userData = await fetchUserDetails(userId);
+    if (userData) {
+      setSelectedUserData(userData);
+      setChangePasswordModal(true);
     }
   };
 
@@ -252,6 +262,27 @@ const UserDataTable = ({ users }) => {
                     >
                       <Pencil size={18} />
                     </button>
+                    <button
+                      onClick={() => handleChangePasswordUser(user.id)}
+                      title="Changer le mot de passe"
+                      style={{
+                        padding: "6px 10px",
+                        backgroundColor: "#ff9800",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        fontSize: "16px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        transition: "background-color 0.2s",
+                      }}
+                      onMouseEnter={(e) => (e.target.style.backgroundColor = "#e68a00")}
+                      onMouseLeave={(e) => (e.target.style.backgroundColor = "#ff9800")}
+                    >
+                      <Key size={18} />
+                    </button>
                   </td>
                 </tr>
               ))
@@ -349,6 +380,19 @@ const UserDataTable = ({ users }) => {
         onSave={handleUpdateUser}
         loading={loadingModal}
       />
+
+      {changePasswordModal && selectedUserData && (
+        <ChangePasswordModal
+          user={selectedUserData}
+          onClose={() => {
+            setChangePasswordModal(false);
+            setSelectedUserData(null);
+          }}
+          onSuccess={() => {
+            // Recharger les données si nécessaire
+          }}
+        />
+      )}
     </div>
   );
 };

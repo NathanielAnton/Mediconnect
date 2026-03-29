@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../../context/AuthContext";
@@ -12,11 +12,13 @@ import SecretaireModal from "./create/SecretaireModal";
 import MedecinEditModal from "./edit/MedecinEditModal";
 import GestionnaireEditModal from "./edit/GestionnaireEditModal";
 import SecretaireEditModal from "./edit/SecretaireEditModal";
+import PasswordChangeModal from "./PasswordChangeModal";
 
 const CreateUsers = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [users, setUsers] = useState([]);
+  const tableRef = useRef(null);
+  const datatableRef = useRef(null);
   const [specialites, setSpecialites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
@@ -31,108 +33,268 @@ const CreateUsers = () => {
   const [editGestionnaireModal, setEditGestionnaireModal] = useState({ open: false, user: null });
   const [editSecretaireModal, setEditSecretaireModal] = useState({ open: false, user: null });
 
+  // Password Modal state
+  const [passwordModal, setPasswordModal] = useState({ open: false, userId: null, userName: null });
+
   useEffect(() => {
-    fetchData();
+    const initialize = async () => {
+      await fetchSpecialites();
+      initializeDataTable();
+    };
+    initialize();
+
+    return () => {
+      if (datatableRef.current) {
+        try {
+          datatableRef.current.DataTable().destroy();
+        } catch (e) {
+          console.log("DataTables cleanup");
+        }
+      }
+    };
   }, []);
 
-  const fetchData = async () => {
+  const fetchSpecialites = async () => {
     try {
-      const [usersRes, specialitesRes] = await Promise.all([
-        axiosInstance.get("/directeur/users"),
-        axiosInstance.get("/specialites"),
-      ]);
-
-      setUsers(usersRes.data.users || []);
-
-      // Extraire les spécialités - elles peuvent être dans data.specialites ou directement dans data
+      const specialitesRes = await axiosInstance.get("/specialites");
       const specData = Array.isArray(specialitesRes.data)
         ? specialitesRes.data
         : specialitesRes.data.specialites || specialitesRes.data.data || [];
 
-      console.log("Spécialités chargées:", specData);
       setSpecialites(specData);
-
-      if (!specData || specData.length === 0) {
-        console.warn("Aucune spécialité reçue de l'API!");
-      }
     } catch (error) {
-      console.error("Erreur lors du chargement:", error);
-      if (error.response?.status === 403) {
-        toast.error("Accès refusé");
-        navigate("/login");
-      }
+      console.error("Erreur lors du chargement des spécialités:", error);
+      toast.error("Erreur lors du chargement des spécialités");
     } finally {
       setLoading(false);
     }
   };
 
+  const initializeDataTable = () => {
+    // Attendre que jQuery et DataTables soient disponibles
+    const checkAndInitialize = setInterval(() => {
+      if (typeof window.$ !== "undefined" && window.$.fn.dataTable && tableRef.current) {
+        clearInterval(checkAndInitialize);
+
+        try {
+          const $ = window.$;
+
+          // Détruire l'instance existante si elle existe
+          if (datatableRef.current) {
+            try {
+              datatableRef.current.DataTable().destroy();
+            } catch (e) {
+              console.log("Destroying existing DataTable");
+            }
+          }
+
+          // Initialiser DataTables
+          datatableRef.current = $(tableRef.current).DataTable({
+            processing: true,
+            serverSide: true,
+            autoWidth: false,
+            columnDefs: [
+              { width: "25%", targets: 0 }, // Nom
+              { width: "28%", targets: 1 }, // Email
+              { width: "12%", targets: 2 }, // Rôle
+              { width: "18%", targets: 3 }, // Date de création
+              { width: "8.5%", targets: 4 }, // Modifier
+              { width: "8.5%", targets: 5 }, // Mot de passe
+            ],
+            ajax: function (data, callback, settings) {
+              // Construire les paramètres DataTables
+              const params = {
+                draw: data.draw,
+                start: data.start,
+                length: data.length,
+                "search[value]": data.search.value,
+                "order[0][column]": data.order[0].column,
+                "order[0][dir]": data.order[0].dir,
+              };
+
+              // Utiliser axios pour avoir le token automatiquement
+              axiosInstance
+                .get(`${import.meta.env.VITE_API_URL}/directeur/personnel-datatable`, { params })
+                .then((response) => {
+                  console.log("✅ DataTables AJAX Success:", response.data);
+                  callback(response.data);
+                })
+                .catch((error) => {
+                  console.error("❌ Erreur DataTables AJAX:", error);
+                  console.error("Response:", error.response?.data);
+                  toast.error("Erreur lors du chargement des données");
+                  callback({ draw: data.draw, recordsTotal: 0, recordsFiltered: 0, data: [] });
+                });
+            },
+            columns: [
+              {
+                title: "Nom",
+                data: "name",
+                render: function (data, type, row) {
+                  return `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                        ${data.charAt(0).toUpperCase()}
+                      </div>
+                      <span>${data}</span>
+                    </div>
+                  `;
+                },
+              },
+              {
+                title: "Email",
+                data: "email",
+              },
+              {
+                title: "Rôle",
+                data: "role",
+                orderable: false,
+                render: function (data) {
+                  const roleColors = {
+                    medecin: "background: rgba(0, 102, 204, 0.1); color: #0066cc;",
+                    gestionnaire: "background: rgba(23, 162, 184, 0.1); color: #17a2b8;",
+                    secretaire: "background: rgba(111, 66, 193, 0.1); color: #6f42c1;",
+                    directeur: "background: rgba(51, 51, 51, 0.1); color: #333;",
+                  };
+                  const style =
+                    roleColors[data.toLowerCase()] ||
+                    "background: rgba(128, 128, 128, 0.1); color: #666;";
+                  return `<span style="${style} display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: capitalize;">${data}</span>`;
+                },
+              },
+              {
+                title: "Date de création",
+                data: "created_at",
+              },
+              {
+                title: "",
+                data: "id",
+                orderable: false,
+                render: function (data, type, row) {
+                  if (row.role.toLowerCase() === "directeur") {
+                    return "";
+                  }
+                  return `<button class="btn-edit-datatable" data-id="${data}" title="Modifier" style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 6px 10px;">✏️</button>`;
+                },
+              },
+              {
+                title: "",
+                data: "id",
+                orderable: false,
+                render: function (data, type, row) {
+                  if (row.role.toLowerCase() === "directeur") {
+                    return "";
+                  }
+                  return `<button class="btn-password-datatable" data-id="${data}" data-name="${row.name}" title="Changer le mot de passe" style="background: none; border: none; cursor: pointer; font-size: 18px; padding: 6px 10px;">🔐</button>`;
+                },
+              },
+            ],
+            pageLength: 10,
+            lengthMenu: [10, 25, 50, 100],
+            language: {
+              url: "//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json",
+            },
+            dom:
+              "<'row'<'col-sm-12 col-md-6'l><'col-sm-12 col-md-6'f>>" +
+              "<'row'<'col-sm-12'tr>>" +
+              "<'row'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
+            initComplete: function () {
+              console.log("DataTables initialized");
+              attachEditHandlers();
+            },
+            drawCallback: function () {
+              attachEditHandlers();
+            },
+          });
+
+          console.log("DataTable created successfully");
+        } catch (error) {
+          console.error("Erreur lors de l'initialisation de DataTables:", error);
+          toast.error("Erreur lors du chargement du tableau");
+        }
+      }
+    }, 100);
+
+    // Stopper la vérification après 5 secondes
+    setTimeout(() => clearInterval(checkAndInitialize), 5000);
+  };
+
+  const attachEditHandlers = () => {
+    const $ = window.$;
+    $(".btn-edit-datatable")
+      .off("click")
+      .on("click", function () {
+        const userId = $(this).data("id");
+        handleEditClick(userId);
+      });
+    $(".btn-password-datatable")
+      .off("click")
+      .on("click", function () {
+        const userId = $(this).data("id");
+        const userName = $(this).data("name");
+        setPasswordModal({ open: true, userId, userName });
+      });
+  };
+
   const handleModalSuccess = (message) => {
     setSuccessMessage(message);
     setTimeout(() => setSuccessMessage(""), 3000);
-    fetchData(); // Recharger les utilisateurs
+
+    // Recharger le DataTable
+    if (datatableRef.current && typeof window.$ !== "undefined") {
+      try {
+        window.$(tableRef.current).DataTable().ajax.reload();
+      } catch (e) {
+        console.log("Error reloading DataTable");
+      }
+    }
   };
 
   const handleEditClick = async (userId) => {
     try {
-      // Chercher l'utilisateur dans le state pour obtenir le rôle
-      const userFromState = users.find((u) => u.id === userId);
+      const $ = window.$;
+      const rows = $(tableRef.current).DataTable().rows().data();
 
-      if (!userFromState) {
-        console.error("Utilisateur non trouvé");
-        toast.error("Utilisateur non trouvé");
-        return;
+      let userRole = null;
+      for (let i = 0; i < rows.length; i++) {
+        if (rows[i].id === userId) {
+          userRole = rows[i].role.toLowerCase();
+          break;
+        }
       }
 
-      // Récupérer le rôle
-      const userRole = userFromState.roles?.[0]?.name || userFromState.roles?.[0];
-
       if (!userRole) {
-        console.error("Rôle non disponible");
         toast.error("Impossible de déterminer le rôle de l'utilisateur");
         return;
       }
 
-      const role = userRole.toLowerCase();
       let endpoint = "";
-
-      // Construire l'endpoint approprié
-      if (role === "medecin") {
+      if (userRole === "medecin") {
         endpoint = `/directeur/medecins/${userId}`;
-      } else if (role === "gestionnaire") {
+      } else if (userRole === "gestionnaire") {
         endpoint = `/directeur/gestionnaires/${userId}`;
-      } else if (role === "secretaire") {
+      } else if (userRole === "secretaire") {
         endpoint = `/directeur/secretaires/${userId}`;
       } else {
-        console.error("Rôle non pris en charge:", role);
         toast.error("Rôle utilisateur non pris en charge");
         return;
       }
 
-      console.log("Chargement des données depuis:", endpoint);
-
-      // Charger les données complètes du backend
       const response = await axiosInstance.get(endpoint);
       const userData = response.data.user || response.data;
 
-      console.log("Données chargées:", userData);
-
-      // Ouvrir le modal approprié avec les données chargées
-      if (role === "medecin") {
+      if (userRole === "medecin") {
         setEditMedecinModal({ open: true, user: userData });
-      } else if (role === "gestionnaire") {
+      } else if (userRole === "gestionnaire") {
         setEditGestionnaireModal({ open: true, user: userData });
-      } else if (role === "secretaire") {
+      } else if (userRole === "secretaire") {
         setEditSecretaireModal({ open: true, user: userData });
       }
     } catch (error) {
-      console.error("Erreur lors du chargement des données:", error);
+      console.error("Erreur:", error);
       toast.error("Impossible de charger les données de cet utilisateur");
     }
   };
-
-  if (loading) {
-    return <div className={styles.loading}>Chargement...</div>;
-  }
 
   return (
     <>
@@ -180,72 +342,29 @@ const CreateUsers = () => {
           </button>
         </div>
 
-        {/* Users Table */}
+        {/* DataTable Container */}
         <div className={styles.tableContainer}>
-          <div className={styles.tableHeader}>
-            <h2>Personnel de l'Hôpital</h2>
-            <span className={styles.userCount}>{users.length} utilisateurs</span>
-          </div>
-
-          {users.length > 0 ? (
-            <table className={styles.usersTable}>
-              <thead>
-                <tr>
-                  <th>Nom</th>
-                  <th>Email</th>
-                  <th>Rôle</th>
-                  <th>Date de création</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td className={styles.nameCell}>
-                      <div className={styles.nameContent}>
-                        <div className={styles.avatar}>{u.name.charAt(0).toUpperCase()}</div>
-                        <span className={styles.name}>{u.name}</span>
-                      </div>
-                    </td>
-                    <td>{u.email}</td>
-                    <td>
-                      <span
-                        className={`${styles.badge} ${styles[`badge-${u.roles[0]?.name || "user"}`.toLowerCase()]}`}
-                      >
-                        {u.roles[0]?.name || "User"}
-                      </span>
-                    </td>
-                    <td className={styles.dateCell}>
-                      {new Date(u.created_at).toLocaleDateString("fr-FR")}
-                    </td>
-                    <td className={styles.actionsCell}>
-                      {u.roles[0]?.name?.toLowerCase() !== "directeur" && (
-                        <button
-                          onClick={() => handleEditClick(u.id)}
-                          className={styles.btnEdit}
-                          title="Modifier"
-                          data-id={u.id}
-                        >
-                          ✏️
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <div className={styles.emptyState}>
-              <Users size={48} />
-              <p>Aucun utilisateur pour le moment</p>
-              <span>Commencez en ajoutant un médecin, gestionnaire ou secrétaire</span>
-            </div>
-          )}
+          <table
+            ref={tableRef}
+            className={`${styles.usersTable} display`}
+            style={{ width: "100%" }}
+          >
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Rôle</th>
+                <th>Date de création</th>
+                <th></th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </div>
 
       {/* Create Modals */}
-      {console.log("Passing specialites to MedecinModal:", specialites)}
       <MedecinModal
         isOpen={medecinModalOpen}
         onClose={() => setMedecinModalOpen(false)}
@@ -283,6 +402,19 @@ const CreateUsers = () => {
         onClose={() => setEditSecretaireModal({ open: false, user: null })}
         onSuccess={handleModalSuccess}
       />
+
+      {/* Password Change Modal */}
+      {passwordModal.open && (
+        <PasswordChangeModal
+          userId={passwordModal.userId}
+          userName={passwordModal.userName}
+          onClose={() => setPasswordModal({ open: false, userId: null, userName: null })}
+          onSuccess={() => {
+            handleModalSuccess("Mot de passe modifié avec succès");
+            setPasswordModal({ open: false, userId: null, userName: null });
+          }}
+        />
+      )}
     </>
   );
 };

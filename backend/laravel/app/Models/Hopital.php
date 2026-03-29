@@ -14,6 +14,8 @@ class Hopital extends Model
         'adresse',
         'telephone',
         'ville',
+        'email',
+        'description',
     ];
 
     /**

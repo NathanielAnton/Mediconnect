@@ -35,7 +35,7 @@ const getCookie = (name) => {
   return null;
 };
 
-// Intercepteur pour ajouter le CSRF token
+// Intercepteur pour ajouter le CSRF token et le Bearer token
 api.interceptors.request.use(async (config) => {
   if (!config.url.includes("sanctum/csrf-cookie")) {
     let xsrfToken = getCookie("XSRF-TOKEN");
@@ -47,6 +47,12 @@ api.interceptors.request.use(async (config) => {
     if (xsrfToken) {
       config.headers["X-XSRF-TOKEN"] = decodeURIComponent(xsrfToken);
     }
+  }
+
+  // Ajouter le Bearer token
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
   }
 
   return config;

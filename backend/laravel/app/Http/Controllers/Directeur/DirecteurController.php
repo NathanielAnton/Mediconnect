@@ -179,6 +179,212 @@ class DirecteurController extends Controller
     }
 
     /**
+     * Récupérer les données du personnel pour DataTables
+     */
+    public function getPersonnelData(Request $request)
+    {
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+
+        if (!$directeur) {
+            return response()->json([
+                'message' => 'Profil directeur non trouvé'
+            ], 404);
+        }
+
+        $hopitalId = $directeur->hopital_id;
+
+        // Récupérer les IDs des utilisateurs liés à l'hôpital
+        $medecinUserIds = MedecinProfile::where('hopital_id', $hopitalId)->pluck('user_id');
+        $gestionnaireUserIds = Gestionnaire::where('hopital_id', $hopitalId)->pluck('user_id');
+        $secretaireUserIds = Secretaire::where('hopital_id', $hopitalId)->pluck('user_id');
+        $directeurUserIds = Directeur::where('hopital_id', $hopitalId)->pluck('user_id');
+
+        // Combiner tous les IDs et supprimer les doublons
+        $userIds = collect()
+            ->merge($medecinUserIds)
+            ->merge($gestionnaireUserIds)
+            ->merge($secretaireUserIds)
+            ->merge($directeurUserIds)
+            ->unique()
+            ->values();
+
+        // Récupérer les paramètres de pagination et filtrage
+        $sortBy = $request->get('sortBy', 'created_at');
+        $sortOrder = $request->get('sortOrder', 'desc');
+        $searchTerm = $request->get('search', '');
+
+        // Construire la requête
+        $query = User::whereIn('id', $userIds)->with('roles');
+
+        // Appliquer le filtrage
+        if ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', "%{$searchTerm}%")
+                  ->orWhere('email', 'like', "%{$searchTerm}%");
+            });
+        }
+
+        // Compter l'avant filtrage
+        $totalRecords = User::whereIn('id', $userIds)->count();
+
+        // Appliquer le tri et la pagination
+        $query->orderBy($sortBy, $sortOrder);
+        $perPage = $request->get('perPage', 10);
+        $page = $request->get('page', 1);
+        $skip = ($page - 1) * $perPage;
+
+        $users = $query->skip($skip)->take($perPage)->get()
+            ->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->roles[0]->name ?? 'user',
+                    'created_at' => $user->created_at->format('Y-m-d'),
+                ];
+            });
+
+        $filteredRecords = User::whereIn('id', $userIds)
+            ->when($searchTerm, function ($q) use ($searchTerm) {
+                $q->where(function ($subq) use ($searchTerm) {
+                    $subq->where('name', 'like', "%{$searchTerm}%")
+                          ->orWhere('email', 'like', "%{$searchTerm}%");
+                });
+            })
+            ->count();
+
+        return response()->json([
+            'data' => $users,
+            'totalRecords' => $totalRecords,
+            'filteredRecords' => $filteredRecords,
+            'page' => $page,
+            'perPage' => $perPage,
+        ]);
+    }
+
+    /**
+     * DataTables AJAX endpoint
+     */
+    public function getPersonnelDatatable(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            if (!$user) {
+                return response()->json([
+                    'draw' => intval($request->input('draw', 0)),
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => []
+                ], 200);
+            }
+
+            $directeur = Directeur::where('user_id', $user->id)->first();
+
+            if (!$directeur) {
+                return response()->json([
+                    'draw' => intval($request->input('draw', 0)),
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => []
+                ], 200);
+            }
+
+            $hopitalId = $directeur->hopital_id;
+
+            // Récupérer les IDs des utilisateurs liés à l'hôpital
+            $medecinUserIds = MedecinProfile::where('hopital_id', $hopitalId)->pluck('user_id')->toArray();
+            $gestionnaireUserIds = Gestionnaire::where('hopital_id', $hopitalId)->pluck('user_id')->toArray();
+            $secretaireUserIds = Secretaire::where('hopital_id', $hopitalId)->pluck('user_id')->toArray();
+            $directeurUserIds = Directeur::where('hopital_id', $hopitalId)->pluck('user_id')->toArray();
+
+            $userIds = array_unique(array_merge(
+                $medecinUserIds,
+                $gestionnaireUserIds,
+                $secretaireUserIds,
+                $directeurUserIds
+            ));
+
+            if (empty($userIds)) {
+                return response()->json([
+                    'draw' => intval($request->input('draw', 0)),
+                    'recordsTotal' => 0,
+                    'recordsFiltered' => 0,
+                    'data' => []
+                ], 200);
+            }
+
+            $draw = intval($request->input('draw', 0));
+            $start = intval($request->input('start', 0));
+            $length = intval($request->input('length', 10));
+            $searchValue = $request->input('search.value', '');
+            $sortColumn = intval($request->input('order.0.column', 0));
+            $sortDir = strtoupper($request->input('order.0.dir', 'ASC')) === 'DESC' ? 'DESC' : 'ASC';
+
+            // Colonnes disponibles
+            $columns = ['name', 'email', 'role', 'created_at', 'id'];
+            $orderColumnName = isset($columns[$sortColumn]) ? $columns[$sortColumn] : 'created_at';
+
+            // Compter les enregistrements totaux
+            $recordsTotal = User::whereIn('id', $userIds)->count();
+
+            // Construire la requête de base
+            $query = User::whereIn('id', $userIds)->with('roles');
+
+            // Copier pour le filtrage
+            $queryFilter = clone $query;
+
+            // Appliquer le filtrage
+            if (!empty($searchValue)) {
+                $queryFilter->where(function ($q) use ($searchValue) {
+                    $q->where('name', 'like', "%{$searchValue}%")
+                      ->orWhere('email', 'like', "%{$searchValue}%");
+                });
+            }
+
+            // Compter après filtrage
+            $recordsFiltered = $queryFilter->count();
+
+            // Appliquer le tri et la pagination
+            $usersData = $queryFilter
+                ->orderBy($orderColumnName, $sortDir)
+                ->skip($start)
+                ->take($length)
+                ->get();
+
+            // Formater les données
+            $data = [];
+            foreach ($usersData as $user) {
+                $data[] = [
+                    'id' => (int)$user->id,
+                    'name' => (string)$user->name,
+                    'email' => (string)$user->email,
+                    'role' => isset($user->roles[0]) ? (string)$user->roles[0]->name : 'user',
+                    'created_at' => $user->created_at->format('d/m/Y'),
+                ];
+            }
+
+            return response()->json([
+                'draw' => $draw,
+                'recordsTotal' => (int)$recordsTotal,
+                'recordsFiltered' => (int)$recordsFiltered,
+                'data' => $data,
+            ])->header('Content-Type', 'application/json; charset=utf-8');
+
+        } catch (\Exception $e) {
+            \Log::error('DataTables Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ' line ' . $e->getLine());
+
+            return response()->json([
+                'draw' => intval($request->input('draw', 0)),
+                'recordsTotal' => 0,
+                'recordsFiltered' => 0,
+                'data' => [],
+                'error' => 'Erreur serveur: ' . $e->getMessage(),
+            ], 200)->header('Content-Type', 'application/json; charset=utf-8');
+        }
+    }
+
+    /**
      * Créer un médecin lié à l'hôpital
      */
     public function createMedecin(Request $request)
@@ -575,6 +781,56 @@ class DirecteurController extends Controller
 
         return response()->json([
             'message' => 'Secrétaire modifiée avec succès',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+            ]
+        ]);
+    }
+
+    /**
+     * Changer le mot de passe d'un utilisateur
+     */
+    public function updateUserPassword(Request $request, $userId)
+    {
+        $user = User::findOrFail($userId);
+
+        // Vérifier que c'est un utilisateur de l'hôpital du directeur
+        $directeur = Directeur::where('user_id', $request->user()->id)->first();
+
+        // Récupérer tous les IDs d'utilisateurs de l'hôpital
+        $medecinUserIds = MedecinProfile::where('hopital_id', $directeur->hopital_id)->pluck('user_id')->toArray();
+        $gestionnaireUserIds = Gestionnaire::where('hopital_id', $directeur->hopital_id)->pluck('user_id')->toArray();
+        $secretaireUserIds = Secretaire::where('hopital_id', $directeur->hopital_id)->pluck('user_id')->toArray();
+        $directeurUserIds = Directeur::where('hopital_id', $directeur->hopital_id)->pluck('user_id')->toArray();
+
+        $hopitalUserIds = array_unique(array_merge(
+            $medecinUserIds,
+            $gestionnaireUserIds,
+            $secretaireUserIds,
+            $directeurUserIds
+        ));
+
+        // Vérifier que l'utilisateur fait partie de l'hôpital
+        if (!in_array($userId, $hopitalUserIds)) {
+            return response()->json([
+                'message' => 'Accès refusé'
+            ], 403);
+        }
+
+        // Valider le mot de passe
+        $validated = $request->validate([
+            'password' => 'required|string|min:6',
+        ]);
+
+        // Mettre à jour le mot de passe
+        $user->update([
+            'password' => Hash::make($validated['password'])
+        ]);
+
+        return response()->json([
+            'message' => 'Mot de passe modifié avec succès',
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,

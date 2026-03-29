@@ -128,14 +128,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 24px;
-  border-bottom: 2px solid #f0f0f0;
-  background: linear-gradient(135deg, #f5f7fa 0%, #eff2f7 100%);
+  padding: 20px 24px;
+  border-bottom: 2px solid #e0e0e0;
+  background: white;
 }
 
 .tableHeader h2 {
   margin: 0;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #333;
 }
@@ -143,16 +143,18 @@
 .userCount {
   background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
   color: white;
-  padding: 6px 12px;
+  padding: 6px 14px;
   border-radius: 20px;
   font-size: 13px;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Table Styles */
 .usersTable {
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .usersTable thead {
@@ -161,13 +163,14 @@
 }
 
 .usersTable th {
-  padding: 16px 20px;
+  padding: 14px 16px;
   text-align: left;
   font-weight: 600;
   color: #0066cc;
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  border: none;
 }
 
 .usersTable tbody tr {
@@ -180,9 +183,10 @@
 }
 
 .usersTable td {
-  padding: 16px 20px;
+  padding: 14px 16px;
   font-size: 14px;
   color: #333;
+  border: none;
 }
 
 .nameCell {
@@ -192,7 +196,7 @@
 .nameContent {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .avatar {
@@ -401,6 +405,116 @@
     text-transform: uppercase;
     font-size: 11px;
   }
+}
+
+/* Search Container */
+.searchContainer {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.searchContainer:focus-within {
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.searchIcon {
+  color: #999;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  width: 100%;
+  background: transparent;
+  color: #333;
+}
+
+.searchInput::placeholder {
+  color: #999;
+}
+
+/* Sortable Header */
+.sortableHeader {
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s ease;
+}
+
+.sortableHeader:hover {
+  color: #0052a3;
+}
+
+.sortableHeader svg {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+}
+
+/* Pagination Container */
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: #f8f9fa;
+  border-top: 1px solid #f0f0f0;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.paginationInfo {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.paginationControls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.paginationBtn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.paginationBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.paginationBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageNumber {
+  font-size: 13px;
+  color: #666;
+  min-width: 100px;
+  text-align: center;
+  font-weight: 500;
 }
 
 /* Header */
@@ -628,4 +742,95 @@
   .formHeader h2 {
     font-size: 1.25rem;
   }
+}
+
+/* DataTables Custom Styling */
+:global(.dataTables_wrapper) {
+  font-family: inherit;
+}
+
+:global(.dataTables_filter) {
+  margin-bottom: 1rem;
+}
+
+:global(.dataTables_filter input) {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+:global(.dataTables_filter input:focus) {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+:global(.dataTables_length) {
+  margin-bottom: 1rem;
+}
+
+:global(.dataTables_length select) {
+  padding: 8px 12px;
+  border: 2px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+:global(.dataTables_info) {
+  font-size: 13px;
+  color: #666;
+  margin-top: 1rem;
+}
+
+:global(.dataTables_paginate) {
+  margin-top: 1rem;
+}
+
+:global(.dataTables_paginate .paginate_button) {
+  padding: 8px 12px;
+  margin: 0 3px;
+  border: 1px solid #e0e0e0;
+  background: white;
+  color: #333;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+:global(.dataTables_paginate .paginate_button:hover) {
+  background: #f0f0f0;
+  border-color: #0066cc;
+  color: #0066cc;
+}
+
+:global(.dataTables_paginate .paginate_button.current) {
+  background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+  color: white;
+  border-color: #0066cc;
+}
+
+:global(.dataTables_paginate .paginate_button.disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+:global(.btn-edit-datatable) {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:global(.btn-edit-datatable:hover) {
+  background: rgba(0, 102, 204, 0.1);
+  transform: scale(1.1);
 }

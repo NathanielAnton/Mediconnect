@@ -200,6 +200,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/dashboard', [DirecteurController::class, 'dashboard']);
         Route::get('/stats', [DirecteurController::class, 'getStats']);
         Route::get('/users', [DirecteurController::class, 'getUsers']);
+        Route::get('/personnel-data', [DirecteurController::class, 'getPersonnelData']);
+        Route::get('/personnel-datatable', [DirecteurController::class, 'getPersonnelDatatable']);
         Route::get('/hopital', [DirecteurController::class, 'getHopital']);
         Route::put('/hopital', [DirecteurController::class, 'updateHopital']);
 
@@ -217,6 +219,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/medecins/{id}', [DirecteurController::class, 'updateMedecin']);
         Route::put('/gestionnaires/{id}', [DirecteurController::class, 'updateGestionnaire']);
         Route::put('/secretaires/{id}', [DirecteurController::class, 'updateSecretaire']);
+
+        // Changer le mot de passe d'un utilisateur
+        Route::put('/users/{userId}/password', [DirecteurController::class, 'updateUserPassword']);
     });
 
     // ============================================

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Calendar, Clock, User, Stethoscope, MessageSquare } from "lucide-react";
+import { X, Calendar, Clock, User, Stethoscope, MessageSquare, Phone } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../../api/axios";
 import styles from "./ModalReservationCreneau.module.css";
@@ -9,6 +9,7 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
     email: "",
     name: "",
+    phone: "",
     motif: "",
     notes: "",
     statut: "en_attente",
@@ -43,8 +44,8 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (!formData.email.trim()) {
-      showToast("Veuillez indiquer l'email", "error");
+    if (!formData.email.trim() && !formData.phone.trim()) {
+      showToast("Veuillez indiquer au moins un email ou un téléphone", "error");
       return;
     }
 
@@ -63,6 +64,7 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
       const payload = {
         email: formData.email,
         name: formData.name,
+        phone: formData.phone || null,
         medecin_id: medecin.medecin_id,
         date_debut: creneau.start.toISOString(),
         date_fin: creneau.end.toISOString(),
@@ -71,7 +73,7 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
         statut: formData.statut,
       };
 
-      const response = await axiosInstance.post("/rendezvous", payload);
+      const response = await axiosInstance.post("/secretaire/rendez-vous", payload);
       const successMessage = response.data?.message || "Réservation effectuée avec succès !";
       showToast(successMessage, "success");
       onSuccess(response.data?.rendezVous);
@@ -169,6 +171,21 @@ const ModalReservationCreneau = ({ medecin, creneau, onClose, onSuccess }) => {
               onChange={handleInputChange}
               placeholder="Nom de la personne"
               required
+              className={styles.input}
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <label className={styles.label}>
+              <Phone className={styles.labelIcon} />
+              Téléphone (optionnel)
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              placeholder="+33 6 12 34 56 78"
               className={styles.input}
             />
           </div>

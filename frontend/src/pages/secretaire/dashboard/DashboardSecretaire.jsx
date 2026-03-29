@@ -18,11 +18,23 @@ const DashboardSecretaire = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showPlanningModal, setShowPlanningModal] = useState(false);
   const [selectedMedecinForPlanning, setSelectedMedecinForPlanning] = useState(null);
+  const [secretaireInfo, setSecretaireInfo] = useState(null);
 
   useEffect(() => {
     fetchDashboardData();
     fetchRdvAujourdhui();
+    fetchSecretaireInfo();
   }, []);
+
+  const fetchSecretaireInfo = async () => {
+    try {
+      const response = await axiosInstance.get("/secretaire/profile");
+      console.log("Secretaire profile response:", response.data);
+      setSecretaireInfo(response.data);
+    } catch (error) {
+      console.error("Erreur lors du chargement des infos secrétaire:", error);
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -135,12 +147,14 @@ const DashboardSecretaire = () => {
         >
           Rendez-vous du jour
         </button>
-        <button
-          className={`${styles.tab} ${activeTab === "liaisons" ? styles.tabActive : ""}`}
-          onClick={() => setActiveTab("liaisons")}
-        >
-          Liaisons
-        </button>
+        {secretaireInfo && !secretaireInfo?.hopital_id && (
+          <button
+            className={`${styles.tab} ${activeTab === "liaisons" ? styles.tabActive : ""}`}
+            onClick={() => setActiveTab("liaisons")}
+          >
+            Liaisons
+          </button>
+        )}
       </div>
 
       {/* Content */}

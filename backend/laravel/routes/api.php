@@ -140,14 +140,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:secretaire')->prefix('secretaire')->name('secretaire.')->group(function () {
         // Dashboard
         Route::get('/dashboard', [SecretaireDashboardController::class, 'show']);
+        Route::get('/profile', [SecretaireDashboardController::class, 'getProfile']);
         Route::get('/medecins/all', [SecretaireDashboardController::class, 'getAllMedecins']);
         Route::get('/patients', [SecretaireDashboardController::class, 'getPatients']);
 
         // Rendez-vous Management
         Route::prefix('rendez-vous')->name('rendez-vous.')->group(function () {
+            Route::get('/today', [SecretaireRendezVousController::class, 'getTodayRendezVous']);
+            Route::get('/{id}', [SecretaireRendezVousController::class, 'show']);
             Route::post('/', [SecretaireRendezVousController::class, 'store']);
             Route::put('/{id}', [SecretaireRendezVousController::class, 'update']);
-            Route::get('/today', [SecretaireRendezVousController::class, 'getTodayRendezVous']);
             Route::get('/medecin/{medecinId}', [SecretaireRendezVousController::class, 'getMedecinRendezVous']);
             Route::patch('/{id}/cancel', [SecretaireRendezVousController::class, 'cancel']);
         });

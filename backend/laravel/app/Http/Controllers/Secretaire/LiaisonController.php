@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\SecretaireMedecin;
+use App\Models\Secretaire;
+use App\Models\MedecinProfile;
 
 class LiaisonController extends Controller
 {
@@ -126,26 +128,52 @@ class LiaisonController extends Controller
 
     /**
      * Secrétaire récupère les médecins liés (statut accepté)
+     * Si elle est liée à un hôpital: retourne tous les médecins de l'hôpital
+     * Sinon: retourne les médecins via la table secretaire_medecin
      */
     public function getLinked(Request $request)
     {
         $secretaire = $request->user();
+        $secretaireProfile = Secretaire::where('user_id', $secretaire->id)->first();
 
-        $medecins = SecretaireMedecin::where('secretaire_id', $secretaire->id)
-            ->where('statut', 'accepte')
-            ->with(['medecin.medecinProfile.specialite'])
-            ->get()
-            ->map(function ($liaison) {
-                return [
-                    'liaison_id' => $liaison->id,
-                    'id' => $liaison->medecin->id,
-                    'name' => $liaison->medecin->name,
-                    'email' => $liaison->medecin->email,
-                    'specialite' => $liaison->medecin->medecinProfile?->specialite?->nom ?? 'Non spécifié',
-                    'telephone' => $liaison->medecin->medecinProfile?->telephone ?? '',
-                    'adresse' => $liaison->medecin->medecinProfile?->adresse ?? '',
-                ];
-            });
+        if (!$secretaireProfile) {
+            return response()->json(['medecins' => []]);
+        }
+
+        // Si la secrétaire est liée à un hôpital
+        if ($secretaireProfile->hopital_id) {
+            $medecins = MedecinProfile::where('hopital_id', $secretaireProfile->hopital_id)
+                ->with(['user', 'specialite'])
+                ->get()
+                ->map(function ($medecinProfile) {
+                    return [
+                        'liaison_id' => null,
+                        'id' => $medecinProfile->user->id,
+                        'name' => $medecinProfile->user->name,
+                        'email' => $medecinProfile->user->email,
+                        'specialite' => $medecinProfile->specialite?->nom ?? 'Non spécifié',
+                        'telephone' => $medecinProfile->telephone ?? '',
+                        'adresse' => $medecinProfile->adresse ?? '',
+                    ];
+                });
+        } else {
+            // Sinon, récupérer les médecins liés via secretaire_medecin
+            $medecins = SecretaireMedecin::where('secretaire_id', $secretaire->id)
+                ->where('statut', 'accepte')
+                ->with(['medecin.medecinProfile.specialite'])
+                ->get()
+                ->map(function ($liaison) {
+                    return [
+                        'liaison_id' => $liaison->id,
+                        'id' => $liaison->medecin->id,
+                        'name' => $liaison->medecin->name,
+                        'email' => $liaison->medecin->email,
+                        'specialite' => $liaison->medecin->medecinProfile?->specialite?->nom ?? 'Non spécifié',
+                        'telephone' => $liaison->medecin->medecinProfile?->telephone ?? '',
+                        'adresse' => $liaison->medecin->medecinProfile?->adresse ?? '',
+                    ];
+                });
+        }
 
         return response()->json(['medecins' => $medecins]);
     }

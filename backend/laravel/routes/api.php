@@ -125,6 +125,9 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::delete('/{id}', [MedecinLiaisonController::class, 'deleteSecretaire']);
         });
 
+        // Create Secrétaire (separate from liaisons prefix)
+        Route::post('/secretaires/create', [MedecinLiaisonController::class, 'createSecretaire']);
+
         // Liaisons with Gestionnaires
         Route::prefix('liaisons-gestionnaires')->name('liaisons-gestionnaires.')->group(function () {
             Route::get('/demandes', [MedecinLiaisonController::class, 'getGestionnaireRequests']);

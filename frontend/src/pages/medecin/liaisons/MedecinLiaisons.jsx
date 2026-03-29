@@ -9,6 +9,15 @@ function MedecinLiaisons() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
+  const [formError, setFormError] = useState("");
+  const [formLoading, setFormLoading] = useState(false);
 
   useEffect(() => {
     fetchDemandes();
@@ -81,6 +90,51 @@ function MedecinLiaisons() {
     }
   };
 
+  const handleCreateSecretaire = async (e) => {
+    e.preventDefault();
+    setFormError("");
+    setFormLoading(true);
+
+    // Validation
+    if (!formData.name || !formData.email || !formData.password) {
+      setFormError("Tous les champs sont obligatoires");
+      setFormLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.password_confirmation) {
+      setFormError("Les mots de passe ne correspondent pas");
+      setFormLoading(false);
+      return;
+    }
+
+    try {
+      const response = await axiosInstance.post("/medecin/secretaires/create", {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.password_confirmation,
+      });
+
+      setSuccess(response.data.message);
+      setFormData({ name: "", email: "", password: "", password_confirmation: "" });
+      setShowCreateModal(false);
+      fetchLiaisons();
+    } catch (err) {
+      setFormError(err.response?.data?.message || "Erreur lors de la création du compte");
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   const getStatutBadge = (statut) => {
     const badges = {
       en_attente: { label: "En attente", class: "badge-warning" },
@@ -94,27 +148,32 @@ function MedecinLiaisons() {
   return (
     <div className="medecin-liaisons">
       <div className="liaisons-header">
-        <h1>Gestion des Liaisons</h1>
+        <h1>Mes Secrétaires</h1>
         <p>Gérez vos secrétaires et demandes de liaison</p>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
-      {/* Tabs */}
-      <div className="tabs">
-        <button
-          className={`tab ${activeTab === "demandes" ? "active" : ""}`}
-          onClick={() => setActiveTab("demandes")}
-        >
-          Nouvelles Demandes
-          {demandes.length > 0 && <span className="badge-count">{demandes.length}</span>}
-        </button>
-        <button
-          className={`tab ${activeTab === "historique" ? "active" : ""}`}
-          onClick={() => setActiveTab("historique")}
-        >
-          Historique
+      {/* Tabs avec bouton de création */}
+      <div className="tabs-container">
+        <div className="tabs">
+          <button
+            className={`tab ${activeTab === "demandes" ? "active" : ""}`}
+            onClick={() => setActiveTab("demandes")}
+          >
+            Nouvelles Demandes
+            {demandes.length > 0 && <span className="badge-count">{demandes.length}</span>}
+          </button>
+          <button
+            className={`tab ${activeTab === "historique" ? "active" : ""}`}
+            onClick={() => setActiveTab("historique")}
+          >
+            Historique
+          </button>
+        </div>
+        <button className="btn-create-secretaire" onClick={() => setShowCreateModal(true)}>
+          + Créer un secrétaire
         </button>
       </div>
 
@@ -207,6 +266,90 @@ function MedecinLiaisons() {
           </div>
         )}
       </div>
+
+      {/* Modal de création de secrétaire */}
+      {showCreateModal && (
+        <div className="modal-overlay" onClick={() => setShowCreateModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Créer un nouveau secrétaire</h2>
+              <button className="modal-close" onClick={() => setShowCreateModal(false)}>
+                ×
+              </button>
+            </div>
+
+            {formError && <div className="alert alert-error">{formError}</div>}
+
+            <form onSubmit={handleCreateSecretaire} className="modal-form">
+              <div className="form-group">
+                <label htmlFor="name">Nom complet *</label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleFormChange}
+                  placeholder="Ex: Marie Dupont"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="email">Email *</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleFormChange}
+                  placeholder="Ex: marie@example.com"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password">Mot de passe *</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleFormChange}
+                  placeholder="Entrez un mot de passe"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="password_confirmation">Confirmer le mot de passe *</label>
+                <input
+                  type="password"
+                  id="password_confirmation"
+                  name="password_confirmation"
+                  value={formData.password_confirmation}
+                  onChange={handleFormChange}
+                  placeholder="Confirmez le mot de passe"
+                  required
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn-cancel"
+                  onClick={() => setShowCreateModal(false)}
+                  disabled={formLoading}
+                >
+                  Annuler
+                </button>
+                <button type="submit" className="btn-create" disabled={formLoading}>
+                  {formLoading ? "Création..." : "Créer le compte"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

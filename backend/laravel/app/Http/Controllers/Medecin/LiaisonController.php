@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SecretaireMedecin;
 use App\Models\GestionnaireMedecin;
+use App\Models\User;
+use App\Models\Secretaire;
 
 class LiaisonController extends Controller
 {
@@ -329,5 +331,84 @@ class LiaisonController extends Controller
             });
 
         return response()->json(['liaisons' => $liaisons]);
+    }
+
+    /**
+     * Créer un nouveau secrétaire lié au médecin
+     * Un médecin ne peut avoir maximum que 3 secrétaires
+     * Un médecin qui fait partie d'un hôpital ne peut pas créer de secrétaire
+     */
+    public function createSecretaire(Request $request)
+    {
+        $medecin = $request->user();
+
+        // Vérifier si le médecin fait partie d'un hôpital
+        $medecinProfile = $medecin->medecinProfile;
+        if ($medecinProfile && $medecinProfile->hopital_id) {
+            return response()->json([
+                'message' => 'Un médecin travaillant dans un hôpital ne peut pas créer de secrétaire. Les secrétaires de votre hôpital sont gérés par l\'administration.'
+            ], 403);
+        }
+
+        // Vérifier le nombre de liaisons existantes
+        $existingCount = SecretaireMedecin::where('medecin_id', $medecin->id)
+            ->where('statut', 'accepte')
+            ->count();
+
+        if ($existingCount >= 3) {
+            return response()->json([
+                'message' => 'Vous avez atteint le nombre maximum de 3 secrétaires. Veuillez en supprimer un avant d\'en ajouter un nouveau.'
+            ], 422);
+        }
+
+        // Valider les données
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        try {
+            // Créer l'utilisateur secrétaire
+            $user = new User([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => bcrypt($validated['password']),
+            ]);
+            $user->save();
+
+            // Assigner le rôle secrétaire
+            $user->assignRole('secretaire');
+
+            // Créer le profil secrétaire avec hopital_id = null
+            Secretaire::create([
+                'user_id' => $user->id,
+                'hopital_id' => null,
+                'name' => $validated['name'],
+            ]);
+
+            // Créer la liaison médecin-secrétaire avec statut accepté
+            $liaison = SecretaireMedecin::create([
+                'medecin_id' => $medecin->id,
+                'secretaire_id' => $user->id,
+                'statut' => 'accepte',
+                'message' => 'Compte créé directement par le médecin',
+            ]);
+
+            return response()->json([
+                'message' => 'Secrétaire créé et lié avec succès',
+                'secretaire' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            \Log::error('Error creating secretaire: ' . $e->getMessage());
+            return response()->json([
+                'message' => 'Erreur lors de la création du secrétaire'
+            ], 500);
+        }
     }
 }

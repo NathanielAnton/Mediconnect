@@ -51,7 +51,7 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $user = Auth::user();
-        
+
         $validated = $request->validate([
             'specialite_id' => 'nullable|integer|exists:specialites,id',
             'description' => 'nullable|string',
@@ -61,7 +61,7 @@ class ProfileController extends Controller
         ]);
 
         $profile = $user->medecinProfile;
-        
+
         if (!$profile) {
             $profile = MedecinProfile::create([
                 'user_id' => $user->id,
@@ -74,10 +74,7 @@ class ProfileController extends Controller
         $profile->refresh();
         $profile->load('specialite');
 
-        // Set default horaires if specialite changed
-        if ($request->has('specialite_id')) {
-            MedecinPlanningController::setHorairesDefaut($profile->id);
-        }
+
 
         return response()->json([
             'message' => 'Profil mis à jour avec succès',
@@ -98,4 +95,3 @@ class ProfileController extends Controller
         ], 200);
     }
 }
-

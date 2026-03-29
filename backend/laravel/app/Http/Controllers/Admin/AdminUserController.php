@@ -148,18 +148,18 @@ class AdminUserController extends Controller
             // Mettre à jour isVerified
             $user->update(['isVerified' => 1]);
 
-            // Créer un profil médecin si l'utilisateur a le rôle "medecin"
-            if ($user->roles && $user->roles->contains('name', 'medecin')) {
-                // Vérifier qu'un profil n'existe pas déjà
-                $existingProfile = MedecinProfile::where('user_id', $user->id)->first();
+            // Assigner automatiquement le rôle "medecin" à l'utilisateur
+            $user->assignRole('medecin');
 
-                if (!$existingProfile) {
-                    MedecinProfile::create([
-                        'user_id' => $user->id,
-                        'hopital_id' => null, // Sera défini plus tard par le médecin ou l'admin
-                        'specialite_id' => null, // Sera défini plus tard
-                    ]);
-                }
+            // Créer un profil médecin
+            $existingProfile = MedecinProfile::where('user_id', $user->id)->first();
+
+            if (!$existingProfile) {
+                MedecinProfile::create([
+                    'user_id' => $user->id,
+                    'hopital_id' => null, // Sera défini plus tard par le médecin ou l'admin
+                    'specialite_id' => null, // Sera défini plus tard
+                ]);
             }
 
             DB::commit();

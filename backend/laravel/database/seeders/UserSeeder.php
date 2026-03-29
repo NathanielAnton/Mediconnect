@@ -282,7 +282,7 @@ class UserSeeder extends Seeder
                 'medecin_id' => $medecinIndependantProfile->id,
             ],
             [
-                'statut' => 'acceptee',
+                'statut' => 'accepte',
             ]
         );
         $this->command->info('✓ Secrétaire Indépendante: secretaire.independante@mediconnect.com (liée à Dr. Sophie Laurent)');

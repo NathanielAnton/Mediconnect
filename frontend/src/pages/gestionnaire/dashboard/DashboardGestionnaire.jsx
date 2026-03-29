@@ -106,7 +106,7 @@ const DashboardGestionnaire = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1>Gestion Hospitalière</h1>
+        <h1>Gestion</h1>
         <div className={styles.headerActions}>
           <button onClick={() => navigate("/")} className={styles.btnBack}>
             Retour

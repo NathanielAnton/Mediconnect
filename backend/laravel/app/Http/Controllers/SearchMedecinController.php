@@ -61,7 +61,10 @@ class SearchMedecinController extends Controller
                     ->where(function ($q) use ($query) {
                         $q->where('name', 'LIKE', "%{$query}%")
                             ->orWhere('ville', 'LIKE', "%{$query}%")
-                            ->orWhere('description', 'LIKE', "%{$query}%");
+                            ->orWhere('description', 'LIKE', "%{$query}%")
+                            ->orWhereHas('medecins.specialite', function ($specQuery) use ($query) {
+                                $specQuery->where('nom', 'LIKE', "%{$query}%");
+                            });
                     })
                     ->limit(10)
                     ->get();

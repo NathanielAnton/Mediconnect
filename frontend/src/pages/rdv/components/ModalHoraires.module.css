@@ -442,3 +442,29 @@
     width: 100%;
   }
 }
+
+/* Lien hôpital dans le header */
+.hopitalLinkButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  background: none;
+  border: 1px solid #10b981;
+  color: #059669;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.hopitalLinkButton:hover:not(:disabled) {
+  background: #ecfdf5;
+}
+
+.hopitalLinkButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

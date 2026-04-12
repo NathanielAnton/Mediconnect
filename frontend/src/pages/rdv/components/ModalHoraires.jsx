@@ -3,10 +3,11 @@ import FullCalendar from "@fullcalendar/react";
 import { AuthContext } from "../../../context/AuthContext";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import frLocale from "@fullcalendar/core/locales/fr";
-import { X, Clock, Loader, Phone } from "lucide-react";
+import { X, Clock, Loader, Phone, Building2 } from "lucide-react";
 import api from "../../../api/axios";
 import styles from "./ModalHoraires.module.css";
 import ModalRendezVous from "../../user/planning/ModalRendezVous";
+import ModalHopital from "./ModalHopital";
 import { toast } from "react-toastify";
 
 const ModalHoraires = ({ medecin, onClose }) => {
@@ -20,6 +21,9 @@ const ModalHoraires = ({ medecin, onClose }) => {
   const [selectedCreneau, setSelectedCreneau] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRDV, setSelectedRDV] = useState(null);
+  const [hopitalDetails, setHopitalDetails] = useState(null);
+  const [showHopitalModal, setShowHopitalModal] = useState(false);
+  const [loadingHopital, setLoadingHopital] = useState(false);
 
   // Fonction pour convertir les jours texte en index FullCalendar
   const convertJourToNumber = (jour) => {
@@ -206,6 +210,22 @@ const ModalHoraires = ({ medecin, onClose }) => {
     }
   }, [medecin]);
 
+  useEffect(() => {
+    const fetchHopital = async () => {
+      if (!medecin?.hopital_id) return;
+      setLoadingHopital(true);
+      try {
+        const res = await api.get(`/hopital/${medecin.hopital_id}/medecins`);
+        setHopitalDetails(res.data);
+      } catch (err) {
+        console.error("Erreur chargement hôpital:", err);
+      } finally {
+        setLoadingHopital(false);
+      }
+    };
+    fetchHopital();
+  }, [medecin?.hopital_id]);
+
   // Re-générer les créneaux quand la durée change
   useEffect(() => {
     if (events.length > 0 && medecin) {
@@ -292,10 +312,23 @@ const ModalHoraires = ({ medecin, onClose }) => {
           <div className={styles.modalTitle}>
             <h2>Horaires du Dr. {medecin?.name}</h2>
             <p className={styles.modalSubtitle}>{medecin?.specialite}</p>
-            {medecin?.ville && (
+            {(medecin?.hopital_adresse || medecin?.adresse || medecin?.ville) && (
               <p className={styles.modalLocation}>
-                📍 {medecin.ville} {medecin.adresse && `- ${medecin.adresse}`}
+                📍{" "}
+                {medecin.hopital_adresse
+                  ? `${medecin.hopital_adresse}, ${medecin.hopital_ville ?? medecin.ville}`
+                  : `${medecin.ville}${medecin.adresse ? ` - ${medecin.adresse}` : ""}`}
               </p>
+            )}
+            {medecin?.hopital_id && (
+              <button
+                className={styles.hopitalLinkButton}
+                onClick={() => setShowHopitalModal(true)}
+                disabled={loadingHopital || !hopitalDetails}
+              >
+                <Building2 size={13} />
+                {loadingHopital ? "Chargement..." : `Voir ${medecin.hopital_nom ?? "l'hôpital"}`}
+              </button>
             )}
             {medecin?.telephone && (
               <p className={styles.modalLocation}>
@@ -622,6 +655,13 @@ const ModalHoraires = ({ medecin, onClose }) => {
               </div>
             </div>
           </div>
+        )}
+        {/* Modal hôpital */}
+        {showHopitalModal && hopitalDetails && (
+          <ModalHopital
+            hopitalDetails={hopitalDetails}
+            onClose={() => setShowHopitalModal(false)}
+          />
         )}
       </div>
     </div>

@@ -365,6 +365,8 @@
   font-weight: 600;
   text-align: center;
   text-decoration: none;
+  border: none;
+  cursor: pointer;
   border-radius: 0.5rem;
   transition: transform 0.2s, box-shadow 0.2s;
 }
@@ -465,6 +467,97 @@
 .footerText {
   color: #6b7280;
   font-size: 0.875rem;
+}
+
+/* Results subtitle */
+.resultsSubtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+/* Hopital Card */
+.hopitalCard {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 3px solid #10b981;
+}
+
+.hopitalCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.hopitalHeader {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+}
+
+.hopitalAvatar {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hopitalInfo {
+  flex: 1;
+}
+
+.hopitalName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.35rem;
+}
+
+.hopitalVille {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #059669;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.detailIconSmall {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.hopitalMedecinsCount {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.detailsButton {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.detailsButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
 }
 
 /* Responsive */

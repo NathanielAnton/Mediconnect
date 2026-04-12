@@ -1,11 +1,14 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { AuthContext } from "../../../context/AuthContext";
 import api from "../../../api/axios";
+import { User } from "lucide-react";
 import NavbarMedecin from "../components/NavbarMedecin";
+import CropImageModal from "../../../components/CropImageModal";
 import styles from "./MedecinProfile.module.css";
 
 export default function MedecinProfile() {
   const { user } = useContext(AuthContext);
+  const fileInputRef = useRef(null);
   const [profile, setProfile] = useState({
     specialite_id: "",
     telephone: "",
@@ -13,6 +16,10 @@ export default function MedecinProfile() {
     adresse: "",
     ville: "",
   });
+  const [photoUrl, setPhotoUrl] = useState(null);
+  const [cropSrc, setCropSrc] = useState(null);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
@@ -29,6 +36,7 @@ export default function MedecinProfile() {
         const res = await api.get("/medecin/profile");
         if (res.data) {
           setProfile(res.data);
+          setPhotoUrl(res.data.photo_url || null);
 
           // Mettre à jour le searchTerm avec le nom de la spécialité
           if (res.data.specialite_nom) {
@@ -101,6 +109,47 @@ export default function MedecinProfile() {
     }
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    // Reset input so the same file can be re-selected
+    e.target.value = "";
+    const reader = new FileReader();
+    reader.onload = () => {
+      setCropSrc(reader.result);
+      setShowCropModal(true);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropSave = async (blob) => {
+    setShowCropModal(false);
+    setCropSrc(null);
+    setUploadingPhoto(true);
+    try {
+      const formData = new FormData();
+      formData.append("photo", blob, "photo-profil.png");
+      const res = await api.post("/medecin/profile/photo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      setPhotoUrl(res.data.photo_url);
+      setMessage("✅ Photo de profil mise à jour !");
+      setMessageType("success");
+      setTimeout(() => setMessage(""), 2000);
+    } catch (err) {
+      console.error("Erreur upload photo:", err);
+      setMessage("❌ Erreur lors de l'upload de la photo");
+      setMessageType("error");
+      setTimeout(() => setMessage(""), 5000);
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   // Fermer les suggestions quand on clique ailleurs
   useEffect(() => {
     const handleClickOutside = () => {
@@ -128,6 +177,7 @@ export default function MedecinProfile() {
   }
 
   return (
+    <>
     <div className={styles.container}>
       <NavbarMedecin />
 
@@ -136,6 +186,36 @@ export default function MedecinProfile() {
         <div className={styles.pageHeader}>
           <h1 className={styles.pageTitle}>Mon Profil Médecin</h1>
           <p className={styles.pageSubtitle}>Gérez vos informations professionnelles</p>
+        </div>
+
+        {/* Avatar Section */}
+        <div className={styles.avatarSection}>
+          <button
+            type="button"
+            className={styles.avatarButton}
+            onClick={handleAvatarClick}
+            disabled={uploadingPhoto}
+            title="Changer la photo de profil"
+          >
+            {photoUrl ? (
+              <img src={photoUrl} alt="Photo de profil" className={styles.avatarImage} />
+            ) : (
+              <div className={styles.avatarPlaceholder}>
+                <User className={styles.avatarIcon} />
+              </div>
+            )}
+            <div className={styles.avatarOverlay}>
+              {uploadingPhoto ? "⏳" : "📷"}
+            </div>
+          </button>
+          <p className={styles.avatarHint}>Cliquez pour changer la photo</p>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleFileChange}
+            style={{ display: "none" }}
+          />
         </div>
 
         {/* Message Display */}
@@ -258,5 +338,14 @@ export default function MedecinProfile() {
         </div>
       </div>
     </div>
+
+    {showCropModal && cropSrc && (
+      <CropImageModal
+        imageSrc={cropSrc}
+        onClose={() => { setShowCropModal(false); setCropSrc(null); }}
+        onSave={handleCropSave}
+      />
+    )}
+    </>
   );
 }

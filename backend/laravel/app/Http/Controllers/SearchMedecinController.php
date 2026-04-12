@@ -34,7 +34,7 @@ class SearchMedecinController extends Controller
                     ->get();
             }
 
-            $medecins = $medecinProfiles->map(function ($profile) {
+            $medecins = $medecinProfiles->map(function ($profile) use ($request) {
                 return [
                     'type'            => 'medecin',
                     'id'              => $profile->user->id,
@@ -50,6 +50,9 @@ class SearchMedecinController extends Controller
                     'hopital_nom'     => $profile->hopital ? $profile->hopital->name : null,
                     'hopital_adresse' => $profile->hopital ? $profile->hopital->adresse : null,
                     'hopital_ville'   => $profile->hopital ? $profile->hopital->ville : null,
+                    'photo_url'       => $profile->photo_profil
+                        ? $request->getSchemeAndHttpHost() . '/api/photo-profile/' . $profile->photo_profil
+                        : null,
                 ];
             });
 
@@ -94,7 +97,7 @@ class SearchMedecinController extends Controller
         }
     }
 
-    public function getHopitalMedecins($id)
+    public function getHopitalMedecins($id, Request $request)
     {
         try {
             $hopital = Hopital::findOrFail($id);
@@ -108,10 +111,10 @@ class SearchMedecinController extends Controller
                 return $profile->specialite->nom ?? 'Non renseignée';
             });
 
-            $medecinsParSpecialite = $grouped->map(function ($items, $specialite) use ($hopital) {
+            $medecinsParSpecialite = $grouped->map(function ($items, $specialite) use ($hopital, $request) {
                 return [
                     'specialite' => $specialite,
-                    'medecins'   => $items->map(function ($profile) use ($hopital) {
+                    'medecins'   => $items->map(function ($profile) use ($hopital, $request) {
                         return [
                             'id'          => $profile->user->id,
                             'medecin_id'  => $profile->id,
@@ -121,6 +124,9 @@ class SearchMedecinController extends Controller
                             'adresse'     => $profile->adresse ?? '',
                             'description' => $profile->description ?? '',
                             'hopital_id'  => $hopital->id,
+                            'photo_url'   => $profile->photo_profil
+                                ? $request->getSchemeAndHttpHost() . '/api/photo-profile/' . $profile->photo_profil
+                                : null,
                         ];
                     })->values(),
                 ];

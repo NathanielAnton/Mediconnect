@@ -122,7 +122,15 @@ export default function ModalHopital({ hopitalDetails, onClose }) {
                         <div key={medecin.id} className={styles.medecinCard}>
                           <div className={styles.medecinCardLeft}>
                             <div className={styles.medecinAvatar}>
-                              <User className={styles.medecinAvatarIcon} />
+                              {medecin.photo_url ? (
+                                <img
+                                  src={medecin.photo_url}
+                                  alt={`Dr. ${medecin.name}`}
+                                  className={styles.medecinAvatarImg}
+                                />
+                              ) : (
+                                <User className={styles.medecinAvatarIcon} />
+                              )}
                             </div>
                             <div>
                               <p className={styles.medecinName}>Dr. {medecin.name}</p>

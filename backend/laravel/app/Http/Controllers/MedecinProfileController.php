@@ -10,7 +10,7 @@ use App\Http\Controllers\MedecinPlanningController;
 class MedecinProfileController extends Controller
 {
     // Récupérer le profil du médecin connecté
-    public function show()
+    public function show(Request $request)
     {
         $user = Auth::user();
 
@@ -26,8 +26,7 @@ class MedecinProfileController extends Controller
         // Charger la relation spécialité pour inclure les données dans la réponse
         $profile->load('specialite');
 
-        // Retourner seulement les champs du profil
-        return response()->json($profile->only([
+        $data = $profile->only([
             'id',
             'user_id',
             'hopital_id',
@@ -40,7 +39,13 @@ class MedecinProfileController extends Controller
             'updated_at',
             'specialite_nom',
             'specialite_slug',
-        ]));
+        ]);
+        $data['photo_url'] = $profile->photo_profil
+            ? $request->getSchemeAndHttpHost() . '/api/photo-profile/' . $profile->photo_profil
+            : null;
+
+        // Retourner seulement les champs du profil
+        return response()->json($data);
     }
 
     // Mettre à jour le profil
@@ -81,7 +86,7 @@ class MedecinProfileController extends Controller
 
         return response()->json([
             'message' => 'Profil mis à jour avec succès',
-            'profile' => $profile->only([
+            'profile' => array_merge($profile->only([
                 'id',
                 'user_id',
                 'hopital_id',
@@ -94,6 +99,10 @@ class MedecinProfileController extends Controller
                 'updated_at',
                 'specialite_nom',
                 'specialite_slug',
+            ]), [
+                'photo_url' => $profile->photo_profil
+                    ? $request->getSchemeAndHttpHost() . '/api/photo-profile/' . $profile->photo_profil
+                    : null,
             ]),
         ], 200);
     }

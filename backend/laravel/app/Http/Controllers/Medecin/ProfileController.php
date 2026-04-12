@@ -6,14 +6,24 @@ use App\Http\Controllers\Controller;
 use App\Models\MedecinProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\MedecinPlanningController;
 
 class ProfileController extends Controller
 {
     /**
+     * Construit l'URL publique d'une photo de profil.
+     */
+    private function photoUrl(?string $filename, Request $request): ?string
+    {
+        if (!$filename) return null;
+        return $request->getSchemeAndHttpHost() . '/api/photo-profile/' . $filename;
+    }
+
+    /**
      * Récupérer le profil du médecin
      */
-    public function show()
+    public function show(Request $request)
     {
         $user = Auth::user();
 
@@ -29,7 +39,7 @@ class ProfileController extends Controller
         // Charger la relation spécialité pour inclure les données dans la réponse
         $profile->load('specialite');
 
-        return response()->json($profile->only([
+        $data = $profile->only([
             'id',
             'user_id',
             'hopital_id',
@@ -42,7 +52,10 @@ class ProfileController extends Controller
             'updated_at',
             'specialite_nom',
             'specialite_slug',
-        ]));
+        ]);
+        $data['photo_url'] = $this->photoUrl($profile->photo_profil, $request);
+
+        return response()->json($data);
     }
 
     /**
@@ -76,22 +89,59 @@ class ProfileController extends Controller
 
 
 
+        $profileData = $profile->only([
+            'id',
+            'user_id',
+            'hopital_id',
+            'specialite_id',
+            'description',
+            'adresse',
+            'ville',
+            'telephone',
+            'created_at',
+            'updated_at',
+            'specialite_nom',
+            'specialite_slug',
+        ]);
+        $profileData['photo_url'] = $this->photoUrl($profile->photo_profil, $request);
+
         return response()->json([
             'message' => 'Profil mis à jour avec succès',
-            'profile' => $profile->only([
-                'id',
-                'user_id',
-                'hopital_id',
-                'specialite_id',
-                'description',
-                'adresse',
-                'ville',
-                'telephone',
-                'created_at',
-                'updated_at',
-                'specialite_nom',
-                'specialite_slug',
-            ])
+            'profile' => $profileData,
         ], 200);
+    }
+
+    /**
+     * Mettre à jour la photo de profil du médecin
+     */
+    public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|file|image|max:5120|mimes:png,jpg,jpeg,gif,webp',
+        ]);
+
+        $user = Auth::user();
+
+        $profile = $user->medecinProfile;
+        if (!$profile) {
+            $profile = MedecinProfile::create(['user_id' => $user->id]);
+        }
+
+        // Dossier de destination dans storage/photo-profile/
+        // Supprimer l'ancienne photo si elle existe
+        if ($profile->photo_profil && Storage::disk('photo_profile')->exists($profile->photo_profil)) {
+            Storage::disk('photo_profile')->delete($profile->photo_profil);
+        }
+
+        // Nom de fichier unique
+        $filename = uniqid('pp_', true) . '.png';
+        Storage::disk('photo_profile')->put($filename, file_get_contents($request->file('photo')));
+
+        $profile->update(['photo_profil' => $filename]);
+
+        return response()->json([
+            'message'   => 'Photo de profil mise à jour',
+            'photo_url' => $this->photoUrl($filename, $request),
+        ]);
     }
 }

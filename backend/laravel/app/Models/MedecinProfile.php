@@ -17,6 +17,7 @@ class MedecinProfile extends Model
         'adresse',
         'ville',
         'telephone',
+        'photo_profil',
     ];
 
     // Relation avec l'utilisateur

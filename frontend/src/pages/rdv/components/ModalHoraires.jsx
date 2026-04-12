@@ -310,8 +310,25 @@ const ModalHoraires = ({ medecin, onClose }) => {
         {/* En-tête du modal */}
         <div className={styles.modalHeader}>
           <div className={styles.modalTitle}>
-            <h2>Horaires du Dr. {medecin?.name}</h2>
-            <p className={styles.modalSubtitle}>{medecin?.specialite}</p>
+            <div className={styles.doctorInfo}>
+              <div className={styles.doctorAvatar}>
+                {medecin?.photo_url ? (
+                  <img
+                    src={medecin.photo_url}
+                    alt={`Dr. ${medecin.name}`}
+                    className={styles.doctorAvatarImg}
+                  />
+                ) : (
+                  <span className={styles.doctorAvatarInitial}>
+                    {medecin?.name?.[0]?.toUpperCase() ?? "M"}
+                  </span>
+                )}
+              </div>
+              <div>
+                <h2>Horaires du Dr. {medecin?.name}</h2>
+                <p className={styles.modalSubtitle}>{medecin?.specialite}</p>
+              </div>
+            </div>
             {(medecin?.hopital_adresse || medecin?.adresse || medecin?.ville) && (
               <p className={styles.modalLocation}>
                 📍{" "}

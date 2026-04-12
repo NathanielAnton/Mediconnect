@@ -176,7 +176,15 @@ export default function SearchMedecin() {
                   <div key={`medecin-${medecin.id}`} className={styles.medecinCard}>
                     <div className={styles.medecinHeader}>
                       <div className={styles.medecinAvatar}>
-                        <User className={styles.avatarIcon} />
+                        {medecin.photo_url ? (
+                          <img
+                            src={medecin.photo_url}
+                            alt={`Dr. ${medecin.name}`}
+                            className={styles.medecinAvatarImg}
+                          />
+                        ) : (
+                          <User className={styles.avatarIcon} />
+                        )}
                       </div>
                       <div className={styles.medecinInfo}>
                         <h4 className={styles.medecinName}>Dr. {medecin.name}</h4>

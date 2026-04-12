@@ -60,6 +60,18 @@ Route::get('/hopital/{id}/medecins', [SearchMedecinController::class, 'getHopita
 Route::get('/specialites', [ClientSearchController::class, 'getSpecialites']);
 Route::get('/medecin/planningbyid/{id}', [MedecinPlanningController::class, 'getPlanningById']);
 
+// Servir les photos de profil (stockées dans storage/photo-profile/)
+Route::get('/photo-profile/{filename}', function (string $filename) {
+    if ($filename !== basename($filename)) {
+        abort(404);
+    }
+    $path = storage_path('photo-profile/' . $filename);
+    if (!file_exists($path)) {
+        abort(404);
+    }
+    return response()->file($path, ['Cache-Control' => 'public, max-age=86400']);
+})->where('filename', '[a-zA-Z0-9_\.\-]+');
+
 // Routes pour les demandes de directeur
 Route::post('/demande-directeur', [DirecteurRequestController::class, 'store']);
 
@@ -105,6 +117,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Profile
         Route::get('/profile', [MedecinProfileControllerNamespace::class, 'show']);
         Route::put('/profile', [MedecinProfileControllerNamespace::class, 'update']);
+        Route::post('/profile/photo', [MedecinProfileControllerNamespace::class, 'uploadPhoto']);
 
         // Rendez-vous Management
         Route::get('/rendez-vous', [MedecinRendezVousController::class, 'getAll']);

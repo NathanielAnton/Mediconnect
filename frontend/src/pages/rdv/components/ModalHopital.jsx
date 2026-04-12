@@ -161,7 +161,7 @@ export default function ModalHopital({ hopitalDetails, onClose }) {
 
       {/* Modal des horaires (s'ouvre par-dessus le modal hôpital) */}
       {showHorairesModal && selectedMedecin && (
-        <ModalHoraires medecin={selectedMedecin} onClose={handleCloseHoraires} />
+        <ModalHoraires medecin={selectedMedecin} onClose={handleCloseHoraires} zIndex={1200} />
       )}
     </>
   );

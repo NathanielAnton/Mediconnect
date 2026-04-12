@@ -10,7 +10,7 @@ import ModalRendezVous from "../../user/planning/ModalRendezVous";
 import ModalHopital from "./ModalHopital";
 import { toast } from "react-toastify";
 
-const ModalHoraires = ({ medecin, onClose }) => {
+const ModalHoraires = ({ medecin, onClose, zIndex = 1000 }) => {
   const calendarRef = useRef(null);
   const [events, setEvents] = useState([]);
   const [slotDuration, setSlotDuration] = useState("00:30:00");
@@ -305,7 +305,7 @@ const ModalHoraires = ({ medecin, onClose }) => {
   };
 
   return (
-    <div className={styles.modalOverlay} onClick={handleBackdropClick}>
+    <div className={styles.modalOverlay} style={{ zIndex }} onClick={handleBackdropClick}>
       <div className={styles.modalContent}>
         {/* En-tête du modal */}
         <div className={styles.modalHeader}>

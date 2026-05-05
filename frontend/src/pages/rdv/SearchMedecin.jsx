@@ -90,7 +90,6 @@ export default function SearchMedecin() {
           {/* Search Bar */}
           <form onSubmit={handleSearch} className={styles.searchForm}>
             <div className={styles.searchContainer}>
-              <Search className={styles.searchIcon} />
               <input
                 type="text"
                 placeholder="Nom du médecin, hôpital, ville..."

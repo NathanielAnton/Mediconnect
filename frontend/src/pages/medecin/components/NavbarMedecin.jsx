@@ -47,9 +47,6 @@ const NavbarMedecin = () => {
             <a href="/medecin/planning" className={styles.navLink}>
               Planning
             </a>
-            <a href="/medecin/liaisons" className={styles.navLink}>
-              Secrétaires
-            </a>
             <a href="#patients" className={styles.navLink}>
               Dossiers Patients
             </a>

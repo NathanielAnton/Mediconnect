@@ -249,7 +249,7 @@ const ModalUpdateRendezVous = ({ rendezVous, onClose, onSuccess }) => {
 
           <div className={styles.formGroup}>
             <label className={styles.label}>
-              <Phone className={styles.labelIcon} />
+              <PhoneIcon className={styles.labelIcon} />
               Téléphone *
             </label>
             <input

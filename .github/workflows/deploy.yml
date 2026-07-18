@@ -48,7 +48,8 @@ jobs:
       - name: Build React frontend
         run: |
           cd frontend
-          npm install
+          rm -rf node_modules package-lock.json
+          npm install --force
           npm run build
 
       # 5️⃣ Déploiement React (sans dist, node_modules)

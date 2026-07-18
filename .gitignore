@@ -17,3 +17,4 @@ frontend/dist.zip
 backend/laravel/vendor.zip
 frontend/src/api/axios.js
 /backend/laravel/storage
+/deploy

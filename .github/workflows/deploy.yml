@@ -44,20 +44,18 @@ jobs:
         run: |
           ssh -i ~/.ssh/deploy_key ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} "cd /var/www/Mediconnect/backend/laravel && php artisan optimize"
 
-      # 4️⃣.5️⃣ Build React frontend
-      - name: Build React frontend
-        run: |
-          cd frontend
-          rm -rf node_modules package-lock.json
-          npm install --force
-          npm run build
-
       # 5️⃣ Déploiement React (sans dist, node_modules)
       - name: Deploy React frontend
         run: |
           rsync -avz --delete \
             -e 'ssh -i ~/.ssh/deploy_key' \
             --exclude 'node_modules/' \
+            --exclude 'dist/' \
             --exclude '.env' \
             frontend/ \
             ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }}:/var/www/Mediconnect/frontend/
+
+      # 6️⃣ Build React sur le serveur
+      - name: Build React on server
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ vars.SERVER_USER }}@${{ vars.SERVER_HOST }} "cd /var/www/Mediconnect/frontend && npm install && npm run build"

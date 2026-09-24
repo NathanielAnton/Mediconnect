@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Stethoscope, Building, Users, TrendingUp } from "lucide-react";
+import { Stethoscope, Building, Users, TrendingUp, UserCheck } from "lucide-react";
 import PublicLayout from "./PublicLayout";
 import styles from "./PublicPage.module.css";
 
@@ -69,10 +69,24 @@ export default function Professionnels() {
               <div className={styles.cardIconWrapper}>
                 <Stethoscope className={styles.cardIcon} />
               </div>
-              <h3 className={styles.cardTitle}>Médecin ou secrétaire</h3>
+              <h3 className={styles.cardTitle}>Médecin ou secrétaire lié(e) à un établissement</h3>
               <p className={styles.cardText}>
                 Votre compte est créé par le directeur de votre établissement depuis son espace de gestion.
               </p>
+            </div>
+
+            <div className={styles.card}>
+              <div className={styles.cardIconWrapper}>
+                <UserCheck className={styles.cardIcon} />
+              </div>
+              <h3 className={styles.cardTitle}>Médecin indépendant</h3>
+              <p className={styles.cardText}>
+                Inscrivez-vous vous-même via le formulaire d'inscription en sélectionnant « Médecin indépendant ».
+                Après vérification de votre dossier, votre compte sera activé.
+              </p>
+              <Link to="/register" className={styles.ctaPrimary} style={{ display: "inline-block", marginTop: "1rem" }}>
+                S'inscrire comme médecin indépendant
+              </Link>
             </div>
           </div>
 

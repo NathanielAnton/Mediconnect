@@ -62,6 +62,25 @@ const UserDataTable = ({ users }) => {
     }
   };
 
+  // Masquer/réafficher un utilisateur des recherches et pages publiques (bloque aussi la prise de RDV)
+  // nextVisible correspond à l'état coché de la case « Visible » (visible = !hide)
+  const handleToggleHide = async (userId, nextVisible, checkboxEl) => {
+    const nextHide = !nextVisible;
+    try {
+      await axiosInstance.put(`/super-admin/users/${userId}/hide`, {
+        hide: nextHide,
+      });
+      toast.success(nextHide ? "Utilisateur masqué avec succès" : "Utilisateur réaffiché avec succès");
+      setLocalUsers((prev) =>
+        prev.map((u) => (u.id === Number(userId) ? { ...u, hide: nextHide } : u))
+      );
+    } catch (error) {
+      console.error("Erreur lors du changement de visibilité:", error);
+      toast.error(error.response?.data?.message || "Erreur lors du changement de visibilité");
+      checkboxEl.checked = !nextVisible;
+    }
+  };
+
   // Récupérer les détails d'un utilisateur via API
   const fetchUserDetails = async (userId) => {
     setLoadingModal(true);
@@ -127,8 +146,11 @@ const UserDataTable = ({ users }) => {
 
     const handleTableChange = (e) => {
       const switchInput = e.target.closest('.switch-input');
+      const switchHideInput = e.target.closest('.switch-hide-input');
       if (switchInput) {
         handleToggleActive(switchInput.dataset.userId, switchInput.checked, switchInput);
+      } else if (switchHideInput) {
+        handleToggleHide(switchHideInput.dataset.userId, switchHideInput.checked, switchHideInput);
       }
     };
 
@@ -174,6 +196,19 @@ const UserDataTable = ({ users }) => {
             return `
               <label class="switch" title="${isSelf ? 'Vous ne pouvez pas désactiver votre propre compte' : ''}">
                 <input type="checkbox" class="switch-input" data-user-id="${data.id}" ${data.is_active ? 'checked' : ''} ${isSelf ? 'disabled' : ''} />
+                <span class="switch-slider"></span>
+              </label>
+            `;
+          }
+        },
+        {
+          data: null,
+          title: 'Visible',
+          orderable: false,
+          render: (data) => {
+            return `
+              <label class="switch" title="Visible dans la recherche et les pages publiques">
+                <input type="checkbox" class="switch-hide-input" data-user-id="${data.id}" ${!data.hide ? 'checked' : ''} />
                 <span class="switch-slider"></span>
               </label>
             `;
@@ -338,6 +373,7 @@ const UserDataTable = ({ users }) => {
               <th>Email</th>
               <th>Rôle</th>
               <th>Statut</th>
+              <th>Visible</th>
               <th>Actions</th>
             </tr>
           </thead>

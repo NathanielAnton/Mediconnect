@@ -17,7 +17,10 @@ class SearchMedecinController extends Controller
             $ville = trim($request->input('ville', ''));
 
             // ---- Médecins ----
-            $medecinQuery = MedecinProfile::with('user', 'specialite', 'hopital');
+            $medecinQuery = MedecinProfile::with('user', 'specialite', 'hopital')
+                ->whereHas('user', function ($q) {
+                    $q->where('hide', false);
+                });
 
             if (!empty($query)) {
                 $medecinQuery->where(function ($q) use ($query) {
@@ -68,7 +71,12 @@ class SearchMedecinController extends Controller
             });
 
             // ---- Hôpitaux ----
-            $hopitalQuery = Hopital::withCount('medecins');
+            $hopitalQuery = Hopital::where('hide', false)
+                ->withCount(['medecins as medecins_count' => function ($q) {
+                    $q->whereHas('user', function ($userQuery) {
+                        $userQuery->where('hide', false);
+                    });
+                }]);
 
             if (!empty($query)) {
                 $hopitalQuery->where(function ($q) use ($query) {
@@ -116,7 +124,12 @@ class SearchMedecinController extends Controller
      */
     public function listAll()
     {
-        $hopitaux = Hopital::withCount('medecins')
+        $hopitaux = Hopital::where('hide', false)
+            ->withCount(['medecins as medecins_count' => function ($q) {
+                $q->whereHas('user', function ($userQuery) {
+                    $userQuery->where('hide', false);
+                });
+            }])
             ->orderBy('name')
             ->limit(100)
             ->get()
@@ -163,7 +176,7 @@ class SearchMedecinController extends Controller
 
         $medecins = MedecinProfile::with('user', 'specialite')
             ->whereHas('user', function ($q) use ($query) {
-                $q->where('name', 'LIKE', "%{$query}%");
+                $q->where('hide', false)->where('name', 'LIKE', "%{$query}%");
             })
             ->limit(5)
             ->get()
@@ -179,6 +192,7 @@ class SearchMedecinController extends Controller
             ->values();
 
         $hopitaux = Hopital::where('name', 'LIKE', "%{$query}%")
+            ->where('hide', false)
             ->limit(5)
             ->get(['id', 'name', 'ville'])
             ->map(function ($hopital) {
@@ -204,6 +218,9 @@ class SearchMedecinController extends Controller
 
         $medecinVilles = MedecinProfile::whereNotNull('ville')
             ->where('ville', '!=', '')
+            ->whereHas('user', function ($q) {
+                $q->where('hide', false);
+            })
             ->when($query !== '', function ($q) use ($query) {
                 $q->where('ville', 'LIKE', "%{$query}%");
             })
@@ -212,6 +229,7 @@ class SearchMedecinController extends Controller
 
         $hopitalVilles = Hopital::whereNotNull('ville')
             ->where('ville', '!=', '')
+            ->where('hide', false)
             ->when($query !== '', function ($q) use ($query) {
                 $q->where('ville', 'LIKE', "%{$query}%");
             })
@@ -230,10 +248,19 @@ class SearchMedecinController extends Controller
     public function getHopitalMedecins($id, Request $request)
     {
         try {
-            $hopital = Hopital::findOrFail($id);
+            $hopital = Hopital::where('hide', false)->find($id);
+
+            if (!$hopital) {
+                return response()->json([
+                    'message' => 'Établissement non trouvé',
+                ], 404);
+            }
 
             $profiles = MedecinProfile::with('user', 'specialite')
                 ->where('hopital_id', $hopital->id)
+                ->whereHas('user', function ($q) {
+                    $q->where('hide', false);
+                })
                 ->get();
 
             // Grouper par spécialité

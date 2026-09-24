@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
-import { LogOut, LayoutDashboard, User, Menu, X } from "lucide-react";
+import { LogOut, LayoutDashboard, Menu, X } from "lucide-react";
 import styles from "./rdv/SearchMedecin.module.css";
 
 const PUBLIC_NAV_LINKS = [
@@ -18,7 +18,6 @@ const Navbar = () => {
   const { user, logout, loading } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
-  const isHome = location.pathname === "/";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Referme le menu mobile à chaque changement de page
@@ -63,12 +62,6 @@ const Navbar = () => {
                   <LayoutDashboard className={styles.dashboardIcon} />
                   <span>Espace personnel</span>
                 </Link>
-                {!isHome && (
-                  <Link to="/user/profile" className={styles.dashboardButton}>
-                    <User className={styles.dashboardIcon} />
-                    <span>Mon Profil</span>
-                  </Link>
-                )}
                 <button onClick={handleLogout} className={styles.logoutButton}>
                   <LogOut className={styles.logoutIcon} />
                   <span>Déconnexion</span>
@@ -128,11 +121,6 @@ const Navbar = () => {
               <Link to="/dashboard" className={styles.navLink}>
                 Espace personnel
               </Link>
-              {!isHome && (
-                <Link to="/user/profile" className={styles.navLink}>
-                  Mon Profil
-                </Link>
-              )}
               <button onClick={handleLogout} className={styles.mobileLogoutButton}>
                 Déconnexion
               </button>

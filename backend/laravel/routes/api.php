@@ -28,6 +28,7 @@ use App\Http\Controllers\Gestionnaire\DashboardController as GestionnaireDashboa
 use App\Http\Controllers\SuperAdmin\UserController as SuperAdminUserController;
 use App\Http\Controllers\SuperAdmin\RoleController as SuperAdminRoleController;
 use App\Http\Controllers\SuperAdmin\DashboardController as SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdmin\HopitalController as SuperAdminHopitalController;
 use App\Http\Controllers\SuperAdmin\UserCreationController as SuperAdminUserCreationController;
 use App\Http\Controllers\SuperAdminController;
 // Admin Controllers
@@ -81,7 +82,7 @@ Route::get('/photo-profile/{filename}', function (string $filename) {
 Route::post('/demande-directeur', [DirecteurRequestController::class, 'store']);
 
 // Route pour créer un rendez-vous (accessible à tous: connectés ou non)
-Route::post('/rendezvous', [ClientRendezVousController::class, 'store']);
+Route::post('/rendezvous', [ClientRendezVousController::class, 'store'])->middleware('medecin.bookable');
 
 // ============================================
 // AUTHENTICATED ROUTES
@@ -111,7 +112,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::put('/profile', [ClientProfileController::class, 'update']);
 
         // Rendez-vous
-        Route::post('/rendez-vous', [ClientRendezVousController::class, 'store']);
+        Route::post('/rendez-vous', [ClientRendezVousController::class, 'store'])->middleware('medecin.bookable');
         Route::get('/rendez-vous/{id}', [ClientRendezVousController::class, 'show']);
         Route::get('/rendez-vous', [ClientRendezVousController::class, 'getMyRendezVous']);
         Route::patch('/rendez-vous/{id}/cancel', [ClientRendezVousController::class, 'cancel']);
@@ -132,7 +133,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/rendez-vous/month', [MedecinRendezVousController::class, 'getThisMonth']);
         Route::get('/rendez-vous/{id}', [MedecinRendezVousController::class, 'show']);
         Route::put('/rendez-vous/{id}', [MedecinRendezVousController::class, 'update']);
-        Route::post('/rendez-vous', [ClientRendezVousController::class, 'store']);
+        Route::post('/rendez-vous', [ClientRendezVousController::class, 'store'])->middleware('medecin.bookable');
         Route::delete('/rendez-vous/{id}', [MedecinRendezVousController::class, 'destroy']);
 
 
@@ -175,7 +176,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::prefix('rendez-vous')->name('rendez-vous.')->group(function () {
             Route::get('/today', [SecretaireRendezVousController::class, 'getTodayRendezVous']);
             Route::get('/{id}', [SecretaireRendezVousController::class, 'show']);
-            Route::post('/', [SecretaireRendezVousController::class, 'store']);
+            Route::post('/', [SecretaireRendezVousController::class, 'store'])->middleware('medecin.bookable');
             Route::put('/{id}', [SecretaireRendezVousController::class, 'update']);
             Route::delete('/{id}', [SecretaireRendezVousController::class, 'destroy']);
             Route::get('/medecin/{medecinId}', [SecretaireRendezVousController::class, 'getMedecinRendezVous']);
@@ -214,7 +215,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::prefix('rendez-vous')->name('rendez-vous.')->group(function () {
             Route::get('/today', [GestionnaireRendezVousController::class, 'getTodayRendezVous']);
             Route::get('/{id}', [GestionnaireRendezVousController::class, 'show']);
-            Route::post('/', [GestionnaireRendezVousController::class, 'store']);
+            Route::post('/', [GestionnaireRendezVousController::class, 'store'])->middleware('medecin.bookable');
             Route::put('/{id}', [GestionnaireRendezVousController::class, 'update']);
             Route::delete('/{id}', [GestionnaireRendezVousController::class, 'destroy']);
             Route::get('/medecin/{medecinId}', [GestionnaireRendezVousController::class, 'getMedecinRendezVous']);
@@ -285,9 +286,18 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
             Route::get('/{id}', [SuperAdminUserController::class, 'show']);
             Route::put('/{id}', [SuperAdminUserController::class, 'update']);
             Route::put('/{id}/status', [SuperAdminUserController::class, 'toggleActive']);
+            Route::put('/{id}/hide', [SuperAdminUserController::class, 'toggleHide']);
             Route::put('/{id}/change-password', [SuperAdminController::class, 'changeUserPassword']);
             Route::post('/assign-role', [SuperAdminUserController::class, 'assignRole']);
             Route::post('/remove-role', [SuperAdminUserController::class, 'removeRole']);
+        });
+
+        // Establishment Management (liste + masquage en cascade des médecins)
+        Route::prefix('etablissements')->name('etablissements.')->group(function () {
+            Route::get('/', [SuperAdminHopitalController::class, 'getAll']);
+            Route::put('/{id}/hide', [SuperAdminHopitalController::class, 'toggleHide']);
+            Route::get('/{id}/medecins', [SuperAdminHopitalController::class, 'medecins']);
+            Route::put('/{id}/medecins/unhide-all', [SuperAdminHopitalController::class, 'unhideAllMedecins']);
         });
 
         // Director Management

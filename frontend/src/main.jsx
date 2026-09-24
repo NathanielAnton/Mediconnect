@@ -27,6 +27,7 @@ import CreateUsers from "./pages/directeur/create-users";
 import HopitalInfo from "./pages/directeur/hopital/HopitalInfo";
 import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretaire";
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
+import EtablissementsSuperAdmin from "./pages/superadmin/etablissements/EtablissementsSuperAdmin";
 import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
 import DirectorRequests from "./pages/admin/directeur-requests/DirectorRequests";
 import UserVerification from "./pages/admin/user-verification/UserVerification";
@@ -73,6 +74,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/directeur/hopital" element={<HopitalInfo />} />
         <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
         <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
+        <Route path="/super-admin/etablissements" element={<EtablissementsSuperAdmin />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/demandes-directeurs" element={<DirectorRequests />} />
         <Route path="/admin/utilisateurs-verification" element={<UserVerification />} />

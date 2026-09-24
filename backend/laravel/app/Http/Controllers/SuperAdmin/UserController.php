@@ -29,6 +29,7 @@ class UserController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'is_active' => $user->is_active,
+                    'hide' => $user->hide,
                     'created_at' => $user->created_at,
                     'roles' => $user->roles->map(fn ($role) => [
                         'id' => $role->id,
@@ -58,6 +59,7 @@ class UserController extends Controller
                 'phone' => $user->phone ?? null,
                 'address' => $user->address ?? null,
                 'is_active' => $user->is_active,
+                'hide' => $user->hide,
                 'created_at' => $user->created_at,
                 'roles' => $user->roles->map(fn ($role) => [
                     'id' => $role->id,
@@ -124,6 +126,30 @@ class UserController extends Controller
             'user' => [
                 'id' => $user->id,
                 'is_active' => $user->is_active,
+            ]
+        ]);
+    }
+
+    /**
+     * SuperAdmin masque/réaffiche un utilisateur des recherches et pages publiques
+     * (empêche aussi toute prise de rendez-vous avec lui, via le middleware EnsureMedecinIsBookable)
+     */
+    public function toggleHide(Request $request, $id)
+    {
+        $request->validate([
+            'hide' => 'required|boolean',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update(['hide' => $request->boolean('hide')]);
+
+        return response()->json([
+            'message' => $user->hide
+                ? 'Utilisateur masqué avec succès'
+                : 'Utilisateur réaffiché avec succès',
+            'user' => [
+                'id' => $user->id,
+                'hide' => $user->hide,
             ]
         ]);
     }

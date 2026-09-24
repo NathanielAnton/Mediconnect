@@ -16,6 +16,11 @@ class Hopital extends Model
         'ville',
         'email',
         'description',
+        'hide',
+    ];
+
+    protected $casts = [
+        'hide' => 'boolean',
     ];
 
     /**

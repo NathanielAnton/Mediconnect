@@ -21,6 +21,7 @@ class User extends Authenticatable
         'client_id',
         'isVerified',
         'is_active',
+        'hide',
     ];
 
     protected $hidden = [
@@ -31,6 +32,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'is_active' => 'boolean',
+        'hide' => 'boolean',
     ];
 
     // Méthodes helper pour vérifier les rôles

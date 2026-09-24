@@ -109,9 +109,14 @@ const DashboardSuperAdmin = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>🔐 Super Admin Dashboard</h1>
-        <button onClick={() => navigate("/")} className={styles.btnBack}>
-          Retour
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={() => navigate("/super-admin/etablissements")} className={styles.btnBack}>
+            🏥 Établissements
+          </button>
+          <button onClick={() => navigate("/")} className={styles.btnBack}>
+            Retour
+          </button>
+        </div>
       </div>
 
       {/* Statistiques */}

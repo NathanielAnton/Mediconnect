@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Building, UserCheck, MapPin, Phone } from "lucide-react";
-import axios from "../api/axios";
+import axios from "../../api/axios";
 
 export default function DirectorRequest() {
   const [form, setForm] = useState({

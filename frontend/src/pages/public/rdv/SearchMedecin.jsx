@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Search, MapPin, Phone, User, Building2, Stethoscope } from "lucide-react";
 import styles from "./SearchMedecin.module.css";
 import ModalHoraires from "./components/ModalHoraires";
@@ -9,6 +9,7 @@ import api from "/src/api/axios";
 const SUGGESTION_DEBOUNCE_MS = 250;
 
 export default function SearchMedecin() {
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [ville, setVille] = useState("");
   const [results, setResults] = useState([]);
@@ -93,6 +94,18 @@ export default function SearchMedecin() {
     e.preventDefault();
     performSearch(searchQuery, ville);
   };
+
+  // Pré-remplit et lance la recherche depuis un lien profond (ex: ?query=Cardiologie)
+  useEffect(() => {
+    const initialQuery = searchParams.get("query") || "";
+    const initialVille = searchParams.get("ville") || "";
+    if (initialQuery || initialVille) {
+      setSearchQuery(initialQuery);
+      setVille(initialVille);
+      performSearch(initialQuery, initialVille);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSelectSuggestion = (suggestion) => {
     setSearchQuery(suggestion.label);

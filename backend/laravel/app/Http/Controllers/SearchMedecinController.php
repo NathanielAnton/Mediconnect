@@ -112,6 +112,31 @@ class SearchMedecinController extends Controller
     }
 
     /**
+     * Liste complète des établissements (pour la page vitrine "Nos établissements").
+     */
+    public function listAll()
+    {
+        $hopitaux = Hopital::withCount('medecins')
+            ->orderBy('name')
+            ->limit(100)
+            ->get()
+            ->map(function ($hopital) {
+                return [
+                    'id'             => $hopital->id,
+                    'name'           => $hopital->name,
+                    'ville'          => $hopital->ville,
+                    'adresse'        => $hopital->adresse,
+                    'telephone'      => $hopital->telephone,
+                    'email'          => $hopital->email ?? '',
+                    'description'    => $hopital->description ?? '',
+                    'medecins_count' => $hopital->medecins_count,
+                ];
+            });
+
+        return response()->json($hopitaux);
+    }
+
+    /**
      * Suggestions d'autocomplétion pour la barre de recherche principale
      * (spécialités, médecins, établissements).
      */

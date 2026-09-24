@@ -1,8 +1,9 @@
 import { useState, useContext, useEffect } from "react";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, Stethoscope } from "lucide-react";
 import { toast } from "react-toastify";
+import Navbar from "./Navbar";
 
 export default function Login() {
   const { login } = useContext(AuthContext);
@@ -139,7 +140,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center p-4">
       {/* Left Section - Branding */}
       <div className="hidden lg:flex w-1/2 flex-col justify-center items-center pr-12">
         <div className="mb-8 cursor-pointer" onClick={() => navigate("/")}>
@@ -336,5 +339,6 @@ export default function Login() {
         </div>
       </div>
     </div>
+    </>
   );
 }

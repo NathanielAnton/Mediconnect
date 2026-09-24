@@ -52,7 +52,7 @@ class SearchController extends Controller
      */
     public function getSpecialites()
     {
-        $specialites = Specialite::select('id', 'nom')->get();
+        $specialites = Specialite::select('id', 'nom')->withCount('medecinProfiles')->get();
         return response()->json(['specialites' => $specialites]);
     }
 }

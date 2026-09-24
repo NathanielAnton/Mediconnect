@@ -1,6 +1,6 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 import Navbar from "./Navbar";
 import SearchMedecin from "./rdv/SearchMedecin";
 import Footer from "./Footer";

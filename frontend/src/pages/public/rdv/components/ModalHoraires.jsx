@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, useContext } from "react";
 import FullCalendar from "@fullcalendar/react";
-import { AuthContext } from "../../../context/AuthContext";
+import { AuthContext } from "../../../../context/AuthContext";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import frLocale from "@fullcalendar/core/locales/fr";
 import { X, Clock, Loader, Phone, Building2 } from "lucide-react";
-import api from "../../../api/axios";
+import api from "../../../../api/axios";
 import styles from "./ModalHoraires.module.css";
-import ModalRendezVous from "../../user/planning/ModalRendezVous";
+import ModalRendezVous from "../../../user/planning/ModalRendezVous";
 import ModalHopital from "./ModalHopital";
 import { toast } from "react-toastify";
 

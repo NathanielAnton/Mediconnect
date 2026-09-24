@@ -3,8 +3,8 @@ import { AuthContext } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, Phone, Copy, Check } from "lucide-react";
 import api from "../../../api/axios";
-import Navbar from "../../Navbar";
-import styles from "../../rdv/SearchMedecin.module.css";
+import Navbar from "../../public/Navbar";
+import styles from "../../public/rdv/SearchMedecin.module.css";
 
 export default function ClientProfile() {
   const { user, loading } = useContext(AuthContext);

@@ -67,14 +67,9 @@ const DashboardSuperAdmin = () => {
       return;
     }
 
-    // Ces rôles exigent que le super admin complète la ligne de profil correspondante
-    // au moment de l'assignation : sans ces informations, le rôle n'est pas assigné.
-    if (PROFILE_REQUIRED_ROLES.includes(selectedRole)) {
-      setAssignRoleModalOpen(true);
-      return;
-    }
-
     try {
+      // Le backend n'exige la ligne de profil (medecin_profiles, secretaires, ...) que si elle
+      // n'existe pas déjà pour cet utilisateur : on tente donc l'assignation directe d'abord.
       await axiosInstance.post("/super-admin/users/assign-role", {
         user_id: selectedUser,
         role: selectedRole,
@@ -85,6 +80,16 @@ const DashboardSuperAdmin = () => {
       setSelectedUser(null);
       setSelectedRole("");
     } catch (error) {
+      // Une erreur 422 avec `errors` signifie que le profil est manquant et doit être complété.
+      if (
+        PROFILE_REQUIRED_ROLES.includes(selectedRole) &&
+        error.response?.status === 422 &&
+        error.response?.data?.errors
+      ) {
+        setAssignRoleModalOpen(true);
+        return;
+      }
+
       console.error("Erreur:", error);
       toast.error(error.response?.data?.message || "Erreur lors de l'assignation du rôle");
     }

@@ -13,6 +13,7 @@ const DashboardMedecin = () => {
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [todayCount, setTodayCount] = useState(0);
   const [monthCount, setMonthCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showNewRdvModal, setShowNewRdvModal] = useState(false);
@@ -38,6 +39,16 @@ const DashboardMedecin = () => {
         const monthData = monthResponse.data;
 
         setMonthCount(monthData.count || 0);
+
+        // Récupérer tous les rendez-vous pour compter ceux à valider
+        const allResponse = await api.get("/medecin/rendez-vous");
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        setPendingCount(
+          (allResponse.data.rendez_vous || []).filter(
+            (rdv) => rdv.statut === "en_attente" && new Date(rdv.date_debut) >= startOfToday
+          ).length
+        );
 
         // Récupérer les infos du médecin
         const medecinResponse = await api.get("/medecin/profile");
@@ -107,9 +118,9 @@ const DashboardMedecin = () => {
                 </div>
                 <div className={`${styles.statCard} ${styles.cardOrange}`}>
                   <h3 className={`${styles.statCardTitle} ${styles.titleOrange}`}>
-                    Prescriptions en Cours
+                    Rendez-vous à Valider
                   </h3>
-                  <p className={`${styles.statValue} ${styles.valueOrange}`}>XXXX</p>
+                  <p className={`${styles.statValue} ${styles.valueOrange}`}>{pendingCount}</p>
                 </div>
               </div>
 

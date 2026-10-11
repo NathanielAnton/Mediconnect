@@ -43,9 +43,9 @@ const EtablissementsDataTable = ({ hopitaux, onOpenMedecins }) => {
         prev.map((h) => (h.id === Number(hopitalId) ? { ...h, hide: nextHide } : h))
       );
 
-      // Après un masquage, on ouvre directement la liste des médecins pour permettre
-      // au superadmin de choisir rapidement qui réafficher.
-      if (nextHide) {
+      // On ouvre la liste des médecins uniquement au réaffichage, car ils restent masqués
+      // tant qu'ils ne sont pas réaffichés individuellement (ou via "Réafficher tous").
+      if (!nextHide) {
         onOpenMedecins(hopitalId);
       }
     } catch (error) {

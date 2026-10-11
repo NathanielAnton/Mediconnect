@@ -49,6 +49,11 @@ api.interceptors.request.use(async (config) => {
     }
   }
 
+  // Le navigateur doit définir le Content-Type multipart avec sa boundary
+  if (config.data instanceof FormData) {
+    config.headers.delete("Content-Type");
+  }
+
   // Ajouter le Bearer token
   const token = localStorage.getItem("token");
   if (token) {

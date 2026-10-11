@@ -35,6 +35,9 @@ import DashboardUser from "./pages/user/dashboard/DashboardUser";
 import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
 import ClientProfile from "./pages/user/profile/ClientProfile";
 import PendingApproval from "./pages/public/PendingApproval";
+import PdfTemplatesList from "./pages/medecin/pdf-templates/PdfTemplatesList";
+import PdfLogosPage from "./pages/medecin/pdf-templates/PdfLogosPage";
+import PdfTemplateEditor from "./pages/medecin/pdf-templates/PdfTemplateEditor";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -68,6 +71,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/medecin/profile" element={<MedecinProfile />} />
         <Route path="/medecin/planning" element={<PlanningMedecin />} />
         <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
+        <Route path="/medecin/pdf-templates" element={<PdfTemplatesList />} />
+        <Route path="/medecin/pdf-templates/logos" element={<PdfLogosPage />} />
+        <Route path="/medecin/pdf-templates/:id" element={<PdfTemplateEditor />} />
         <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
         <Route path="/directeur/dashboard" element={<DashboardDirecteur />} />
         <Route path="/directeur/create-users" element={<CreateUsers />} />

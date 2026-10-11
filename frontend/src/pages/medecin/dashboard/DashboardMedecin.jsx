@@ -4,6 +4,7 @@ import NavbarMedecin from "../components/NavbarMedecin";
 import styles from "./DashboardMedecin.module.css";
 import MedecinLiaisons from "../liaisons/MedecinLiaisons";
 import ModalNouveauRendezVous from "./modals/ModalNouveauRendezVous";
+import GenerateDocumentModal from "../pdf-templates/GenerateDocumentModal";
 import api from "../../../api/axios";
 
 const DashboardMedecin = () => {
@@ -15,6 +16,7 @@ const DashboardMedecin = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showNewRdvModal, setShowNewRdvModal] = useState(false);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [medecinInfo, setMedecinInfo] = useState(null);
 
   // Charger les données des rendez-vous au montage du composant
@@ -180,8 +182,17 @@ const DashboardMedecin = () => {
                     <button className={`${styles.actionButton} ${styles.actionButtonPurple}`}>
                       Gérer les Dossiers
                     </button>
-                    <button className={`${styles.actionButton} ${styles.actionButtonOrange}`}>
+                    <button
+                      className={`${styles.actionButton} ${styles.actionButtonOrange}`}
+                      onClick={() => setShowDocumentModal(true)}
+                    >
                       Rédiger Ordonnance
+                    </button>
+                    <button
+                      className={`${styles.actionButton} ${styles.actionButtonBlue}`}
+                      onClick={() => navigate("/medecin/pdf-templates")}
+                    >
+                      Modèles de documents
                     </button>
                   </div>
                 </div>
@@ -193,6 +204,10 @@ const DashboardMedecin = () => {
       </main>
 
       {showNewRdvModal && <ModalNouveauRendezVous onClose={() => setShowNewRdvModal(false)} />}
+
+      {showDocumentModal && (
+        <GenerateDocumentModal onClose={() => setShowDocumentModal(false)} />
+      )}
     </div>
   );
 };

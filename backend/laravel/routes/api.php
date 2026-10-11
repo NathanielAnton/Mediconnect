@@ -19,6 +19,10 @@ use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use App\Http\Controllers\Medecin\RendezVousController as MedecinRendezVousController;
 use App\Http\Controllers\Medecin\LiaisonController as MedecinLiaisonController;
 use App\Http\Controllers\Medecin\ProfileController as MedecinProfileControllerNamespace;
+use App\Http\Controllers\Medecin\PdfImageController;
+use App\Http\Controllers\Medecin\PdfTemplateController;
+use App\Http\Controllers\Medecin\PdfDataController;
+use App\Http\Controllers\Medecin\GeneratedDocumentController;
 use App\Http\Controllers\Secretaire\RendezVousController as SecretaireRendezVousController;
 use App\Http\Controllers\Secretaire\LiaisonController as SecretaireLiaisonController;
 use App\Http\Controllers\Secretaire\DashboardController as SecretaireDashboardController;
@@ -159,6 +163,32 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
             Route::get('/', [MedecinLiaisonController::class, 'getAllGestionnaires']);
             Route::get('/mes-gestionnaires', [MedecinLiaisonController::class, 'getMyGestionnaires']);
             Route::delete('/{id}', [MedecinLiaisonController::class, 'deleteGestionnaire']);
+        });
+
+        // Documents PDF (ordonnances et factures)
+        Route::prefix('pdf-images')->name('pdf-images.')->group(function () {
+            Route::get('/', [PdfImageController::class, 'index']);
+            Route::post('/', [PdfImageController::class, 'store']);
+            Route::get('/{id}/file', [PdfImageController::class, 'file']);
+            Route::delete('/{id}', [PdfImageController::class, 'destroy']);
+        });
+
+        Route::prefix('pdf-templates')->name('pdf-templates.')->group(function () {
+            Route::get('/', [PdfTemplateController::class, 'index']);
+            Route::post('/', [PdfTemplateController::class, 'store']);
+            Route::get('/{id}', [PdfTemplateController::class, 'show']);
+            Route::put('/{id}', [PdfTemplateController::class, 'update']);
+            Route::delete('/{id}', [PdfTemplateController::class, 'destroy']);
+        });
+
+        Route::get('/pdf-data/{rendezVousId}', [PdfDataController::class, 'show']);
+
+        // Pas de suppression : les documents archivés ne peuvent qu'être édités
+        Route::prefix('generated-documents')->name('generated-documents.')->group(function () {
+            Route::get('/', [GeneratedDocumentController::class, 'index']);
+            Route::post('/', [GeneratedDocumentController::class, 'store']);
+            Route::put('/{id}', [GeneratedDocumentController::class, 'update']);
+            Route::get('/{id}/download', [GeneratedDocumentController::class, 'download']);
         });
     });
 

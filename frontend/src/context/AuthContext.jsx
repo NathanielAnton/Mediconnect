@@ -34,11 +34,15 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
-  const register = async (name, email, password, phone, role) => {
-    const response = await api.post("/register", { name, email, password, phone, role });
-    setUser(response.data.user);
-    // Récupérer les données complètes de l'utilisateur (avec rôles)
-    await checkAuth();
+  const register = async (name, email, password, phone, role, documents = {}) => {
+    const fields = { name, email, password, phone, role };
+    let body = fields;
+    if (role === "medecin") {
+      // Les documents de vérification sont envoyés en multipart
+      body = new FormData();
+      Object.entries({ ...fields, ...documents }).forEach(([key, value]) => body.append(key, value));
+    }
+    const response = await api.post("/register", body);
     return response.data;
   };
 

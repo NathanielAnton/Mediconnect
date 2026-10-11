@@ -368,5 +368,7 @@ Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::get('/utilisateurs-non-verifies-list', [AdminUserController::class, 'getUnverifiedUsersList']);
         Route::put('/utilisateurs/{id}/verify', [AdminUserController::class, 'verifyUser']);
         Route::put('/utilisateurs/{id}/reject', [AdminUserController::class, 'rejectUser']);
+        Route::get('/utilisateurs/{id}/documents/{type}', [AdminUserController::class, 'getDocument'])
+            ->where('type', 'identite|justificatif');
     });
 });

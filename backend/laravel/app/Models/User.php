@@ -22,11 +22,15 @@ class User extends Authenticatable
         'isVerified',
         'is_active',
         'hide',
+        'document_identite',
+        'justificatif_validite',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'document_identite',
+        'justificatif_validite',
     ];
 
     protected $casts = [

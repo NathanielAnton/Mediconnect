@@ -23,6 +23,10 @@ export default function Register() {
   });
   const [success, setSuccess] = useState(false);
   const [medecinValidation, setMedecinValidation] = useState(false);
+  const [documents, setDocuments] = useState({
+    document_identite: null,
+    justificatif_validite: null,
+  });
   const navigate = useNavigate();
 
   // Validation côté frontend
@@ -50,6 +54,11 @@ export default function Register() {
     return "";
   };
 
+  const handleDocumentChange = (field) => (e) => {
+    const file = e.target.files[0] || null;
+    setDocuments((prev) => ({ ...prev, [field]: file }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -74,6 +83,18 @@ export default function Register() {
       return;
     }
 
+    if (form.role === "medecin" && (!documents.document_identite || !documents.justificatif_validite)) {
+      setErrors({
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        general: "Veuillez joindre votre pièce d'identité et votre justificatif de validité",
+      });
+      setLoading(false);
+      return;
+    }
+
     if (nameError || emailError || passwordError || phoneError) {
       setErrors({
         name: nameError,
@@ -87,7 +108,7 @@ export default function Register() {
     }
 
     try {
-      await register(form.name, form.email, form.password, form.phone, form.role);
+      await register(form.name, form.email, form.password, form.phone, form.role, documents);
       setSuccess(true);
 
       // Si médecin, rediriger vers la page de vérification
@@ -112,7 +133,8 @@ export default function Register() {
           email: backendErrors.email?.[0] || "",
           password: backendErrors.password?.[0] || "",
           phone: backendErrors.phone?.[0] || "",
-          general: "",
+          general:
+            backendErrors.document_identite?.[0] || backendErrors.justificatif_validite?.[0] || "",
         });
       } else if (err.response?.status >= 500) {
         // Erreur serveur
@@ -397,6 +419,40 @@ export default function Register() {
                       administrateur avant activation.
                     </span>
                   </label>
+                </div>
+              )}
+
+              {/* Documents médecin */}
+              {form.role === "medecin" && (
+                <div className="mt-4 space-y-4">
+                  {[
+                    {
+                      field: "document_identite",
+                      label: "Pièce d'identité",
+                      hint: "Carte nationale d'identité, passeport, etc.",
+                    },
+                    {
+                      field: "justificatif_validite",
+                      label: "Justificatif de validité",
+                      hint: "Attestation d'inscription à l'Ordre des médecins, etc.",
+                    },
+                  ].map(({ field, label, hint }) => (
+                    <div key={field}>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        {label} <span className="text-red-500">*</span>
+                      </label>
+                      <p className="text-gray-500 text-xs mb-2">{hint}</p>
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png"
+                        onChange={handleDocumentChange(field)}
+                        className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      />
+                      {documents[field] && (
+                        <p className="text-xs text-green-600 mt-1">{documents[field].name}</p>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

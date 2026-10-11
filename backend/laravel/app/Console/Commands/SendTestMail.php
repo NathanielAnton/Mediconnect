@@ -17,7 +17,7 @@ class SendTestMail extends Command
         $to = "teamlead.mediconnect@gmail.com";
         $sender = ['email' => "noreply@medi-connect.info", 'name' => 'MediConnect'];
         $subject = 'Test envoi Brevo';
-        $htmlContent = '<p>Ceci est un email de test envoye via l\'API Brevo.</p>';
+        $htmlContent = view('emails.test')->render();
         $textContent = 'Ceci est un email de test envoye via l\'API Brevo.';
 
         try {
@@ -39,7 +39,7 @@ class SendTestMail extends Command
 
             return self::FAILURE;
         }
-        $this->info('Response from Brevo : '.json_encode($response));
+        // $this->info('Response from Brevo : '.json_encode($response));
 
         $this->info('Requete acceptee par Brevo. messageId : '.($response['messageId'] ?? 'inconnu'));
 

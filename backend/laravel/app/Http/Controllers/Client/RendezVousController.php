@@ -16,7 +16,7 @@ class RendezVousController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'medecin_id' => 'required|integer|exists:users,id',
+            'medecin_id' => 'required|integer|exists:medecin_profiles,id',
             'date_debut' => 'required|date',
             'date_fin' => 'required|date',
             'motif' => 'nullable|string|max:500',

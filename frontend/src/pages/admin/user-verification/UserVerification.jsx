@@ -7,8 +7,22 @@ import styles from "./UserVerification.module.css";
 const UserVerification = () => {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [documentsUser, setDocumentsUser] = useState(null);
   const tableRef = useRef(null);
   const datatableRef = useRef(null);
+
+  const openDocument = async (id, type) => {
+    try {
+      const response = await axios.get(`/admin/utilisateurs/${id}/documents/${type}`, {
+        responseType: "blob",
+      });
+      const url = URL.createObjectURL(response.data);
+      window.open(url, "_blank", "noopener");
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (error) {
+      toast.error("Impossible d'afficher le document");
+    }
+  };
 
   useEffect(() => {
     initializeDataTable();
@@ -185,6 +199,12 @@ const UserVerification = () => {
       if (actionsCell.find(".action-buttons").length === 0) {
         actionsCell.html(`
           <div class="action-buttons" style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <button class="btn-docs" data-id="${rowData.id}" data-name="${rowData.name}"
+              data-identite="${rowData.has_document_identite}" data-justificatif="${rowData.has_justificatif_validite}"
+              title="Consulter les documents"
+              style="padding: 8px 12px; background-color: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 200ms ease;">
+              Documents
+            </button>
             <button class="btn-verify" data-id="${rowData.id}" data-name="${rowData.name}" 
               title="Vérifier l'utilisateur" 
               style="padding: 8px 12px; background-color: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600; transition: all 200ms ease;">
@@ -219,6 +239,17 @@ const UserVerification = () => {
         const userId = $(this).data("id");
         const userName = $(this).data("name");
         handleRejectUser(userId, userName);
+      });
+
+    $(".btn-docs")
+      .off("click")
+      .on("click", function () {
+        setDocumentsUser({
+          id: $(this).data("id"),
+          name: $(this).data("name"),
+          hasIdentite: $(this).data("identite") === true,
+          hasJustificatif: $(this).data("justificatif") === true,
+        });
       });
 
     // Ajouter les styles au survol
@@ -311,6 +342,74 @@ const UserVerification = () => {
           </table>
         </div>
       </main>
+
+      {documentsUser && (
+        <div className={styles.modalOverlay} onClick={() => setDocumentsUser(null)}>
+          <div className={styles.modalCard} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>Documents de {documentsUser.name}</h2>
+              <p className={styles.modalSubtitle}>
+                Consultez les pièces fournies avant de valider ou de rejeter le compte.
+              </p>
+            </div>
+
+            <div className={styles.modalBody}>
+              {[
+                {
+                  type: "identite",
+                  label: "Pièce d'identité",
+                  available: documentsUser.hasIdentite,
+                },
+                {
+                  type: "justificatif",
+                  label: "Justificatif de validité",
+                  available: documentsUser.hasJustificatif,
+                },
+              ].map((doc) => (
+                <div key={doc.type} className={styles.docItem}>
+                  <span className={styles.docLabel}>{doc.label}</span>
+                  {doc.available ? (
+                    <button
+                      className={styles.docLink}
+                      onClick={() => openDocument(documentsUser.id, doc.type)}
+                    >
+                      Ouvrir le document
+                    </button>
+                  ) : (
+                    <span className={styles.docMissing}>Non fourni</span>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className={styles.modalFooter}>
+              <button className={styles.btnClose} onClick={() => setDocumentsUser(null)}>
+                Fermer
+              </button>
+              <button
+                className={styles.btnReject}
+                disabled={actionLoading}
+                onClick={() => {
+                  handleRejectUser(documentsUser.id, documentsUser.name);
+                  setDocumentsUser(null);
+                }}
+              >
+                ✕ Rejeter
+              </button>
+              <button
+                className={styles.btnVerify}
+                disabled={actionLoading}
+                onClick={() => {
+                  handleVerifyUser(documentsUser.id, documentsUser.name);
+                  setDocumentsUser(null);
+                }}
+              >
+                ✓ Vérifier
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

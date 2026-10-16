@@ -9,42 +9,14 @@ import NavbarMedecin from "../components/NavbarMedecin";
 import styles from "./PlanningMedecin.module.css";
 import api from "../../../api/axios";
 import { AuthContext } from "../../../context/AuthContext";
-
-const formatDateKey = (date) => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-const parseDateKey = (dateKey) => new Date(`${dateKey}T00:00:00`);
-
-const addDays = (date, days) => {
-  const copy = new Date(date);
-  copy.setDate(copy.getDate() + days);
-  return copy;
-};
-
-const addMinutes = (date, minutes) => {
-  const copy = new Date(date);
-  copy.setMinutes(copy.getMinutes() + minutes);
-  return copy;
-};
-
-const parseDateTime = (dateKey, time) => new Date(`${dateKey}T${time}`);
-
-const convertJourToNumber = (jour) => {
-  const jours = {
-    dimanche: 0,
-    lundi: 1,
-    mardi: 2,
-    mercredi: 3,
-    jeudi: 4,
-    vendredi: 5,
-    samedi: 6,
-  };
-  return jours[jour.toLowerCase()] ?? 0;
-};
+import {
+  formatDateKey,
+  parseDateKey,
+  parseDateTime,
+  addDays,
+  addMinutes,
+  convertJourToNumber,
+} from "../../../utils/dateHelpers";
 
 const buildEvents = (horaires, indisponibilitesRaw, range, rendezvousRaw = []) => {
   if (!range) {
@@ -196,6 +168,10 @@ const buildEvents = (horaires, indisponibilitesRaw, range, rendezvousRaw = []) =
 export default function PlanningMedecin() {
   const { user } = useContext(AuthContext);
   const [events, setEvents] = useState([]);
+  const [currentView, setCurrentView] = useState(() =>
+    window.innerWidth >= 768 ? "timeGridWeek" : "timeGridDay"
+  );
+  const calendarRef = useRef(null);
   const horairesRef = useRef([]);
   const indisposRef = useRef([]);
   const rendezvousRef = useRef([]);
@@ -211,7 +187,6 @@ export default function PlanningMedecin() {
   const fetchEvents = useCallback(async () => {
     try {
       const res = await api.get("/medecin/planning");
-      console.log("Réponse brute du planning :", res.data);
       const nextHoraires = res.data.horaires || [];
       const nextIndispos = res.data.indisponibilites || [];
       const nextRendezvous = res.data.rendez_vous || [];
@@ -227,7 +202,6 @@ export default function PlanningMedecin() {
           currentRangeRef.current,
           nextRendezvous
         );
-        console.log("Événements recalculés :", newEvents);
         setEvents(newEvents);
       }
     } catch (err) {
@@ -239,28 +213,45 @@ export default function PlanningMedecin() {
     fetchEvents();
   }, [fetchEvents]);
 
+  // Gérer le changement de vue en fonction de la taille de l'écran
+  useEffect(() => {
+    const handleResize = () => {
+      const newView = window.innerWidth >= 768 ? "timeGridWeek" : "timeGridDay";
+      if (newView !== currentView) {
+        setCurrentView(newView);
+        // Changer la vue du calendrier si la ref est disponible
+        if (calendarRef.current) {
+          calendarRef.current.getApi().changeView(newView);
+        }
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [currentView]);
+
   return (
     <div className={styles.container}>
       <NavbarMedecin />
       <div className="p-4">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col md:flex-row justify-between md:items-center mb-4 gap-2 md:gap-0">
           <h2 className="text-xl font-semibold">Mon planning</h2>
-          <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
             <button
               onClick={() => setShowHoraireModal(true)}
-              className="bg-blue-500 text-white px-3 py-1 rounded"
+              className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 w-full md:w-auto"
             >
               Gestion des Horaires Hebdos
             </button>
             <button
               onClick={() => setShowIndispoModal(true)}
-              className="bg-red-500 text-white px-3 py-1 rounded"
+              className="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 w-full md:w-auto"
             >
               Ajouter indisponibilité
             </button>
             <button
               onClick={fetchEvents}
-              className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+              className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 w-full md:w-auto"
             >
               Rafraîchir
             </button>
@@ -269,8 +260,9 @@ export default function PlanningMedecin() {
 
         <div className="p-4">
           <FullCalendar
+            ref={calendarRef}
             plugins={[timeGridPlugin]}
-            initialView="timeGridWeek"
+            initialView={currentView}
             slotMinTime="06:00:00"
             slotMaxTime="20:00:00"
             allDaySlot={false}
@@ -281,7 +273,7 @@ export default function PlanningMedecin() {
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "timeGridWeek,timeGridDay",
+              right: "timeGridDay,timeGridWeek",
             }}
             eventTextColor="#000"
             eventClick={(clickInfo) => {

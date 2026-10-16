@@ -1,22 +1,23 @@
-import { useContext, useState, useEffect } from "react";
-import { AuthContext } from "../../../context/AuthContext";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavbarMedecin from "../components/NavbarMedecin";
 import styles from "./DashboardMedecin.module.css";
 import MedecinLiaisons from "../liaisons/MedecinLiaisons";
 import ModalNouveauRendezVous from "./modals/ModalNouveauRendezVous";
+import GenerateDocumentModal from "../pdf-templates/GenerateDocumentModal";
 import api from "../../../api/axios";
 
 const DashboardMedecin = () => {
-  const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
   const [todayAppointments, setTodayAppointments] = useState([]);
   const [todayCount, setTodayCount] = useState(0);
   const [monthCount, setMonthCount] = useState(0);
+  const [pendingCount, setPendingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showNewRdvModal, setShowNewRdvModal] = useState(false);
+  const [showDocumentModal, setShowDocumentModal] = useState(false);
   const [medecinInfo, setMedecinInfo] = useState(null);
 
   // Charger les données des rendez-vous au montage du composant
@@ -39,9 +40,18 @@ const DashboardMedecin = () => {
 
         setMonthCount(monthData.count || 0);
 
+        // Récupérer tous les rendez-vous pour compter ceux à valider
+        const allResponse = await api.get("/medecin/rendez-vous");
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+        setPendingCount(
+          (allResponse.data.rendez_vous || []).filter(
+            (rdv) => rdv.statut === "en_attente" && new Date(rdv.date_debut) >= startOfToday
+          ).length
+        );
+
         // Récupérer les infos du médecin
         const medecinResponse = await api.get("/medecin/profile");
-        console.log("Medecin profile response:", medecinResponse.data);
         setMedecinInfo(medecinResponse.data);
       } catch (err) {
         console.error("Erreur lors du chargement des rendez-vous:", err);
@@ -53,15 +63,6 @@ const DashboardMedecin = () => {
 
     loadAppointmentsData();
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-    }
-  };
 
   return (
     <div className={styles.container}>
@@ -117,9 +118,9 @@ const DashboardMedecin = () => {
                 </div>
                 <div className={`${styles.statCard} ${styles.cardOrange}`}>
                   <h3 className={`${styles.statCardTitle} ${styles.titleOrange}`}>
-                    Prescriptions en Cours
+                    Rendez-vous à Valider
                   </h3>
-                  <p className={`${styles.statValue} ${styles.valueOrange}`}>XXXX</p>
+                  <p className={`${styles.statValue} ${styles.valueOrange}`}>{pendingCount}</p>
                 </div>
               </div>
 
@@ -192,8 +193,17 @@ const DashboardMedecin = () => {
                     <button className={`${styles.actionButton} ${styles.actionButtonPurple}`}>
                       Gérer les Dossiers
                     </button>
-                    <button className={`${styles.actionButton} ${styles.actionButtonOrange}`}>
+                    <button
+                      className={`${styles.actionButton} ${styles.actionButtonOrange}`}
+                      onClick={() => setShowDocumentModal(true)}
+                    >
                       Rédiger Ordonnance
+                    </button>
+                    <button
+                      className={`${styles.actionButton} ${styles.actionButtonBlue}`}
+                      onClick={() => navigate("/medecin/pdf-templates")}
+                    >
+                      Modèles de documents
                     </button>
                   </div>
                 </div>
@@ -205,6 +215,10 @@ const DashboardMedecin = () => {
       </main>
 
       {showNewRdvModal && <ModalNouveauRendezVous onClose={() => setShowNewRdvModal(false)} />}
+
+      {showDocumentModal && (
+        <GenerateDocumentModal onClose={() => setShowDocumentModal(false)} />
+      )}
     </div>
   );
 };

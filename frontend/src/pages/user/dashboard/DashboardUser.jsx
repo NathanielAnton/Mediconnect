@@ -3,7 +3,7 @@ import { AuthContext } from "../../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api/axios";
 import styles from "./DashboardUser.module.css";
-import SearchMedecin from "../../rdv/SearchMedecin";
+import SearchMedecin from "../../public/rdv/SearchMedecin";
 import { toast } from "react-toastify";
 
 const DashboardUser = () => {

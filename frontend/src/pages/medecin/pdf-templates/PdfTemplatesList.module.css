@@ -1,0 +1,158 @@
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #1e293b;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.headerActions,
+.cardActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.filters {
+  margin-bottom: 16px;
+}
+
+.select,
+.input {
+  padding: 8px 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 4px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #1e293b;
+}
+
+.meta,
+.empty {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.badge {
+  align-self: flex-start;
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.ordonnance {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.facture {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.primaryButton,
+.secondaryButton,
+.dangerButton {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.primaryButton {
+  background: #0d9488;
+  color: #fff;
+}
+
+.primaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryButton {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.dangerButton {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: min(420px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+  color: #334155;
+}

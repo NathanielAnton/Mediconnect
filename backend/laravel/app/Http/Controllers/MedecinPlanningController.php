@@ -40,7 +40,12 @@ class MedecinPlanningController extends Controller
      */
     public function getPlanningById($medecinId)
     {
-        // $medecinId = MedecinProfile::where('user_id', $id)->first()->id;
+        $profile = MedecinProfile::with('user')->find($medecinId);
+
+        if (!$profile || !$profile->user || $profile->user->hide) {
+            return response()->json(['message' => 'Médecin non trouvé'], 404);
+        }
+
         $horaires = HoraireMedecin::where('medecin_id', $medecinId)->get();
         $indispos = IndisponibiliteMedecin::where('medecin_id', $medecinId)->get();
         $rdvs = RendezVous::where('medecin_id', $medecinId)

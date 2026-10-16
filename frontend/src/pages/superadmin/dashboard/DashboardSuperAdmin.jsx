@@ -4,7 +4,25 @@ import axiosInstance from "../../../api/axios";
 import { toast } from "react-toastify";
 import UserDataTable from "./tables/UserDataTable";
 import CreateDirectorModal from "./modals/CreateDirectorModal";
+import CreateAdminModal from "./modals/CreateAdminModal";
+import CreateClientModal from "./modals/CreateClientModal";
+import CreateGestionnaireModal from "./modals/CreateGestionnaireModal";
+import CreateSecretaireModal from "./modals/CreateSecretaireModal";
+import CreateMedecinModal from "./modals/CreateMedecinModal";
+import AssignRoleProfileModal from "./modals/AssignRoleProfileModal";
 import styles from "./DashboardSuperAdmin.module.css";
+
+// Rôles nécessitant une ligne de profil dédiée (medecin_profiles, secretaires, gestionnaires, directeurs)
+const PROFILE_REQUIRED_ROLES = ["medecin", "secretaire", "gestionnaire", "directeur"];
+
+const CREATE_ROLE_BUTTONS = [
+  { key: "directeur", label: "+ Créer un Directeur" },
+  { key: "admin", label: "+ Créer un Admin" },
+  { key: "medecin", label: "+ Créer un Médecin" },
+  { key: "gestionnaire", label: "+ Créer un Gestionnaire" },
+  { key: "secretaire", label: "+ Créer un(e) Secrétaire" },
+  { key: "client", label: "+ Créer un Client" },
+];
 
 const DashboardSuperAdmin = () => {
   const navigate = useNavigate();
@@ -14,7 +32,8 @@ const DashboardSuperAdmin = () => {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedRole, setSelectedRole] = useState("");
-  const [showCreateDirectorModal, setShowCreateDirectorModal] = useState(false);
+  const [activeCreateModal, setActiveCreateModal] = useState(null);
+  const [assignRoleModalOpen, setAssignRoleModalOpen] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -49,6 +68,8 @@ const DashboardSuperAdmin = () => {
     }
 
     try {
+      // Le backend n'exige la ligne de profil (medecin_profiles, secretaires, ...) que si elle
+      // n'existe pas déjà pour cet utilisateur : on tente donc l'assignation directe d'abord.
       await axiosInstance.post("/super-admin/users/assign-role", {
         user_id: selectedUser,
         role: selectedRole,
@@ -59,9 +80,25 @@ const DashboardSuperAdmin = () => {
       setSelectedUser(null);
       setSelectedRole("");
     } catch (error) {
+      // Une erreur 422 avec `errors` signifie que le profil est manquant et doit être complété.
+      if (
+        PROFILE_REQUIRED_ROLES.includes(selectedRole) &&
+        error.response?.status === 422 &&
+        error.response?.data?.errors
+      ) {
+        setAssignRoleModalOpen(true);
+        return;
+      }
+
       console.error("Erreur:", error);
-      toast.error("Erreur lors de l'assignation du rôle");
+      toast.error(error.response?.data?.message || "Erreur lors de l'assignation du rôle");
     }
+  };
+
+  const handleAssignRoleProfileSuccess = () => {
+    fetchDashboardData();
+    setSelectedUser(null);
+    setSelectedRole("");
   };
 
   if (loading) {
@@ -72,9 +109,14 @@ const DashboardSuperAdmin = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1>🔐 Super Admin Dashboard</h1>
-        <button onClick={() => navigate("/")} className={styles.btnBack}>
-          Retour
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <button onClick={() => navigate("/super-admin/etablissements")} className={styles.btnBack}>
+            🏥 Établissements
+          </button>
+          <button onClick={() => navigate("/")} className={styles.btnBack}>
+            Retour
+          </button>
+        </div>
       </div>
 
       {/* Statistiques */}
@@ -125,36 +167,37 @@ const DashboardSuperAdmin = () => {
         </div>
       </div>
 
+      {/* Création d'utilisateurs par rôle */}
+      <div className={styles.section}>
+        <h2 style={{ marginTop: 0 }}>Créer un utilisateur</h2>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+          {CREATE_ROLE_BUTTONS.map((btn) => (
+            <button
+              key={btn.key}
+              onClick={() => setActiveCreateModal(btn.key)}
+              style={{
+                padding: "10px 20px",
+                backgroundColor: "#1976d2",
+                color: "white",
+                border: "none",
+                borderRadius: "6px",
+                fontWeight: "600",
+                cursor: "pointer",
+                fontSize: "0.95rem",
+                transition: "background-color 0.2s",
+              }}
+              onMouseEnter={(e) => (e.target.style.backgroundColor = "#1565c0")}
+              onMouseLeave={(e) => (e.target.style.backgroundColor = "#1976d2")}
+            >
+              {btn.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Liste des utilisateurs */}
       <div className={styles.section}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "15px",
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Tous les utilisateurs</h2>
-          <button
-            onClick={() => setShowCreateDirectorModal(true)}
-            style={{
-              padding: "10px 20px",
-              backgroundColor: "#1976d2",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              fontWeight: "600",
-              cursor: "pointer",
-              fontSize: "0.95rem",
-              transition: "background-color 0.2s",
-            }}
-            onMouseEnter={(e) => (e.target.style.backgroundColor = "#1565c0")}
-            onMouseLeave={(e) => (e.target.style.backgroundColor = "#1976d2")}
-          >
-            + Créer un Directeur
-          </button>
-        </div>
+        <h2 style={{ margin: "0 0 15px 0" }}>Tous les utilisateurs</h2>
         <UserDataTable users={users} />
       </div>
 
@@ -171,10 +214,54 @@ const DashboardSuperAdmin = () => {
         </div>
       </div>
 
-      {/* Modal Créer Directeur */}
-      {showCreateDirectorModal && (
+      {/* Complétion du profil requise pour finaliser l'assignation du rôle */}
+      {assignRoleModalOpen && selectedUser && (
+        <AssignRoleProfileModal
+          userId={selectedUser}
+          userName={users.find((u) => String(u.id) === String(selectedUser))?.name || ""}
+          role={selectedRole}
+          onClose={() => setAssignRoleModalOpen(false)}
+          onSuccess={() => {
+            setAssignRoleModalOpen(false);
+            handleAssignRoleProfileSuccess();
+          }}
+        />
+      )}
+
+      {/* Modals Créer Utilisateur */}
+      {activeCreateModal === "directeur" && (
         <CreateDirectorModal
-          onClose={() => setShowCreateDirectorModal(false)}
+          onClose={() => setActiveCreateModal(null)}
+          onSuccess={() => fetchDashboardData()}
+        />
+      )}
+      {activeCreateModal === "admin" && (
+        <CreateAdminModal
+          onClose={() => setActiveCreateModal(null)}
+          onSuccess={() => fetchDashboardData()}
+        />
+      )}
+      {activeCreateModal === "medecin" && (
+        <CreateMedecinModal
+          onClose={() => setActiveCreateModal(null)}
+          onSuccess={() => fetchDashboardData()}
+        />
+      )}
+      {activeCreateModal === "gestionnaire" && (
+        <CreateGestionnaireModal
+          onClose={() => setActiveCreateModal(null)}
+          onSuccess={() => fetchDashboardData()}
+        />
+      )}
+      {activeCreateModal === "secretaire" && (
+        <CreateSecretaireModal
+          onClose={() => setActiveCreateModal(null)}
+          onSuccess={() => fetchDashboardData()}
+        />
+      )}
+      {activeCreateModal === "client" && (
+        <CreateClientModal
+          onClose={() => setActiveCreateModal(null)}
           onSuccess={() => fetchDashboardData()}
         />
       )}

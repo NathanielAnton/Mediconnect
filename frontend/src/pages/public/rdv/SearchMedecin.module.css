@@ -1,0 +1,847 @@
+/* Container */
+.container {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f0f9ff, #ffffff);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.header {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.headerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logoIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIconSvg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+
+.logoTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.headerActions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.headerLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+}
+
+.headerSpinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.userGreeting {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.dashboardButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.dashboardButton:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+}
+
+.dashboardIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background: #ef4444;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.logoutButton:hover {
+  background: #dc2626;
+  transform: translateY(-2px);
+}
+
+.logoutIcon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.loginButton {
+  padding: 0.5rem 1.5rem;
+  color: #3b82f6;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover {
+  background-color: #f0f9ff;
+}
+
+.registerButton {
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.registerButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Hero Section */
+.hero {
+  padding: 4rem 1.5rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+}
+
+.heroContent {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heroTitle {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+/* Search Form */
+.searchForm {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: stretch;
+  background: white;
+  border-radius: 0.75rem;
+  overflow: visible;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Champ de recherche avec autocomplétion (nom, spécialité ou champ ville) */
+.searchField {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 1.25rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.searchInput {
+  flex: 1;
+  width: 100%;
+  padding: 1rem 1rem 1rem 3.25rem;
+  border: none;
+  font-size: 1rem;
+  color: #1f2937;
+  outline: none;
+  border-radius: 0.75rem 0 0 0.75rem;
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+}
+
+.searchDivider {
+  width: 1px;
+  background: #e5e7eb;
+  margin: 0.75rem 0;
+  flex-shrink: 0;
+}
+
+/* Liste de suggestions (autocomplétion) */
+.suggestionsList {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 60;
+  list-style: none;
+  padding: 0.5rem 0;
+  margin: 0;
+  text-align: left;
+  color: #1f2937;
+}
+
+.suggestionItem {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.65rem 1.25rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.suggestionItem:hover,
+.suggestionItem:focus {
+  background: #f0f9ff;
+}
+
+.suggestionIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.suggestionLabel {
+  flex: 1;
+  font-weight: 500;
+}
+
+.suggestionMeta {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+.searchButton {
+  padding: 1rem 2rem;
+  background: #3b82f6;
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  border-radius: 0 0.75rem 0.75rem 0;
+  transition: background-color 0.2s;
+}
+
+.searchButton:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.searchButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Results Section */
+.results {
+  flex: 1;
+  padding: 3rem 1.5rem;
+}
+
+.resultsContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.resultsHeader {
+  margin-bottom: 2rem;
+}
+
+.resultsTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Medecin Grid */
+.medecinGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.medecinCard {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.medecinCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.medecinHeader {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+}
+
+.medecinAvatar {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.medecinAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.avatarIcon {
+  width: 2rem;
+  height: 2rem;
+  color: white;
+}
+
+.medecinInfo {
+  flex: 1;
+}
+
+.medecinName {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+}
+
+.medecinSpecialite {
+  color: #3b82f6;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.medecinBody {
+  padding: 1.5rem;
+}
+
+.medecinDescription {
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+.medecinDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.detailItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.detailIcon {
+  width: 1rem;
+  height: 1rem;
+  color: #9ca3af;
+}
+
+.medecinFooter {
+  padding: 1rem 1.5rem;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.appointmentButton {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.appointmentButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Loading State */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid #e5e7eb;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingText {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* No Results */
+.noResults {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.noResultsIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.noResultsTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.noResultsText {
+  color: #6b7280;
+}
+
+/* Placeholder */
+.placeholder {
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.placeholderIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.placeholderTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.placeholderText {
+  color: #6b7280;
+}
+
+/* Footer */
+.footer {
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  padding: 2rem 1.5rem;
+  margin-top: auto;
+}
+
+.footerContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.footerText {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Results subtitle */
+.resultsSubtitle {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+/* Hopital Card */
+.hopitalCard {
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-top: 3px solid #10b981;
+}
+
+.hopitalCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.hopitalHeader {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+}
+
+.hopitalAvatar {
+  width: 4rem;
+  height: 4rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hopitalInfo {
+  flex: 1;
+}
+
+.hopitalName {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 0.35rem;
+}
+
+.hopitalVille {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #059669;
+  font-weight: 500;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.detailIconSmall {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}
+
+.hopitalMedecinsCount {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.detailsButton {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  font-weight: 600;
+  text-align: center;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.detailsButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1rem;
+  }
+
+  .headerActions {
+    gap: 0.5rem;
+  }
+
+  .medecinGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .searchContainer {
+    flex-direction: column;
+  }
+
+  .searchInput {
+    padding: 1rem;
+    border-radius: 0;
+  }
+
+  .searchDivider {
+    width: auto;
+    height: 1px;
+    margin: 0 1rem;
+  }
+
+  .searchButton {
+    border-radius: 0 0 0.75rem 0.75rem;
+  }
+
+  .searchIcon {
+    display: none;
+  }
+}
+
+/* Public nav links row (below logo, desktop) */
+.navRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 0.6rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.authActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.authActionsUser {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mobileLogoutButton {
+  text-align: left;
+  padding: 0.6rem 0;
+  border: none;
+  border-bottom: 1px solid #f0f9ff;
+  background: none;
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.navLink {
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  padding: 0.25rem 0;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+}
+
+.navLink:hover {
+  color: #2563eb;
+}
+
+.navLinkActive {
+  color: #2563eb;
+  border-bottom-color: #2563eb;
+}
+
+/* Mobile hamburger */
+.mobileMenuButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #1f2937;
+  padding: 0.5rem;
+}
+
+/* Overlay: floats above the page instead of pushing content down */
+.mobileMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1.5rem 1.25rem;
+  border-top: 1px solid #e5e7eb;
+  background: white;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+  z-index: 60;
+  max-height: calc(100vh - 100%);
+  overflow-y: auto;
+}
+
+.mobileMenu .navLink {
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #f0f9ff;
+}
+
+.mobileMenuDivider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.5rem 0;
+}
+
+/* Footer sitemap */
+.footerGrid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  text-align: left;
+  padding-bottom: 1.5rem;
+}
+
+.footerColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.footerColumnTitle {
+  color: #1f2937;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.footerLink {
+  color: #6b7280;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footerLink:hover {
+  color: #2563eb;
+}
+
+.footerBottom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .navRow {
+    display: none;
+  }
+
+  .authActions,
+  .authActionsUser {
+    display: none;
+  }
+
+  .mobileMenuButton {
+    display: flex;
+  }
+}
+
+@media (max-width: 768px) {
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}

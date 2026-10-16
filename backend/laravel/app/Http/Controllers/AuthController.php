@@ -19,6 +19,8 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
             'phone' => 'nullable|string|max:15',
             'role' => 'required|string|in:client,medecin,admin',
+            'document_identite' => 'required_if:role,medecin|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'justificatif_validite' => 'required_if:role,medecin|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ], [
             'name.required' => 'Le nom est requis',
             'name.max' => 'Le nom ne peut pas dépasser 255 caractères',
@@ -29,21 +31,37 @@ class AuthController extends Controller
             'password.min' => 'Le mot de passe doit contenir au moins 6 caractères',
             'phone.max' => 'Le téléphone ne peut pas dépasser 15 caractères',
             'role.required' => 'Le rôle est requis',
-            'role.in' => 'Le rôle sélectionné n\'est pas valide'
+            'role.in' => 'Le rôle sélectionné n\'est pas valide',
+            'document_identite.required' => 'La pièce d\'identité est requise pour un compte médecin',
+            'document_identite.mimes' => 'La pièce d\'identité doit être au format PDF, JPG ou PNG',
+            'document_identite.max' => 'La pièce d\'identité ne doit pas dépasser 5 Mo',
+            'justificatif_validite.required' => 'Le justificatif de validité est requis pour un compte médecin',
+            'justificatif_validite.mimes' => 'Le justificatif de validité doit être au format PDF, JPG ou PNG',
+            'justificatif_validite.max' => 'Le justificatif de validité ne doit pas dépasser 5 Mo',
         ]);
+
+        $isMedecin = $request->role === 'medecin';
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->input('phone') ?: null,
-            'isVerified' => $request->role === 'medecin' ? 0 : 1,
+            'isVerified' => $isMedecin ? 0 : 1,
+            'is_active' => $isMedecin ? 0 : 1,
+            'hide' => $isMedecin,
         ]);
 
         // Assigner le rôle avec spatie/laravel-permission
         $user->assignRole($request->role);
 
-        Auth::login($user);
+        // Documents de vérification médecin (stockage privé, non accessible publiquement)
+        if ($request->role === 'medecin') {
+            $user->update([
+                'document_identite' => $request->file('document_identite')->store("verification-documents/{$user->id}", 'local'),
+                'justificatif_validite' => $request->file('justificatif_validite')->store("verification-documents/{$user->id}", 'local'),
+            ]);
+        }
 
         return response()->json([
             'user' => [
@@ -87,6 +105,14 @@ class AuthController extends Controller
 
         // Vérifier le mot de passe et isVerified si l'utilisateur existe
         if ($user && Hash::check($request->input('password'), $user->password)) {
+            // Compte désactivé par un administrateur : message explicite, distinct du cas "en attente"
+            if (!$user->is_active) {
+                return response()->json([
+                    'message' => 'Votre compte a été désactivé par un administrateur. Veuillez contacter le support pour plus d\'informations.',
+                    'isDisabled' => true
+                ], 403);
+            }
+
             // Vérifier que l'utilisateur est vérifié
             if (!$user->isVerified) {
                 return response()->json([
@@ -106,6 +132,7 @@ class AuthController extends Controller
                     'phone' => $user->phone,
                     'client_id' => $user->client_id,
                     'role' => $user->getMainRoleAttribute(),
+                    'profileComplete' => $user->hasRequiredProfileRow(),
                 ],
                 'token' => 'session-based',
                 'roles' => $user->getRoleNames()->toArray()
@@ -147,6 +174,7 @@ class AuthController extends Controller
                         'client_id' => $user->client_id,
                         'role' => $user->getMainRoleAttribute(),
                         'isVerified' => $user->isVerified,
+                        'profileComplete' => $user->hasRequiredProfileRow(),
                     ],
                     'roles' => $user->getRoleNames()->toArray()
                 ]);

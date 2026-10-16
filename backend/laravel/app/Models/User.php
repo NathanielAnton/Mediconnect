@@ -20,15 +20,23 @@ class User extends Authenticatable
         'phone',
         'client_id',
         'isVerified',
+        'is_active',
+        'hide',
+        'document_identite',
+        'justificatif_validite',
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
+        'document_identite',
+        'justificatif_validite',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'is_active' => 'boolean',
+        'hide' => 'boolean',
     ];
 
     // Méthodes helper pour vérifier les rôles
@@ -91,6 +99,25 @@ class User extends Authenticatable
     public function isDirecteur()
     {
         return $this->hasRole('directeur');
+    }
+
+    /**
+     * Rôles nécessitant une ligne de profil dédiée pour fonctionner à la connexion.
+     */
+    public const PROFILE_REQUIRED_ROLES = ['medecin', 'secretaire', 'gestionnaire', 'directeur'];
+
+    /**
+     * Vérifie que la ligne de profil liée au rôle principal existe bien.
+     */
+    public function hasRequiredProfileRow(): bool
+    {
+        return match ($this->getMainRoleAttribute()) {
+            'medecin' => $this->medecinProfile()->exists(),
+            'secretaire' => $this->secretaire()->exists(),
+            'gestionnaire' => $this->gestionnaire()->exists(),
+            'directeur' => $this->directeur()->exists(),
+            default => true,
+        };
     }
 
     /**

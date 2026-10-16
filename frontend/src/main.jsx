@@ -5,29 +5,39 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./context/AuthContext";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import GestionnaireRequest from "./pages/GestionnaireRequest";
-import DirectorRequest from "./pages/DirectorRequest";
+import Login from "./pages/public/Login";
+import Register from "./pages/public/Register";
+import DirectorRequest from "./pages/public/DirectorRequest";
 import Dashboard from "./pages/Dashboard";
 import MedecinProfile from "./pages/medecin/profile/MedecinProfile";
 import PlanningMedecin from "./pages/medecin/planning/PlanningMedecin";
 import DashboardMedecin from "./pages/medecin/dashboard/DashboardMedecin";
-import SearchMedecin from "./pages/rdv/SearchMedecin";
-import Home from "./pages/Home";
+import SearchMedecin from "./pages/public/rdv/SearchMedecin";
+import Home from "./pages/public/Home";
+import HowItWorks from "./pages/public/HowItWorks";
+import Specialites from "./pages/public/Specialites";
+import Etablissements from "./pages/public/Etablissements";
+import Professionnels from "./pages/public/Professionnels";
+import About from "./pages/public/About";
+import Faq from "./pages/public/Faq";
+import Contact from "./pages/public/Contact";
 import DashboardGestionnaire from "./pages/gestionnaire/dashboard/DashboardGestionnaire";
 import DashboardDirecteur from "./pages/directeur/dashboard/DashboardDirecteur";
 import CreateUsers from "./pages/directeur/create-users";
 import HopitalInfo from "./pages/directeur/hopital/HopitalInfo";
 import DashboardSecretaire from "./pages/secretaire/dashboard/DashboardSecretaire";
 import DashboardSuperAdmin from "./pages/superadmin/dashboard/DashboardSuperAdmin";
+import EtablissementsSuperAdmin from "./pages/superadmin/etablissements/EtablissementsSuperAdmin";
 import DashboardAdmin from "./pages/admin/dashboard/DashboardAdmin";
 import DirectorRequests from "./pages/admin/directeur-requests/DirectorRequests";
 import UserVerification from "./pages/admin/user-verification/UserVerification";
 import DashboardUser from "./pages/user/dashboard/DashboardUser";
 import MesRendezVous from "./pages/user/mes_RDV/MesRendezVous";
 import ClientProfile from "./pages/user/profile/ClientProfile";
-import PendingApproval from "./pages/PendingApproval";
+import PendingApproval from "./pages/public/PendingApproval";
+import PdfTemplatesList from "./pages/medecin/pdf-templates/PdfTemplatesList";
+import PdfLogosPage from "./pages/medecin/pdf-templates/PdfLogosPage";
+import PdfTemplateEditor from "./pages/medecin/pdf-templates/PdfTemplateEditor";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <AuthProvider>
@@ -49,18 +59,28 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/pending-approval" element={<PendingApproval />} />
-        <Route path="/demande-gestionnaire" element={<GestionnaireRequest />} />
         <Route path="/demande-directeur" element={<DirectorRequest />} />
+        <Route path="/comment-ca-marche" element={<HowItWorks />} />
+        <Route path="/specialites" element={<Specialites />} />
+        <Route path="/etablissements" element={<Etablissements />} />
+        <Route path="/professionnels-de-sante" element={<Professionnels />} />
+        <Route path="/a-propos" element={<About />} />
+        <Route path="/faq" element={<Faq />} />
+        <Route path="/contact" element={<Contact />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/medecin/profile" element={<MedecinProfile />} />
         <Route path="/medecin/planning" element={<PlanningMedecin />} />
         <Route path="/medecin/dashboard" element={<DashboardMedecin />} />
+        <Route path="/medecin/pdf-templates" element={<PdfTemplatesList />} />
+        <Route path="/medecin/pdf-templates/logos" element={<PdfLogosPage />} />
+        <Route path="/medecin/pdf-templates/:id" element={<PdfTemplateEditor />} />
         <Route path="/gestionnaire/dashboard" element={<DashboardGestionnaire />} />
         <Route path="/directeur/dashboard" element={<DashboardDirecteur />} />
         <Route path="/directeur/create-users" element={<CreateUsers />} />
         <Route path="/directeur/hopital" element={<HopitalInfo />} />
         <Route path="/secretaire/dashboard" element={<DashboardSecretaire />} />
         <Route path="/super-admin/dashboard" element={<DashboardSuperAdmin />} />
+        <Route path="/super-admin/etablissements" element={<EtablissementsSuperAdmin />} />
         <Route path="/admin/dashboard" element={<DashboardAdmin />} />
         <Route path="/admin/demandes-directeurs" element={<DirectorRequests />} />
         <Route path="/admin/utilisateurs-verification" element={<UserVerification />} />

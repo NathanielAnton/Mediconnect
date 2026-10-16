@@ -49,6 +49,11 @@ api.interceptors.request.use(async (config) => {
     }
   }
 
+  // Le navigateur doit définir le Content-Type multipart avec sa boundary
+  if (config.data instanceof FormData) {
+    config.headers.delete("Content-Type");
+  }
+
   // Ajouter le Bearer token
   const token = localStorage.getItem("token");
   if (token) {
@@ -57,6 +62,26 @@ api.interceptors.request.use(async (config) => {
 
   return config;
 });
+
+// Intercepteur de réponse : forcer la déconnexion si le compte a été désactivé en cours de session
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && error.response?.data?.isDisabled) {
+      localStorage.removeItem("token");
+      if (!window.location.pathname.startsWith("/login")) {
+        // Le message survit au rechargement complet de la page provoqué par la redirection
+        sessionStorage.setItem(
+          "logoutReason",
+          error.response.data.message || "Votre compte a été désactivé par un administrateur."
+        );
+        window.location.href = "/login";
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 
 // Intercepteur de réponse pour debug
 api.interceptors.response.use(

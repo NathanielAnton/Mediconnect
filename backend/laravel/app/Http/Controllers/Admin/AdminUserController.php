@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\MedecinProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminUserController extends Controller
 {
@@ -65,6 +66,8 @@ class AdminUserController extends Controller
                     'phone' => (string)($user->phone ?? ''),
                     'role' => isset($user->roles[0]) ? (string)$user->roles[0]->name : 'user',
                     'created_at' => $user->created_at->format('d/m/Y H:i'),
+                    'has_document_identite' => !empty($user->document_identite),
+                    'has_justificatif_validite' => !empty($user->justificatif_validite),
                 ];
             }
 
@@ -182,6 +185,25 @@ class AdminUserController extends Controller
                 'error' => $e->getMessage()
             ], 404);
         }
+    }
+
+    /**
+     * Consulter un document de vérification fourni à l'inscription (type: identite | justificatif)
+     */
+    public function getDocument($id, $type)
+    {
+        $column = match ($type) {
+            'identite' => 'document_identite',
+            'justificatif' => 'justificatif_validite',
+            default => abort(404),
+        };
+
+        $user = User::findOrFail($id);
+        $path = $user->{$column};
+
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path);
     }
 
     /**
